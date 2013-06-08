@@ -20,6 +20,7 @@ package org.msgpack.template.builder.beans;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.TooManyListenersException;
+
 import org.apache.harmony.beans.internal.nls.Messages;
 
 public class EventSetDescriptor extends FeatureDescriptor {
@@ -55,7 +56,8 @@ public class EventSetDescriptor extends FeatureDescriptor {
         removeListenerMethod = findMethodByPrefix(sourceClass, "remove", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (addListenerMethod == null || removeListenerMethod == null) {
-            throw new IntrospectionException(Messages.getString("custom.beans.38")); //$NON-NLS-1$
+            throw new IntrospectionException(
+                    Messages.getString("custom.beans.38")); //$NON-NLS-1$
         }
 
         getListenerMethod = findMethodByPrefix(sourceClass, "get", "s"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -121,7 +123,8 @@ public class EventSetDescriptor extends FeatureDescriptor {
             }
         }
         if (null == result) {
-            throw new IntrospectionException(Messages.getString("custom.beans.31", //$NON-NLS-1$
+            throw new IntrospectionException(Messages.getString(
+                    "custom.beans.31", //$NON-NLS-1$
                     listenerMethodName, listenerType.getName()));
         }
         return result;
@@ -185,16 +188,20 @@ public class EventSetDescriptor extends FeatureDescriptor {
     private void checkNotNull(Object sourceClass, Object eventSetName,
             Object alistenerType, Object listenerMethodName) {
         if (sourceClass == null) {
-            throw new NullPointerException(Messages.getString("custom.beans.0C"));
+            throw new NullPointerException(
+                    Messages.getString("custom.beans.0C"));
         }
         if (eventSetName == null) {
-            throw new NullPointerException(Messages.getString("custom.beans.53"));
+            throw new NullPointerException(
+                    Messages.getString("custom.beans.53"));
         }
         if (alistenerType == null) {
-            throw new NullPointerException(Messages.getString("custom.beans.54"));
+            throw new NullPointerException(
+                    Messages.getString("custom.beans.54"));
         }
         if (listenerMethodName == null) {
-            throw new NullPointerException(Messages.getString("custom.beans.52"));
+            throw new NullPointerException(
+                    Messages.getString("custom.beans.52"));
         }
     }
 
@@ -215,13 +222,13 @@ public class EventSetDescriptor extends FeatureDescriptor {
         String eventTypeName = prepareEventTypeName(eventSetName);
 
         if (params.length > 0) {
-            firstParamTypeName = extractShortClassName(params[0]
-                    .getName());
+            firstParamTypeName = extractShortClassName(params[0].getName());
         }
 
         if (firstParamTypeName == null
                 || !firstParamTypeName.equals(eventTypeName)) {
-            throw new IntrospectionException(Messages.getString("custom.beans.51", //$NON-NLS-1$
+            throw new IntrospectionException(Messages.getString(
+                    "custom.beans.51", //$NON-NLS-1$
                     listenerMethod.getName(), eventTypeName));
         }
     }
@@ -324,7 +331,8 @@ public class EventSetDescriptor extends FeatureDescriptor {
             return findAddRemoveListnerMethodWithLessCheck(sourceClass,
                     methodName);
         } catch (Exception e) {
-            throw new IntrospectionException(Messages.getString("custom.beans.31", //$NON-NLS-1$
+            throw new IntrospectionException(Messages.getString(
+                    "custom.beans.31", //$NON-NLS-1$
                     methodName, listenerType.getName()));
         }
     }
@@ -344,7 +352,8 @@ public class EventSetDescriptor extends FeatureDescriptor {
             }
         }
         if (null == result) {
-            throw new IntrospectionException(Messages.getString("custom.beans.31", //$NON-NLS-1$
+            throw new IntrospectionException(Messages.getString(
+                    "custom.beans.31", //$NON-NLS-1$
                     methodName, listenerType.getName()));
         }
         return result;

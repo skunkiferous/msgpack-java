@@ -211,7 +211,7 @@ public class Unconverter extends AbstractPacker {
 
     private void putContainer(Value v) {
         if (stack.getDepth() <= 0) {
-            values[0] = (Object) v;
+            values[0] = v;
         } else {
             stack.checkCount();
             Value[] array = (Value[]) values[stack.getDepth()];

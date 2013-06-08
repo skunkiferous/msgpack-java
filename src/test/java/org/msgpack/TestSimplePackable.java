@@ -1,20 +1,17 @@
 package org.msgpack;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.msgpack.MessagePack;
-import org.msgpack.packer.Packer;
-import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.Unpacker;
-import org.msgpack.unpacker.BufferUnpacker;
-
 import org.junit.Test;
-
+import org.msgpack.packer.BufferPacker;
+import org.msgpack.packer.Packer;
+import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 public class TestSimplePackable {
     // all files are REQUIRED
@@ -23,39 +20,42 @@ public class TestSimplePackable {
         public int[] f1;
         public List<String> f2;
 
-        public Sample01() { }
+        public Sample01() {
+        }
 
+        @Override
         public void writeTo(Packer pk) throws IOException {
             pk.writeArrayBegin(3);
-                pk.write(f0);
-                pk.writeArrayBegin(f1.length);
-                    for(int e : f1) {
-                        pk.write(e);
-                    }
-                pk.writeArrayEnd();
-                pk.writeArrayBegin(f2.size());
-                    for(String e : f2) {
-                        pk.write(e);
-                    }
-                pk.writeArrayEnd();
+            pk.write(f0);
+            pk.writeArrayBegin(f1.length);
+            for (int e : f1) {
+                pk.write(e);
+            }
+            pk.writeArrayEnd();
+            pk.writeArrayBegin(f2.size());
+            for (String e : f2) {
+                pk.write(e);
+            }
+            pk.writeArrayEnd();
             pk.writeArrayEnd();
         }
 
+        @Override
         public void readFrom(Unpacker u) throws IOException {
             u.readArrayBegin();
-                f0 = u.readString();
-                int nf1 = u.readArrayBegin();
-                    f1 = new int[nf1];
-                    for(int i=0; i < nf1; i++) {
-                        f1[i] = u.readInt();
-                    }
-                u.readArrayEnd();
-                int nf2 = u.readArrayBegin();
-                    f2 = new ArrayList<String>(nf2);
-                    for(int i=0; i < nf2; i++) {
-                        f2.add(u.readString());
-                    }
-                u.readArrayEnd();
+            f0 = u.readString();
+            int nf1 = u.readArrayBegin();
+            f1 = new int[nf1];
+            for (int i = 0; i < nf1; i++) {
+                f1[i] = u.readInt();
+            }
+            u.readArrayEnd();
+            int nf2 = u.readArrayBegin();
+            f2 = new ArrayList<String>(nf2);
+            for (int i = 0; i < nf2; i++) {
+                f2.add(u.readString());
+            }
+            u.readArrayEnd();
             u.readArrayEnd();
         }
     }
@@ -95,34 +95,37 @@ public class TestSimplePackable {
         public Integer f2;        // required
         public String f3;         // optional
 
-        public Sample02() { }
+        public Sample02() {
+        }
 
+        @Override
         public void writeTo(Packer pk) throws IOException {
             pk.writeArrayBegin(4);
-                pk.write(f0);
-                pk.write(f1);
-                if(f2 == null) {
-                    throw new MessageTypeException("f2 is required but null");
-                }
-                pk.write(f2);
-                pk.write(f3);
+            pk.write(f0);
+            pk.write(f1);
+            if (f2 == null) {
+                throw new MessageTypeException("f2 is required but null");
+            }
+            pk.write(f2);
+            pk.write(f3);
             pk.writeArrayEnd();
         }
 
+        @Override
         public void readFrom(Unpacker u) throws IOException {
             u.readArrayBegin();
-                f0 = u.read(String.class);
-                f1 = u.readLong();
-                if(u.trySkipNil()) {
-                    f2 = null;
-                } else {
-                    f2 = u.read(Integer.class);
-                }
-                if(u.trySkipNil()) {
-                    f3 = null;
-                } else {
-                    f3 = u.read(String.class);
-                }
+            f0 = u.read(String.class);
+            f1 = u.readLong();
+            if (u.trySkipNil()) {
+                f2 = null;
+            } else {
+                f2 = u.read(Integer.class);
+            }
+            if (u.trySkipNil()) {
+                f3 = null;
+            } else {
+                f3 = u.read(String.class);
+            }
             u.readArrayEnd();
         }
     }
@@ -152,4 +155,3 @@ public class TestSimplePackable {
         assertEquals(a.f3, b.f3);
     }
 }
-

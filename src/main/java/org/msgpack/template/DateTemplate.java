@@ -20,14 +20,15 @@ package org.msgpack.template;
 import java.io.IOException;
 import java.util.Date;
 
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class DateTemplate extends AbstractTemplate<Date> {
     private DateTemplate() {
     }
 
+    @Override
     public void write(Packer pk, Date target, boolean required)
             throws IOException {
         if (target == null) {
@@ -37,9 +38,10 @@ public class DateTemplate extends AbstractTemplate<Date> {
             pk.writeNil();
             return;
         }
-        pk.write((long) target.getTime());
+        pk.write(target.getTime());
     }
 
+    @Override
     public Date read(Unpacker u, Date to, boolean required) throws IOException {
         if (!required && u.trySkipNil()) {
             return null;

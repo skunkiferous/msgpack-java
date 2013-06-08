@@ -22,16 +22,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
-import org.msgpack.*;
-import org.msgpack.packer.Packer;
-import org.msgpack.template.*;
-import org.msgpack.unpacker.Unpacker;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtNewConstructor;
 import javassist.NotFoundException;
+
+import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
+import org.msgpack.template.Template;
+import org.msgpack.unpacker.Unpacker;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultBuildContext extends BuildContext<FieldEntry> {
@@ -47,6 +47,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
         super(director);
     }
 
+    @Override
     public Template buildTemplate(Class targetClass, FieldEntry[] entries,
             Template[] templates) {
         this.entries = entries;
@@ -56,40 +57,48 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
         return build(origName);
     }
 
-    protected void setSuperClass() throws CannotCompileException, NotFoundException {
-        tmplCtClass.setSuperclass(director.getCtClass(
-                JavassistTemplateBuilder.JavassistTemplate.class.getName()));
+    @Override
+    protected void setSuperClass() throws CannotCompileException,
+            NotFoundException {
+        tmplCtClass.setSuperclass(director
+                .getCtClass(JavassistTemplateBuilder.JavassistTemplate.class
+                        .getName()));
     }
 
+    @Override
     protected void buildConstructor() throws CannotCompileException,
             NotFoundException {
         // Constructor(Class targetClass, Template[] templates)
         CtConstructor newCtCons = CtNewConstructor.make(
-                new CtClass[] {
-                        director.getCtClass(Class.class.getName()),
-                        director.getCtClass(Template.class.getName() + "[]")
-                }, new CtClass[0], tmplCtClass);
+                new CtClass[] { director.getCtClass(Class.class.getName()),
+                        director.getCtClass(Template.class.getName() + "[]") },
+                new CtClass[0], tmplCtClass);
         tmplCtClass.addConstructor(newCtCons);
     }
 
+    @Override
     protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
             InstantiationException, IllegalAccessException,
             InvocationTargetException {
-        Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
+        Constructor<?> cons = c.getConstructor(new Class[] { Class.class,
+                Template[].class });
         Object tmpl = cons.newInstance(new Object[] { origClass, templates });
         return (Template) tmpl;
     }
 
+    @Override
     protected void buildMethodInit() {
     }
 
+    @Override
     protected String buildWriteMethodBody() {
         resetStringBuilder();
         buildString("\n{\n");
 
         buildString("  if ($2 == null) {\n");
         buildString("    if ($3) {\n");
-        buildString("      throw new %s(\"Attempted to write null\");\n", MessageTypeException.class.getName());
+        buildString("      throw new %s(\"Attempted to write null\");\n",
+                MessageTypeException.class.getName());
         buildString("    }\n");
         buildString("    $1.writeNil();\n");
         buildString("    return;\n");
@@ -105,15 +114,19 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
                 continue;
             }
             DefaultFieldEntry de = (DefaultFieldEntry) e;
-            boolean isPrivate = Modifier.isPrivate(de.getField().getModifiers());
+            boolean isPrivate = Modifier
+                    .isPrivate(de.getField().getModifiers());
             Class<?> type = de.getType();
             if (type.isPrimitive()) { // primitive types
                 if (!isPrivate) {
-                    buildString("  $1.%s(_$$_t.%s);\n", primitiveWriteName(type), de.getName());
+                    buildString("  $1.%s(_$$_t.%s);\n",
+                            primitiveWriteName(type), de.getName());
                 } else {
                     buildString(
                             "  %s.writePrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
-                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
+                            DefaultBuildContext.class.getName(), de.getField()
+                                    .getDeclaringClass().getName(),
+                            de.getName(), i);
                 }
             } else { // reference types
                 if (!isPrivate) {
@@ -121,7 +134,9 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
                 } else {
                     buildString(
                             "  if (%s.readPrivateField(_$$_t, %s.class, \"%s\") == null) {\n",
-                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName());
+                            DefaultBuildContext.class.getName(), de.getField()
+                                    .getDeclaringClass().getName(),
+                            de.getName());
                 }
                 if (de.isNotNullable()) {
                     buildString(
@@ -132,11 +147,14 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
                 }
                 buildString("  } else {\n");
                 if (!isPrivate) {
-                    buildString("    templates[%d].write($1, _$$_t.%s);\n", i, de.getName());
+                    buildString("    templates[%d].write($1, _$$_t.%s);\n", i,
+                            de.getName());
                 } else {
                     buildString(
                             "    %s.writePrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
-                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
+                            DefaultBuildContext.class.getName(), de.getField()
+                                    .getDeclaringClass().getName(),
+                            de.getName(), i);
                 }
                 buildString("  }\n");
             }
@@ -147,7 +165,8 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
         return getBuiltString();
     }
 
-    public static Object readPrivateField(Object target, Class targetClass, String fieldName) {
+    public static Object readPrivateField(Object target, Class targetClass,
+            String fieldName) {
         Field field = null;
         try {
             field = targetClass.getDeclaredField(fieldName);
@@ -180,6 +199,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
         }
     }
 
+    @Override
     protected String buildReadMethodBody() {
         resetStringBuilder();
         buildString("\n{\n");
@@ -211,15 +231,19 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
             }
 
             DefaultFieldEntry de = (DefaultFieldEntry) e;
-            boolean isPrivate = Modifier.isPrivate(de.getField().getModifiers());
+            boolean isPrivate = Modifier
+                    .isPrivate(de.getField().getModifiers());
             Class<?> type = de.getType();
             if (type.isPrimitive()) {
                 if (!isPrivate) {
-                    buildString("    _$$_t.%s = $1.%s();\n", de.getName(), primitiveReadName(type));
+                    buildString("    _$$_t.%s = $1.%s();\n", de.getName(),
+                            primitiveReadName(type));
                 } else {
                     buildString(
                             "    %s.readPrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
-                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
+                            DefaultBuildContext.class.getName(), de.getField()
+                                    .getDeclaringClass().getName(),
+                            de.getName(), i);
                 }
             } else {
                 if (!isPrivate) {
@@ -229,7 +253,9 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
                 } else {
                     buildString(
                             "    %s.readPrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
-                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
+                            DefaultBuildContext.class.getName(), de.getField()
+                                    .getDeclaringClass().getName(),
+                            de.getName(), i);
                 }
             }
 
@@ -276,7 +302,8 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates) {
+    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries,
+            Template[] templates) {
         this.entries = entries;
         this.templates = templates;
         this.origClass = targetClass;

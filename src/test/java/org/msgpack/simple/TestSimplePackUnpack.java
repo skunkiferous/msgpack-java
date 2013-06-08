@@ -1,15 +1,13 @@
 package org.msgpack.simple;
 
-import java.nio.ByteBuffer;
-import java.io.IOException;
+import static org.junit.Assert.assertArrayEquals;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import org.junit.Test;
-
 
 public class TestSimplePackUnpack {
     @SuppressWarnings("unused")
@@ -18,18 +16,17 @@ public class TestSimplePackUnpack {
         MessagePack msgpack = new MessagePack();
 
         // serialize
-        byte[] raw = msgpack.write(new int[] {1,2,3});
+        byte[] raw = msgpack.write(new int[] { 1, 2, 3 });
 
         // deserialize to static type
         int[] a = msgpack.read(raw, new int[3]);
-        assertArrayEquals(new int[] {1,2,3}, a);
+        assertArrayEquals(new int[] { 1, 2, 3 }, a);
 
         // deserialize to dynamic type (see TestSimpleDynamicTyping.java)
         Value v = msgpack.read(raw);
 
         // ByteBuffer is also supported
         int[] ab = msgpack.read(ByteBuffer.wrap(raw), new int[3]);
-        assertArrayEquals(new int[] {1,2,3}, ab);
+        assertArrayEquals(new int[] { 1, 2, 3 }, ab);
     }
 }
-

@@ -17,7 +17,6 @@
 
 package org.msgpack.template.builder.beans;
 
-import org.msgpack.template.builder.beans.PropertyChangeListener;
 
 public interface PropertyEditor {
 

@@ -18,10 +18,11 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.math.BigInteger;
-import org.msgpack.type.ValueFactory;
+import java.nio.ByteBuffer;
+
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.ValueFactory;
 
 final class ValueAccept extends Accept {
     private Unconverter uc = null;
@@ -68,7 +69,7 @@ final class ValueAccept extends Accept {
     @Override
     void acceptUnsignedInteger(int v) throws IOException {
         if (v < 0) {
-            long value = (long) (v & 0x7fffffff) + 0x80000000L;
+            long value = (v & 0x7fffffff) + 0x80000000L;
             uc.write(ValueFactory.createIntegerValue(value));
         } else {
             uc.write(ValueFactory.createIntegerValue(v));

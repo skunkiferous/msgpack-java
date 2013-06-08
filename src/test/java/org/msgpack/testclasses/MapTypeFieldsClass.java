@@ -6,8 +6,9 @@ import org.junit.Ignore;
 import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 
-
-@Ignore @Message @Beans
+@Ignore
+@Message
+@Beans
 public class MapTypeFieldsClass {
     public Map<Integer, Integer> f0;
 
@@ -84,89 +85,89 @@ public class MapTypeFieldsClass {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof MapTypeFieldsClass)) {
-	    return false;
-	}
-	MapTypeFieldsClass that = (MapTypeFieldsClass) o;
-	// f0
-	if (f0 == null) {
-	    if (that.f0 != null) {
-		return false;
-	    }
-	}
-	if (that.f0 != null) {
-	    for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
-		Integer key = e.getKey();
-		Integer val = that.f0.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f1
-	if (f1 == null) {
-	    if (that.f1 != null) {
-		return false;
-	    }
-	}
-	if (that.f1 != null) {
-	    for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
-		Integer key = e.getKey();
-		Integer val = that.f1.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f2
-	if (f2 == null) {
-	    if (that.f2 != null) {
-		return false;
-	    }
-	}
-	if (that.f2 != null) {
-	    for (Map.Entry<String, Integer> e : f2.entrySet()) {
-		String key = e.getKey();
-		Integer val = that.f2.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f3
-	if (f3 == null) {
-	    if (that.f3 != null) {
-		return false;
-	    }
-	}
-	if (that.f3 != null) {
-	    for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
-		String key = e.getKey();
-		NestedClass val = that.f3.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f4
-	if (f4 == null) {
-	    if (that.f4 != null) {
-	        return false;
-	    }
-	}
-	if (that.f4 != null) {
-	    for (Map.Entry<String, int[]> e : f4.entrySet()) {
-	        String key = e.getKey();
-	        int[] this_val = e.getValue();
-	        int[] that_val = that.f4.get(key);
-	        for (int i = 0; i < this_val.length; i++) {
-	            if (this_val[i] != that_val[i]) {
-	                return false;
-	            }
-	        }
-	    }
-	}
-	// f5
+        if (!(o instanceof MapTypeFieldsClass)) {
+            return false;
+        }
+        MapTypeFieldsClass that = (MapTypeFieldsClass) o;
+        // f0
+        if (f0 == null) {
+            if (that.f0 != null) {
+                return false;
+            }
+        }
+        if (that.f0 != null) {
+            for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
+                Integer key = e.getKey();
+                Integer val = that.f0.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f1
+        if (f1 == null) {
+            if (that.f1 != null) {
+                return false;
+            }
+        }
+        if (that.f1 != null) {
+            for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
+                Integer key = e.getKey();
+                Integer val = that.f1.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f2
+        if (f2 == null) {
+            if (that.f2 != null) {
+                return false;
+            }
+        }
+        if (that.f2 != null) {
+            for (Map.Entry<String, Integer> e : f2.entrySet()) {
+                String key = e.getKey();
+                Integer val = that.f2.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f3
+        if (f3 == null) {
+            if (that.f3 != null) {
+                return false;
+            }
+        }
+        if (that.f3 != null) {
+            for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
+                String key = e.getKey();
+                NestedClass val = that.f3.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f4
+        if (f4 == null) {
+            if (that.f4 != null) {
+                return false;
+            }
+        }
+        if (that.f4 != null) {
+            for (Map.Entry<String, int[]> e : f4.entrySet()) {
+                String key = e.getKey();
+                int[] this_val = e.getValue();
+                int[] that_val = that.f4.get(key);
+                for (int i = 0; i < this_val.length; i++) {
+                    if (this_val[i] != that_val[i]) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // f5
         if (f5 == null) {
             if (that.f5 != null) {
                 return false;
@@ -206,38 +207,41 @@ public class MapTypeFieldsClass {
         return true;
     }
 
-    @Ignore @Message @Beans
+    @Ignore
+    @Message
+    @Beans
     public static class NestedClass {
-	public String f0;
+        public String f0;
 
-	public NestedClass() {}
+        public NestedClass() {
+        }
 
-	public String getF0() {
-	    return f0;
-	}
+        public String getF0() {
+            return f0;
+        }
 
-	public void setF0(String f0) {
-	    this.f0 = f0;
-	}
+        public void setF0(String f0) {
+            this.f0 = f0;
+        }
 
-	@Override
-	public boolean equals(Object o) {
-	    if (! (o instanceof NestedClass)) {
-		return false;
-	    }
-	    NestedClass that = (NestedClass) o;
-	    // f0
-	    if (f0 == null) {
-		if (that.f0 != null) {
-		    return false;
-		}
-	    }
-	    if (that.f0 != null) {
-		if (! f0.equals(that.f0)) {
-		    return false;
-		}
-	    }
-	    return true;
-	}
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof NestedClass)) {
+                return false;
+            }
+            NestedClass that = (NestedClass) o;
+            // f0
+            if (f0 == null) {
+                if (that.f0 != null) {
+                    return false;
+                }
+            }
+            if (that.f0 != null) {
+                if (!f0.equals(that.f0)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

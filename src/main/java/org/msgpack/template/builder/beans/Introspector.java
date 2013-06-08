@@ -83,7 +83,9 @@ public class Introspector extends java.lang.Object {
     // The cache to store Bean Info objects that have been found or created
     private static final int DEFAULT_CAPACITY = 128;
 
-    private static Map<Class<?>, StandardBeanInfo> theCache = Collections.synchronizedMap(new WeakHashMap<Class<?>, StandardBeanInfo>(DEFAULT_CAPACITY));
+    private static Map<Class<?>, StandardBeanInfo> theCache = Collections
+            .synchronizedMap(new WeakHashMap<Class<?>, StandardBeanInfo>(
+                    DEFAULT_CAPACITY));
 
     private Introspector() {
         super();
@@ -108,10 +110,11 @@ public class Introspector extends java.lang.Object {
         // If the first letter of the string is Upper Case, make it lower case
         // UNLESS the second letter of the string is also Upper Case, in which case no
         // changes are made.
-        if (name.length() == 0 || (name.length() > 1 && Character.isUpperCase(name.charAt(1)))) {
+        if (name.length() == 0
+                || (name.length() > 1 && Character.isUpperCase(name.charAt(1)))) {
             return name;
         }
-        
+
         char[] chars = name.toCharArray();
         chars[0] = Character.toLowerCase(chars[0]);
         return new String(chars);
@@ -134,27 +137,27 @@ public class Introspector extends java.lang.Object {
      *            the specified bean class
      */
     public static void flushFromCaches(Class<?> clazz) {
-        if(clazz == null){
+        if (clazz == null) {
             throw new NullPointerException();
         }
         theCache.remove(clazz);
     }
 
     /**
-	 * Gets the <code>BeanInfo</code> object which contains the information of
-	 * the properties, events and methods of the specified bean class.
-	 * 
-	 * <p>
-	 * The <code>Introspector</code> will cache the <code>BeanInfo</code>
-	 * object. Subsequent calls to this method will be answered with the cached
-	 * data.
-	 * </p>
-	 * 
-	 * @param beanClass
-	 *            the specified bean class.
-	 * @return the <code>BeanInfo</code> of the bean class.
-	 * @throws IntrospectionException
-	 */
+     * Gets the <code>BeanInfo</code> object which contains the information of
+     * the properties, events and methods of the specified bean class.
+     * 
+     * <p>
+     * The <code>Introspector</code> will cache the <code>BeanInfo</code>
+     * object. Subsequent calls to this method will be answered with the cached
+     * data.
+     * </p>
+     * 
+     * @param beanClass
+     *            the specified bean class.
+     * @return the <code>BeanInfo</code> of the bean class.
+     * @throws IntrospectionException
+     */
     public static BeanInfo getBeanInfo(Class<?> beanClass)
             throws IntrospectionException {
         StandardBeanInfo beanInfo = theCache.get(beanClass);
@@ -186,7 +189,7 @@ public class Introspector extends java.lang.Object {
      */
     public static BeanInfo getBeanInfo(Class<?> beanClass, Class<?> stopClass)
             throws IntrospectionException {
-        if(stopClass == null){
+        if (stopClass == null) {
             //try to use cache
             return getBeanInfo(beanClass);
         }
@@ -208,9 +211,9 @@ public class Introspector extends java.lang.Object {
      * which have been found.</li>
      * </ol>
      * <p>
-	 * The <code>Introspector</code> will cache the <code>BeanInfo</code>
-	 * object. Subsequent calls to this method will be answered with the cached
-	 * data.
+     * The <code>Introspector</code> will cache the <code>BeanInfo</code>
+     * object. Subsequent calls to this method will be answered with the cached
+     * data.
      * </p>
      * 
      * @param beanClass
@@ -223,7 +226,7 @@ public class Introspector extends java.lang.Object {
      */
     public static BeanInfo getBeanInfo(Class<?> beanClass, int flags)
             throws IntrospectionException {
-        if(flags == USE_ALL_BEANINFO){
+        if (flags == USE_ALL_BEANINFO) {
             //try to use cache            
             return getBeanInfo(beanClass);
         }
@@ -253,21 +256,22 @@ public class Introspector extends java.lang.Object {
         searchPath = path;
     }
 
-    private static StandardBeanInfo getBeanInfoImpl(Class<?> beanClass, Class<?> stopClass,
-            int flags) throws IntrospectionException {
+    private static StandardBeanInfo getBeanInfoImpl(Class<?> beanClass,
+            Class<?> stopClass, int flags) throws IntrospectionException {
         BeanInfo explicitInfo = null;
         if (flags == USE_ALL_BEANINFO) {
             explicitInfo = getExplicitBeanInfo(beanClass);
         }
-        StandardBeanInfo beanInfo = new StandardBeanInfo(beanClass, explicitInfo, stopClass);
+        StandardBeanInfo beanInfo = new StandardBeanInfo(beanClass,
+                explicitInfo, stopClass);
 
         if (beanInfo.additionalBeanInfo != null) {
-            for (int i = beanInfo.additionalBeanInfo.length-1; i >=0; i--) {
+            for (int i = beanInfo.additionalBeanInfo.length - 1; i >= 0; i--) {
                 BeanInfo info = beanInfo.additionalBeanInfo[i];
                 beanInfo.mergeBeanInfo(info, true);
             }
         }
-        
+
         // recursive get beaninfo for super classes
         Class<?> beanSuperClass = beanClass.getSuperclass();
         if (beanSuperClass != stopClass) {
@@ -335,12 +339,12 @@ public class Introspector extends java.lang.Object {
      *         are problems instantiating the instance
      */
     private static BeanInfo loadBeanInfo(String beanInfoClassName,
-        Class<?> beanClass) throws Exception{
+            Class<?> beanClass) throws Exception {
         try {
             ClassLoader cl = beanClass.getClassLoader();
-            if(cl != null){
+            if (cl != null) {
                 return (BeanInfo) Class.forName(beanInfoClassName, true,
-                    beanClass.getClassLoader()).newInstance();
+                        beanClass.getClassLoader()).newInstance();
             }
         } catch (Exception e) {
             // fall through
@@ -361,8 +365,5 @@ public class Introspector extends java.lang.Object {
                 stopClass, flag);
         standardBeanInfo.init();
         return standardBeanInfo;
-    }  
+    }
 }
-
-
-

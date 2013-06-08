@@ -17,7 +17,6 @@
 
 package org.msgpack.template.builder.beans;
 
-
 public interface BeanInfo {
 
     public PropertyDescriptor[] getPropertyDescriptors();

@@ -48,7 +48,8 @@ import org.msgpack.unpacker.Unpacker;
 @SuppressWarnings({ "rawtypes" })
 public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 
-    private static Logger LOG = Logger.getLogger(ReflectionBeansTemplateBuilder.class.getName());
+    private static Logger LOG = Logger
+            .getLogger(ReflectionBeansTemplateBuilder.class.getName());
 
     static class ReflectionBeansFieldTemplate extends ReflectionFieldTemplate {
         ReflectionBeansFieldTemplate(final FieldEntry entry) {
@@ -56,12 +57,14 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
         }
 
         @Override
-        public void write(Packer packer, Object v, boolean required) throws IOException {
+        public void write(Packer packer, Object v, boolean required)
+                throws IOException {
             packer.write(v);
         }
 
         @Override
-        public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
+        public Object read(Unpacker unpacker, Object to, boolean required)
+                throws IOException {
             Object o = unpacker.read(entry.getType());
             entry.set(to, o);
             return o;
@@ -75,7 +78,8 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
-        boolean matched = matchAtBeansClassTemplateBuilder(targetClass, hasAnnotation);
+        boolean matched = matchAtBeansClassTemplateBuilder(targetClass,
+                hasAnnotation);
         if (matched && LOG.isLoggable(Level.FINE)) {
             LOG.fine("matched type: " + targetClass.getName());
         }
@@ -99,13 +103,14 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     }
 
     @Override
-    public FieldEntry[] toFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
+    public FieldEntry[] toFieldEntries(Class<?> targetClass,
+            FieldOption implicitOption) {
         BeanInfo desc;
         try {
             desc = Introspector.getBeanInfo(targetClass);
         } catch (IntrospectionException e1) {
-            throw new TemplateBuildException(
-                    "Class must be java beans class:" + targetClass.getName());
+            throw new TemplateBuildException("Class must be java beans class:"
+                    + targetClass.getName());
         }
 
         PropertyDescriptor[] props = desc.getPropertyDescriptors();
@@ -125,7 +130,8 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
             int index = getPropertyIndex(p);
             if (index >= 0) {
                 if (entries[index] != null) {
-                    throw new TemplateBuildException("duplicated index: " + index);
+                    throw new TemplateBuildException("duplicated index: "
+                            + index);
                 }
                 if (index >= entries.length) {
                     throw new TemplateBuildException("invalid index: " + index);
@@ -153,12 +159,15 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
         return entries;
     }
 
-    private FieldOption getPropertyOption(BeansFieldEntry e, FieldOption implicitOption) {
-        FieldOption forGetter = getMethodOption(e.getPropertyDescriptor().getReadMethod());
+    private FieldOption getPropertyOption(BeansFieldEntry e,
+            FieldOption implicitOption) {
+        FieldOption forGetter = getMethodOption(e.getPropertyDescriptor()
+                .getReadMethod());
         if (forGetter != FieldOption.DEFAULT) {
             return forGetter;
         }
-        FieldOption forSetter = getMethodOption(e.getPropertyDescriptor().getWriteMethod());
+        FieldOption forSetter = getMethodOption(e.getPropertyDescriptor()
+                .getWriteMethod());
         if (forSetter != FieldOption.DEFAULT) {
             return forSetter;
         } else {

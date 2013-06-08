@@ -17,10 +17,10 @@
 //
 package org.msgpack.io;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.io.IOException;
-import java.io.EOFException;
 
 public class StreamInput extends AbstractInput {
     private final InputStream in;
@@ -36,6 +36,7 @@ public class StreamInput extends AbstractInput {
         this.filled = 0;
     }
 
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int remain = len;
         while (remain > 0) {
@@ -50,10 +51,12 @@ public class StreamInput extends AbstractInput {
         return len;
     }
 
+    @Override
     public boolean tryRefer(BufferReferer ref, int size) throws IOException {
         return false;
     }
 
+    @Override
     public byte readByte() throws IOException {
         int n = in.read();
         if (n < 0) {
@@ -63,6 +66,7 @@ public class StreamInput extends AbstractInput {
         return (byte) n;
     }
 
+    @Override
     public void advance() {
         incrReadByteCount(filled);
         filled = 0;
@@ -78,36 +82,43 @@ public class StreamInput extends AbstractInput {
         }
     }
 
+    @Override
     public byte getByte() throws IOException {
         require(1);
         return castBuffer[0];
     }
 
+    @Override
     public short getShort() throws IOException {
         require(2);
         return castByteBuffer.getShort(0);
     }
 
+    @Override
     public int getInt() throws IOException {
         require(4);
         return castByteBuffer.getInt(0);
     }
 
+    @Override
     public long getLong() throws IOException {
         require(8);
         return castByteBuffer.getLong(0);
     }
 
+    @Override
     public float getFloat() throws IOException {
         require(4);
         return castByteBuffer.getFloat(0);
     }
 
+    @Override
     public double getDouble() throws IOException {
         require(8);
         return castByteBuffer.getDouble(0);
     }
 
+    @Override
     public void close() throws IOException {
         in.close();
     }

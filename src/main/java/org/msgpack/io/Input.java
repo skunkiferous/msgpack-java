@@ -17,8 +17,8 @@
 //
 package org.msgpack.io;
 
-import java.io.IOException;
 import java.io.Closeable;
+import java.io.IOException;
 
 public interface Input extends Closeable {
     public int read(byte[] b, int off, int len) throws IOException;

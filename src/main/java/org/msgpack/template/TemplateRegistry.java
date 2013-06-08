@@ -17,13 +17,6 @@
 //
 package org.msgpack.template;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -32,29 +25,16 @@ import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
-import org.msgpack.template.BigIntegerTemplate;
-import org.msgpack.template.BooleanTemplate;
-import org.msgpack.template.ByteArrayTemplate;
-import org.msgpack.template.ByteTemplate;
-import org.msgpack.template.DoubleArrayTemplate;
-import org.msgpack.template.DoubleTemplate;
-import org.msgpack.template.FieldList;
-import org.msgpack.template.FloatArrayTemplate;
-import org.msgpack.template.FloatTemplate;
-import org.msgpack.template.GenericTemplate;
-import org.msgpack.template.IntegerArrayTemplate;
-import org.msgpack.template.IntegerTemplate;
-import org.msgpack.template.LongArrayTemplate;
-import org.msgpack.template.LongTemplate;
-import org.msgpack.template.ShortArrayTemplate;
-import org.msgpack.template.ShortTemplate;
-import org.msgpack.template.StringTemplate;
-import org.msgpack.template.Template;
-import org.msgpack.template.ValueTemplate;
-import org.msgpack.template.builder.ArrayTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
@@ -148,10 +128,14 @@ public class TemplateRegistry {
         register(Set.class, new SetTemplate(anyTemplate));
         register(Collection.class, new CollectionTemplate(anyTemplate));
         register(Map.class, new MapTemplate(anyTemplate, anyTemplate));
-        registerGeneric(List.class, new GenericCollectionTemplate(this, ListTemplate.class));
-        registerGeneric(Set.class, new GenericCollectionTemplate(this, SetTemplate.class));
-        registerGeneric(Collection.class, new GenericCollectionTemplate(this, CollectionTemplate.class));
-        registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));
+        registerGeneric(List.class, new GenericCollectionTemplate(this,
+                ListTemplate.class));
+        registerGeneric(Set.class, new GenericCollectionTemplate(this,
+                SetTemplate.class));
+        registerGeneric(Collection.class, new GenericCollectionTemplate(this,
+                CollectionTemplate.class));
+        registerGeneric(Map.class, new GenericMapTemplate(this,
+                MapTemplate.class));
     }
 
     public void register(final Class<?> targetClass) {
@@ -178,7 +162,8 @@ public class TemplateRegistry {
         }
     }
 
-    public synchronized void registerGeneric(final Type targetType, final GenericTemplate tmpl) {
+    public synchronized void registerGeneric(final Type targetType,
+            final GenericTemplate tmpl) {
         if (targetType instanceof ParameterizedType) {
             genericCache.put(((ParameterizedType) targetType).getRawType(),
                     tmpl);
@@ -219,8 +204,8 @@ public class TemplateRegistry {
             return tmpl;
         }
 
-        if (targetType instanceof WildcardType ||
-                targetType instanceof TypeVariable) {
+        if (targetType instanceof WildcardType
+                || targetType instanceof TypeVariable) {
             // WildcardType is not a Class<?>
             tmpl = new AnyTemplate<Object>(this);
             register(targetType, tmpl);
@@ -272,8 +257,10 @@ public class TemplateRegistry {
         }
 
         throw new MessageTypeException(
-                "Cannot find template for " + targetClass + " class.  " +
-                "Try to add @Message annotation to the class or call MessagePack.register(Type).");
+                "Cannot find template for "
+                        + targetClass
+                        + " class.  "
+                        + "Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
     private Template<Type> lookupGenericType(ParameterizedType paramedType) {
@@ -308,7 +295,8 @@ public class TemplateRegistry {
         return lookupGenericTypeImpl0(targetType, rawType);
     }
 
-    private Template lookupGenericTypeImpl0(ParameterizedType targetType, Type rawType) {
+    private Template lookupGenericTypeImpl0(ParameterizedType targetType,
+            Type rawType) {
         GenericTemplate gtmpl = genericCache.get(rawType);
         if (gtmpl == null) {
             return null;
@@ -323,7 +311,8 @@ public class TemplateRegistry {
         return gtmpl.build(tmpls);
     }
 
-    private <T> Template<T> lookupGenericInterfaceTypes(ParameterizedType targetType) {
+    private <T> Template<T> lookupGenericInterfaceTypes(
+            ParameterizedType targetType) {
         Type rawType = targetType.getRawType();
         Template<T> tmpl = null;
 
@@ -341,7 +330,8 @@ public class TemplateRegistry {
         return tmpl;
     }
 
-    private <T> Template<T> lookupGenericSuperclasses(ParameterizedType targetType) {
+    private <T> Template<T> lookupGenericSuperclasses(
+            ParameterizedType targetType) {
         Type rawType = targetType.getRawType();
         Template<T> tmpl = null;
 
@@ -351,7 +341,8 @@ public class TemplateRegistry {
                 return null;
             }
 
-            for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
+            for (; superClass != Object.class; superClass = superClass
+                    .getSuperclass()) {
                 tmpl = lookupGenericTypeImpl0(targetType, superClass);
                 if (tmpl != null) {
                     register(targetType, tmpl);
@@ -366,7 +357,7 @@ public class TemplateRegistry {
 
     private Template<Type> lookupGenericArrayType(Type targetType) {
         // TODO GenericArrayType is not a Class<?> => buildArrayTemplate
-        if (! (targetType instanceof GenericArrayType)) {
+        if (!(targetType instanceof GenericArrayType)) {
             return null;
         }
 
@@ -387,18 +378,21 @@ public class TemplateRegistry {
         return null;
     }
 
-    private Template lookupGenericArrayTypeImpl(GenericArrayType genericArrayType) {
+    private Template lookupGenericArrayTypeImpl(
+            GenericArrayType genericArrayType) {
         String genericArrayTypeName = "" + genericArrayType;
         int dim = genericArrayTypeName.split("\\[").length - 1;
         if (dim <= 0) {
-            throw new MessageTypeException(
-                    String.format("fatal error: type=", genericArrayTypeName));
+            throw new MessageTypeException(String.format("fatal error: type=",
+                    genericArrayTypeName));
         } else if (dim > 1) {
             throw new UnsupportedOperationException(String.format(
-                    "Not implemented template generation of %s", genericArrayTypeName));
+                    "Not implemented template generation of %s",
+                    genericArrayTypeName));
         }
 
-        String genericCompTypeName = "" + genericArrayType.getGenericComponentType();
+        String genericCompTypeName = ""
+                + genericArrayType.getGenericComponentType();
         boolean isPrimitiveType = isPrimitiveType(genericCompTypeName);
         StringBuffer sbuf = new StringBuffer();
         for (int i = 0; i < dim; i++) {
@@ -423,7 +417,8 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         try {
             cl = getClass().getClassLoader();
@@ -433,14 +428,16 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         try {
             jvmArrayClass = Class.forName(jvmArrayClassName);
             if (jvmArrayClass != null) {
                 return lookupAfterBuilding(jvmArrayClass);
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         throw new MessageTypeException(String.format(
                 "cannot find template of %s", jvmArrayClassName));
@@ -525,7 +522,8 @@ public class TemplateRegistry {
         Class<?> superClass = targetClass.getSuperclass();
         Template<T> tmpl = null;
         if (superClass != null) {
-            for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
+            for (; superClass != Object.class; superClass = superClass
+                    .getSuperclass()) {
                 tmpl = (Template<T>) lookupInterfaceTypes(superClass);
                 if (tmpl != null) {
                     register(targetClass, tmpl);
@@ -559,8 +557,8 @@ public class TemplateRegistry {
             if (builder == null) {
                 builder = chain.select(targetClass, hasAnnotation);
             }
-            newTmpl = flist != null ?
-                    builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
+            newTmpl = flist != null ? builder.buildTemplate(targetClass, flist)
+                    : builder.buildTemplate(targetClass);
             return newTmpl;
         } catch (Exception e) {
             if (oldTmpl != null) {
@@ -588,8 +586,8 @@ public class TemplateRegistry {
                 || genericCompTypeName.equals("long")
                 || genericCompTypeName.equals("float")
                 || genericCompTypeName.equals("double")
-                || genericCompTypeName.equals("boolean")
-                || genericCompTypeName.equals("char"));
+                || genericCompTypeName.equals("boolean") || genericCompTypeName
+                    .equals("char"));
     }
 
     private static String toJvmReferenceTypeName(String typeName) {

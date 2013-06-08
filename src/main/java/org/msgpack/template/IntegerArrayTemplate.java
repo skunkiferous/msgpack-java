@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
     private IntegerArrayTemplate() {
     }
 
+    @Override
     public void write(Packer pk, int[] target, boolean required)
             throws IOException {
         if (target == null) {
@@ -42,6 +44,7 @@ public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public int[] read(Unpacker u, int[] to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

@@ -92,8 +92,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
 
     private boolean canRemovePropertyChangeListener;
 
-    StandardBeanInfo(Class<?> beanClass, BeanInfo explicitBeanInfo, Class<?> stopClass)
-            throws IntrospectionException {
+    StandardBeanInfo(Class<?> beanClass, BeanInfo explicitBeanInfo,
+            Class<?> stopClass) throws IntrospectionException {
         this.beanClass = beanClass;
         /*--------------------------------------------------------------------------------------
          * There are 3 aspects of BeanInfo that must be supplied:
@@ -198,8 +198,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
             PropertyDescriptor[] superDescs = beanInfo.getPropertyDescriptors();
             if (superDescs != null) {
                 if (getPropertyDescriptors() != null) {
-                    properties = mergeProps(superDescs, beanInfo
-                            .getDefaultPropertyIndex());
+                    properties = mergeProps(superDescs,
+                            beanInfo.getDefaultPropertyIndex());
                 } else {
                     properties = superDescs;
                     defaultPropertyIndex = beanInfo.getDefaultPropertyIndex();
@@ -223,8 +223,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
                     .getEventSetDescriptors();
             if (superEvents != null) {
                 if (events != null) {
-                    events = mergeEvents(superEvents, beanInfo
-                            .getDefaultEventIndex());
+                    events = mergeEvents(superEvents,
+                            beanInfo.getDefaultEventIndex());
                 } else {
                     events = superEvents;
                     defaultEventIndex = beanInfo.getDefaultEventIndex();
@@ -336,7 +336,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
                             subDesc.setWriteMethod(superSet);
                         }
                     } // different type do nothing
-                    // sub is indexed pd and super is normal pd
+                      // sub is indexed pd and super is normal pd
                     if (subIndexedType == boolean.class
                             && superType == boolean.class) {
                         Method subIndexedSet = ((IndexedPropertyDescriptor) subDesc)
@@ -478,10 +478,11 @@ class StandardBeanInfo extends SimpleBeanInfo {
         // If the first letter of the string is Upper Case, make it lower case
         // UNLESS the second letter of the string is also Upper Case, in which case no
         // changes are made.
-        if (name.length() == 0 || (name.length() > 1 && Character.isUpperCase(name.charAt(1)))) {
+        if (name.length() == 0
+                || (name.length() > 1 && Character.isUpperCase(name.charAt(1)))) {
             return name;
         }
-        
+
         char[] chars = name.toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
         return new String(chars);
@@ -660,7 +661,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
      * @throws IntrospectionException
      */
     @SuppressWarnings("rawtypes")
-	private PropertyDescriptor[] introspectProperties(Class<?> stopClass)
+    private PropertyDescriptor[] introspectProperties(Class<?> stopClass)
             throws IntrospectionException {
 
         // Get descriptors for the public methods
@@ -715,8 +716,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
                         tempMethods.add(method);
                     }
                 }
-                allMethods = tempMethods
-                        .toArray(new MethodDescriptor[0]);
+                allMethods = tempMethods.toArray(new MethodDescriptor[0]);
             }
         }
         for (int i = 0; i < allMethods.length; i++) {
@@ -764,7 +764,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
             } else {
                 propertyDesc.setBound(false);
             }
-            if (table.get(STR_IS_CONSTRAINED) == Boolean.TRUE) { //$NON-NLS-1$
+            if (table.get(STR_IS_CONSTRAINED) == Boolean.TRUE) { 
                 propertyDesc.setConstrained(true);
             }
             propertyList.add(propertyDesc);
@@ -928,7 +928,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
         Class[] exceptions = theMethod.getExceptionTypes();
         for (Class e : exceptions) {
             if (e.equals(PropertyVetoException.class)) {
-                table.put(STR_IS_CONSTRAINED, Boolean.TRUE); //$NON-NLS-1$
+                table.put(STR_IS_CONSTRAINED, Boolean.TRUE); 
             }
         }
 
@@ -1259,7 +1259,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
                 table.put(STR_INDEXED + STR_PROPERTY_TYPE, indexedPropType);
                 continue;
             }
-            
+
             // RULE5
             // Both indexed getter and setter methods are defined
             // no normal getter/setter *PAIR* of the other type defined
@@ -1274,7 +1274,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
 
             // default rule - invalid property
             table.put(STR_NORMAL, STR_INVALID);
-            table.put(STR_INDEXED, STR_INVALID);            
+            table.put(STR_INDEXED, STR_INVALID);
         }
 
     }
@@ -1287,7 +1287,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
      * @throws IntrospectionException
      */
     @SuppressWarnings({ "rawtypes" })
-    private EventSetDescriptor[] introspectEvents() throws IntrospectionException {
+    private EventSetDescriptor[] introspectEvents()
+            throws IntrospectionException {
         // Get descriptors for the public methods
         // FIXME: performance
         MethodDescriptor[] theMethods = introspectMethods();
@@ -1321,8 +1322,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
             Class<?> listenerType = (Class) table.get("listenerType"); //$NON-NLS-1$
             Method[] listenerMethods = (Method[]) table.get("listenerMethods"); //$NON-NLS-1$
             EventSetDescriptor eventSetDescriptor = new EventSetDescriptor(
-                    decapitalize(entry.getKey()), listenerType, listenerMethods, add,
-                    remove, get);
+                    decapitalize(entry.getKey()), listenerType,
+                    listenerMethods, add, remove, get);
 
             eventSetDescriptor.setUnicast(table.get("isUnicast") != null); //$NON-NLS-1$
             eventList.add(eventSetDescriptor);
@@ -1352,8 +1353,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
         }
 
         String listenerName = methodName.substring(type.length());
-        String eventName = listenerName.substring(0, listenerName
-                .lastIndexOf(SUFFIX_LISTEN));
+        String eventName = listenerName.substring(0,
+                listenerName.lastIndexOf(SUFFIX_LISTEN));
         if ((eventName == null) || (eventName.length() == 0)) {
             return;
         }
@@ -1436,10 +1437,10 @@ class StandardBeanInfo extends SimpleBeanInfo {
             return;
         }
 
-        String listenerName = methodName.substring(type.length(), methodName
-                .length() - 1);
-        String eventName = listenerName.substring(0, listenerName
-                .lastIndexOf(SUFFIX_LISTEN));
+        String listenerName = methodName.substring(type.length(),
+                methodName.length() - 1);
+        String eventName = listenerName.substring(0,
+                listenerName.lastIndexOf(SUFFIX_LISTEN));
         if ((eventName == null) || (eventName.length() == 0)) {
             return;
         }
@@ -1451,8 +1452,8 @@ class StandardBeanInfo extends SimpleBeanInfo {
 
         Class returnType = theMethod.getReturnType();
         if ((returnType.getComponentType() == null)
-                || (!returnType.getComponentType().getName().endsWith(
-                        listenerName))) {
+                || (!returnType.getComponentType().getName()
+                        .endsWith(listenerName))) {
             return;
         }
 
@@ -1471,6 +1472,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
 
     private static class PropertyComparator implements
             Comparator<PropertyDescriptor> {
+        @Override
         public int compare(PropertyDescriptor object1,
                 PropertyDescriptor object2) {
             return object1.getName().compareTo(object2.getName());
@@ -1489,8 +1491,7 @@ class StandardBeanInfo extends SimpleBeanInfo {
 
         if (properties != null) {
             String defaultPropertyName = (defaultPropertyIndex != -1 ? properties[defaultPropertyIndex]
-                    .getName()
-                    : null);
+                    .getName() : null);
             Arrays.sort(properties, comparator);
             if (null != defaultPropertyName) {
                 for (int i = 0; i < properties.length; i++) {

@@ -31,6 +31,7 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
         this.registry = registry;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void write(Packer pk, T target, boolean required) throws IOException {
         if (target == null) {
@@ -43,13 +44,15 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
         }
     }
 
+    @Override
     public T read(Unpacker u, T to, boolean required) throws IOException,
             MessageTypeException {
         if (!required && u.trySkipNil()) {
             return null;
         }
         if (to == null) {
-            throw new MessageTypeException("convert into unknown type is invalid");
+            throw new MessageTypeException(
+                    "convert into unknown type is invalid");
         }
         T o = u.read(to);
         if (required && o == null) {

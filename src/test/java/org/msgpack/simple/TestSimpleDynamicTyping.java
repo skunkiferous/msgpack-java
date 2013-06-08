@@ -1,17 +1,14 @@
 package org.msgpack.simple;
 
-import org.msgpack.MessagePack;
-import org.msgpack.type.Value;
-import org.msgpack.type.IntegerValue;
-import org.msgpack.type.RawValue;
-import org.msgpack.type.ArrayValue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
-
+import org.msgpack.MessagePack;
+import org.msgpack.type.ArrayValue;
+import org.msgpack.type.Value;
 
 public class TestSimpleDynamicTyping {
     @Test
@@ -19,10 +16,10 @@ public class TestSimpleDynamicTyping {
     public void testTypes() throws IOException {
         MessagePack msgpack = new MessagePack();
 
-        byte[] raw = msgpack.write(new int[] {1,2,3});
+        byte[] raw = msgpack.write(new int[] { 1, 2, 3 });
         Value v = msgpack.read(raw);
 
-        if(v.isArrayValue()) {
+        if (v.isArrayValue()) {
             // ArrayValue extends List<Value>
             ArrayValue array = v.asArrayValue();
             int n0 = array.get(0).asIntegerValue().intValue();
@@ -32,11 +29,11 @@ public class TestSimpleDynamicTyping {
             int n2 = array.get(2).asIntegerValue().intValue();
             assertEquals(3, n2);
 
-        } else if(v.isIntegerValue()) {
+        } else if (v.isIntegerValue()) {
             // IntegerValue extends Number
             int num = v.asIntegerValue().intValue();
 
-        } else if(v.isRawValue()) {
+        } else if (v.isRawValue()) {
             // getString() or getByteArray()
             String str = v.asRawValue().getString();
         }
@@ -54,16 +51,15 @@ public class TestSimpleDynamicTyping {
     public void testSimpleConvert() throws IOException {
         MessagePack msgpack = new MessagePack();
 
-        byte[] raw = msgpack.write(new int[] {1,2,3});
+        byte[] raw = msgpack.write(new int[] { 1, 2, 3 });
         Value v = msgpack.read(raw);
 
         // convert from dynamic type (Value) to static type (int[])
         int[] array = msgpack.convert(v, new int[3]);
-        assertArrayEquals(new int[] {1,2,3}, array);
+        assertArrayEquals(new int[] { 1, 2, 3 }, array);
 
         // unconvert from static type (int[]) to dynamic type (Value)
         Value v2 = msgpack.unconvert(array);
         assertEquals(v, v2);
     }
 }
-

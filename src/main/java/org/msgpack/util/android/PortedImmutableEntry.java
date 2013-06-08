@@ -27,7 +27,8 @@ import java.util.Map;
  * This class is ported from java.util.AbstractMap$SimpleImmutableEntry of
  * https://github.com/OESF/OHA-Android-4.0.3_r1.0 (Apache License).
  */
-public class PortedImmutableEntry<K, V> implements Map.Entry<K, V>, Serializable {
+public class PortedImmutableEntry<K, V> implements Map.Entry<K, V>,
+        Serializable {
     private static final long serialVersionUID = -4564047655287765373L;
 
     private final K key;
@@ -46,10 +47,12 @@ public class PortedImmutableEntry<K, V> implements Map.Entry<K, V>, Serializable
         value = copyFrom.getValue();
     }
 
+    @Override
     public K getKey() {
         return key;
     }
 
+    @Override
     public V getValue() {
         return value;
     }
@@ -58,11 +61,13 @@ public class PortedImmutableEntry<K, V> implements Map.Entry<K, V>, Serializable
      * This base implementation throws {@code UnsupportedOperationException}
      * always.
      */
+    @Override
     public V setValue(V object) {
         throw new UnsupportedOperationException();
     }
 
-    @Override public boolean equals(Object object) {
+    @Override
+    public boolean equals(Object object) {
         if (this == object) {
             return true;
         }
@@ -76,12 +81,14 @@ public class PortedImmutableEntry<K, V> implements Map.Entry<K, V>, Serializable
         return false;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return (key == null ? 0 : key.hashCode())
                 ^ (value == null ? 0 : value.hashCode());
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return key + "=" + value;
     }
 }

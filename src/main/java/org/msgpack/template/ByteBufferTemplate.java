@@ -20,14 +20,15 @@ package org.msgpack.template;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
     private ByteBufferTemplate() {
     }
 
+    @Override
     public void write(Packer pk, ByteBuffer target, boolean required)
             throws IOException {
         if (target == null) {
@@ -40,6 +41,7 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
         pk.write(target);
     }
 
+    @Override
     public ByteBuffer read(Unpacker u, ByteBuffer to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

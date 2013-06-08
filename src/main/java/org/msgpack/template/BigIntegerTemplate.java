@@ -19,14 +19,16 @@ package org.msgpack.template;
 
 import java.io.IOException;
 import java.math.BigInteger;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
     private BigIntegerTemplate() {
     }
 
+    @Override
     public void write(Packer pk, BigInteger target, boolean required)
             throws IOException {
         if (target == null) {
@@ -36,9 +38,10 @@ public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
             pk.writeNil();
             return;
         }
-        pk.write((BigInteger) target);
+        pk.write(target);
     }
 
+    @Override
     public BigInteger read(Unpacker u, BigInteger to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

@@ -17,15 +17,16 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.IOException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import org.msgpack.io.Input;
-import org.msgpack.io.StreamInput;
-import org.msgpack.io.BufferReferer;
+
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
+import org.msgpack.io.BufferReferer;
+import org.msgpack.io.Input;
+import org.msgpack.io.StreamInput;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.type.ValueType;
 
@@ -84,7 +85,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        final int b = (int) getHeadByte();
+        final int b = getHeadByte();
 
         if ((b & 0x80) == 0) { // Positive Fixnum
             // System.out.println("positive fixnum "+b);
@@ -215,8 +216,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             }
             if (count >= rawSizeLimit) {
                 String reason = String.format(
-                        "Size of raw (%d) over limit at %d",
-                        new Object[] { count, rawSizeLimit });
+                        "Size of raw (%d) over limit at %d", new Object[] {
+                                count, rawSizeLimit });
                 throw new SizeLimitException(reason);
             }
             in.advance();
@@ -239,8 +240,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             }
             if (count < 0 || count >= rawSizeLimit) {
                 String reason = String.format(
-                        "Size of raw (%d) over limit at %d",
-                        new Object[] { count, rawSizeLimit });
+                        "Size of raw (%d) over limit at %d", new Object[] {
+                                count, rawSizeLimit });
                 throw new SizeLimitException(reason);
             }
             in.advance();
@@ -257,8 +258,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             int count = in.getShort() & 0xffff;
             if (count >= arraySizeLimit) {
                 String reason = String.format(
-                        "Size of array (%d) over limit at %d",
-                        new Object[] { count, arraySizeLimit });
+                        "Size of array (%d) over limit at %d", new Object[] {
+                                count, arraySizeLimit });
                 throw new SizeLimitException(reason);
             }
             a.acceptArray(count);
@@ -273,8 +274,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             int count = in.getInt();
             if (count < 0 || count >= arraySizeLimit) {
                 String reason = String.format(
-                        "Size of array (%d) over limit at %d",
-                        new Object[] { count, arraySizeLimit });
+                        "Size of array (%d) over limit at %d", new Object[] {
+                                count, arraySizeLimit });
                 throw new SizeLimitException(reason);
             }
             a.acceptArray(count);
@@ -289,8 +290,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             int count = in.getShort() & 0xffff;
             if (count >= mapSizeLimit) {
                 String reason = String.format(
-                        "Size of map (%d) over limit at %d",
-                        new Object[] { count, mapSizeLimit });
+                        "Size of map (%d) over limit at %d", new Object[] {
+                                count, mapSizeLimit });
                 throw new SizeLimitException(reason);
             }
             a.acceptMap(count);
@@ -305,8 +306,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             int count = in.getInt();
             if (count < 0 || count >= mapSizeLimit) {
                 String reason = String.format(
-                        "Size of map (%d) over limit at %d",
-                        new Object[] { count, mapSizeLimit });
+                        "Size of map (%d) over limit at %d", new Object[] {
+                                count, mapSizeLimit });
                 throw new SizeLimitException(reason);
             }
             a.acceptMap(count);
@@ -324,7 +325,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
     }
 
-    private boolean tryReferRawBody(BufferReferer referer, int size) throws IOException {
+    private boolean tryReferRawBody(BufferReferer referer, int size)
+            throws IOException {
         return in.tryRefer(referer, size);
     }
 
@@ -411,7 +413,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
-        if (value < (int) Byte.MIN_VALUE || value > (int) Byte.MAX_VALUE) {
+        if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         stack.reduceCount();
@@ -424,7 +426,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
-        if (value < (int) Short.MIN_VALUE || value > (int) Short.MAX_VALUE) {
+        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         stack.reduceCount();
@@ -579,8 +581,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
     }
 
+    @Override
     public ValueType getNextType() throws IOException {
-        final int b = (int) getHeadByte();
+        final int b = getHeadByte();
         if ((b & 0x80) == 0) { // Positive Fixnum
             return ValueType.INTEGER;
         }
@@ -633,6 +636,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         stack.clear();
     }
 
+    @Override
     public void close() throws IOException {
         in.close();
     }

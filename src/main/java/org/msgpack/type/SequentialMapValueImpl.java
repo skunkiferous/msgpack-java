@@ -17,20 +17,22 @@
 //
 package org.msgpack.type;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
-import java.util.Iterator;
+import java.io.IOException;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.AbstractCollection;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.io.IOException;
+import java.util.Set;
+
 import org.msgpack.packer.Packer;
 import org.msgpack.util.android.PortedImmutableEntry;
 
 class SequentialMapValueImpl extends AbstractMapValue {
-    private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
+    private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(
+            new Value[0], true);
 
     public static MapValue getEmptyInstance() {
         return emptyInstance;
@@ -127,9 +129,9 @@ class SequentialMapValueImpl extends AbstractMapValue {
              * the method calls java.util.AbstractMap$SimpleImmutableEntry
              * that doesn't exist in Android 2.2 or below.
              */
-            Map.Entry<Value, Value> pair = hasDefaultImmutableEntry ?
-                new AbstractMap.SimpleImmutableEntry<Value, Value>(key, value) :
-                new PortedImmutableEntry<Value, Value>(key, value);
+            Map.Entry<Value, Value> pair = hasDefaultImmutableEntry ? new AbstractMap.SimpleImmutableEntry<Value, Value>(
+                    key, value) : new PortedImmutableEntry<Value, Value>(key,
+                    value);
 
             pos += 2;
             return pair;

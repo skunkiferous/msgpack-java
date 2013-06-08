@@ -21,10 +21,12 @@ abstract class AbstractInput implements Input {
 
     private int readByteCount = 0;
 
+    @Override
     public int getReadByteCount() {
         return readByteCount;
     }
 
+    @Override
     public void resetReadByteCount() {
         readByteCount = 0;
     }

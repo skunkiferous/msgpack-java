@@ -34,7 +34,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
  * <code>XMLDecoder</code> reads objects from xml created by
  * <code>XMLEncoder</code>.
@@ -48,6 +47,7 @@ public class XMLDecoder {
 
     private static class DefaultExceptionListener implements ExceptionListener {
 
+        @Override
         public void exceptionThrown(Exception e) {
             System.err.println(e.getMessage());
             System.err.println("Continue..."); //$NON-NLS-1$
@@ -84,8 +84,8 @@ public class XMLDecoder {
                 if ("java".equals(qName)) {
                     inJavaElem = true;
                 } else {
-                    listener.exceptionThrown(new Exception(
-                            Messages.getString("custom.beans.72", qName)));
+                    listener.exceptionThrown(new Exception(Messages.getString(
+                            "custom.beans.72", qName)));
                 }
                 return;
             }
@@ -266,7 +266,7 @@ public class XMLDecoder {
             if ("string".equals(toClose.target)) {
                 StringBuilder sb = new StringBuilder();
                 for (int index = readObjs.size() - 1; index >= 0; index--) {
-                    Elem elem = (Elem) readObjs.get(index);
+                    Elem elem = readObjs.get(index);
                     if (toClose == elem) {
                         break;
                     }
@@ -365,7 +365,7 @@ public class XMLDecoder {
                 Class<?>[] c = new Class[args.size()];
                 for (int i = 0; i < args.size(); i++) {
                     Object arg = args.get(i);
-                    c[i] = (arg == null ? null: arg.getClass());
+                    c[i] = (arg == null ? null : arg.getClass());
                 }
 
                 // Try actual match method
@@ -378,8 +378,8 @@ public class XMLDecoder {
 
                 // Find the specific method matching the parameter
                 Method mostSpecificMethod = findMethod(
-                        owner instanceof Class<?> ? (Class<?>) owner : owner
-                                .getClass(), method, c);
+                        owner instanceof Class<?> ? (Class<?>) owner
+                                : owner.getClass(), method, c);
 
                 return mostSpecificMethod.invoke(owner, args.toArray());
             }
@@ -406,9 +406,11 @@ public class XMLDecoder {
                 boolean match = true;
                 for (int i = 0; i < parameterTypes.length; i++) {
                     boolean isNull = (clazzes[i] == null);
-                    boolean isPrimitive = isPrimitiveWrapper(clazzes[i], parameterTypes[i]);
-                    boolean isAssignable = isNull? false : parameterTypes[i].isAssignableFrom(clazzes[i]);
-                    if ( isNull || isPrimitive || isAssignable ) {
+                    boolean isPrimitive = isPrimitiveWrapper(clazzes[i],
+                            parameterTypes[i]);
+                    boolean isAssignable = isNull ? false : parameterTypes[i]
+                            .isAssignableFrom(clazzes[i]);
+                    if (isNull || isPrimitive || isAssignable) {
                         continue;
                     }
                     match = false;
@@ -447,7 +449,7 @@ public class XMLDecoder {
             if (methodCounter > 1) {
                 // if 2 methods have same relevance, throw exception
                 throw new NoSuchMethodException(Messages.getString(
-                                                                   "custom.beans.62", methodName)); //$NON-NLS-1$
+                        "custom.beans.62", methodName)); //$NON-NLS-1$
             }
             return chosenOne;
         }
@@ -662,20 +664,22 @@ public class XMLDecoder {
         if (saxHandler == null) {
             saxHandler = new SAXHandler();
             try {
-                SAXParserFactory.newInstance().newSAXParser().parse(
-                        inputStream, saxHandler);
+                SAXParserFactory.newInstance().newSAXParser()
+                        .parse(inputStream, saxHandler);
             } catch (Exception e) {
                 this.listener.exceptionThrown(e);
             }
         }
 
         if (readObjIndex >= readObjs.size()) {
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("custom.beans.70"));
+            throw new ArrayIndexOutOfBoundsException(
+                    Messages.getString("custom.beans.70"));
         }
         Elem elem = readObjs.get(readObjIndex);
         if (!elem.isClosed) {
             // bad element, error occurred while parsing
-            throw new ArrayIndexOutOfBoundsException(Messages.getString("custom.beans.70"));
+            throw new ArrayIndexOutOfBoundsException(
+                    Messages.getString("custom.beans.70"));
         }
         readObjIndex++;
         return elem.result;

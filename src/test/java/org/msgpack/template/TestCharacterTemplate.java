@@ -36,7 +36,8 @@ public class TestCharacterTemplate {
     }
 
     private static class TestPackUnpack extends TestSet {
-        @Test @Override
+        @Test
+        @Override
         public void testCharacter() throws Exception {
             super.testCharacter();
         }
@@ -49,7 +50,8 @@ public class TestCharacterTemplate {
             Packer packer = msgpack.createPacker(out);
             tmpl.write(packer, v);
             byte[] bytes = out.toByteArray();
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.resetReadByteCount();
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);
@@ -58,7 +60,8 @@ public class TestCharacterTemplate {
     }
 
     private static class TestPackBufferUnpack extends TestSet {
-        @Test @Override
+        @Test
+        @Override
         public void testCharacter() throws Exception {
             super.testCharacter();
         }
@@ -80,7 +83,8 @@ public class TestCharacterTemplate {
     }
 
     private static class TestBufferPackBufferUnpack extends TestSet {
-        @Test @Override
+        @Test
+        @Override
         public void testCharacter() throws Exception {
             super.testCharacter();
         }
@@ -101,7 +105,8 @@ public class TestCharacterTemplate {
     }
 
     private static class TestBufferPackUnpack extends TestSet {
-        @Test @Override
+        @Test
+        @Override
         public void testCharacter() throws Exception {
             super.testCharacter();
         }
@@ -113,7 +118,8 @@ public class TestCharacterTemplate {
             BufferPacker packer = msgpack.createBufferPacker();
             tmpl.write(packer, v);
             byte[] bytes = packer.toByteArray();
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.resetReadByteCount();
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);

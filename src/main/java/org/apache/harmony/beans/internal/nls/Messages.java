@@ -23,7 +23,6 @@
 
 package org.apache.harmony.beans.internal.nls;
 
-
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -140,7 +139,7 @@ public class Messages {
 
         return format(format, args);
     }
-    
+
     /**
      * Generates a formatted text string given a source string containing
      * "argument markers" of the form "{argNum}" where each argNum must be in
@@ -187,8 +186,8 @@ public class Messages {
                             10);
                     if (argnum < 0 || format.charAt(i + 2) != '}') {
                         // Bad format, just print and loop.
-						answer.append(format.substring(lastI, i + 1));
-						lastI = i + 1;
+                        answer.append(format.substring(lastI, i + 1));
+                        lastI = i + 1;
                     } else {
                         // Got a good one!
                         answer.append(format.substring(lastI, i));
@@ -196,7 +195,7 @@ public class Messages {
                             answer.append("<missing argument>");	//$NON-NLS-1$
                         else
                             answer.append(argStrings[argnum]);
-						lastI = i + 3;
+                        lastI = i + 3;
                     }
                 }
             }

@@ -10,7 +10,7 @@ public final class DalvikVmChecker {
             isDalvikVm = isIt;
         }
     }
-    
+
     public static boolean isDalvikVm() {
         return isDalvikVm;
     }

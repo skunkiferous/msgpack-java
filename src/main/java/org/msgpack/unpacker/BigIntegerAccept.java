@@ -24,17 +24,17 @@ final class BigIntegerAccept extends Accept {
 
     @Override
     void acceptInteger(byte v) {
-        this.value = BigInteger.valueOf((long) v);
+        this.value = BigInteger.valueOf(v);
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = BigInteger.valueOf((long) v);
+        this.value = BigInteger.valueOf(v);
     }
 
     @Override
     void acceptInteger(int v) {
-        this.value = BigInteger.valueOf((long) v);
+        this.value = BigInteger.valueOf(v);
     }
 
     @Override
@@ -44,20 +44,21 @@ final class BigIntegerAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) {
-        BigInteger.valueOf((long) (v & 0xff));
+        BigInteger.valueOf(v & 0xff);
     }
 
     @Override
     void acceptUnsignedInteger(short v) {
-        BigInteger.valueOf((long) (v & 0xffff));
+        BigInteger.valueOf(v & 0xffff);
     }
 
     @Override
     void acceptUnsignedInteger(int v) {
         if (v < 0) {
-            this.value = BigInteger.valueOf((long) (v & 0x7fffffff) + 0x80000000L);
+            this.value = BigInteger
+                    .valueOf((v & 0x7fffffff) + 0x80000000L);
         } else {
-            this.value = BigInteger.valueOf((long) v);
+            this.value = BigInteger.valueOf(v);
         }
     }
 

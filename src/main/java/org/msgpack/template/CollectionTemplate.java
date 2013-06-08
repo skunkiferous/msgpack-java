@@ -20,9 +20,10 @@ package org.msgpack.template;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
     private Template<E> elementTemplate;
@@ -31,6 +32,7 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         this.elementTemplate = elementTemplate;
     }
 
+    @Override
     public void write(Packer pk, Collection<E> target, boolean required)
             throws IOException {
         if (target == null) {
@@ -48,6 +50,7 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public Collection<E> read(Unpacker u, Collection<E> to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

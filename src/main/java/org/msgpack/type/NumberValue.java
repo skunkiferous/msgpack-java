@@ -18,6 +18,7 @@
 package org.msgpack.type;
 
 import java.math.BigInteger;
+
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")

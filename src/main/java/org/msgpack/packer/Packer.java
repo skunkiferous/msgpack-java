@@ -17,11 +17,12 @@
 //
 package org.msgpack.packer;
 
-import java.math.BigInteger;
-import java.io.IOException;
 import java.io.Closeable;
 import java.io.Flushable;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
+
 import org.msgpack.type.Value;
 
 /**

@@ -1,7 +1,7 @@
 package org.msgpack;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -12,20 +12,20 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
-
+import org.msgpack.unpacker.Converter;
 
 public class TestUnconvertConvert extends TestSet {
 
-    @Test @Override
+    @Test
+    @Override
     public void testBoolean() throws Exception {
-	super.testBoolean();
+        super.testBoolean();
     }
 
     @Override
     public void testBoolean(boolean v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -34,14 +34,15 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testByte() throws Exception {
-	super.testByte();
+        super.testByte();
     }
 
     @Override
     public void testByte(byte v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -50,14 +51,15 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testShort() throws Exception {
-	super.testShort();
+        super.testShort();
     }
 
     @Override
     public void testShort(short v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -66,14 +68,15 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testInteger() throws Exception {
-	super.testInteger();
+        super.testInteger();
     }
 
     @Override
     public void testInteger(int v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -82,14 +85,15 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testLong() throws Exception {
-	super.testLong();
+        super.testLong();
     }
 
     @Override
     public void testLong(long v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -98,41 +102,44 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testFloat() throws Exception {
-	super.testFloat();
+        super.testFloat();
     }
 
     @Override
     public void testFloat(float v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         float ret = unpacker.readFloat();
-	assertEquals(v, ret, 10e-10);
+        assertEquals(v, ret, 10e-10);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testDouble() throws Exception {
-	super.testDouble();
+        super.testDouble();
     }
 
     @Override
     public void testDouble(double v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         double ret = unpacker.readDouble();
-	assertEquals(v, ret, 10e-10);
+        assertEquals(v, ret, 10e-10);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testNil() throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.writeNil();
         Value r = packer.getResult();
@@ -140,14 +147,15 @@ public class TestUnconvertConvert extends TestSet {
         unpacker.readNil();
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testBigInteger() throws Exception {
-	super.testBigInteger();
+        super.testBigInteger();
     }
 
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -156,14 +164,15 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testString() throws Exception {
-	super.testString();
+        super.testString();
     }
 
     @Override
     public void testString(String v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
@@ -172,98 +181,101 @@ public class TestUnconvertConvert extends TestSet {
         assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testByteArray() throws Exception {
-	super.testByteArray();
+        super.testByteArray();
     }
 
     @Override
     public void testByteArray(byte[] v) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         byte[] ret = unpacker.read(byte[].class);
-	assertArrayEquals(v, ret);
+        assertArrayEquals(v, ret);
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testList() throws Exception {
-	super.testList();
+        super.testList();
     }
 
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
-	MessagePack msgpack = new MessagePack();
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         if (v == null) {
             packer.writeNil();
         } else {
             packer.writeArrayBegin(v.size());
             for (Object o : v) {
-        	packer.write(o);
+                packer.write(o);
             }
             packer.writeArrayEnd();
         }
         Value r = packer.getResult();
-	Converter unpacker = new Converter(msgpack, r);
-	if (unpacker.trySkipNil()) {
-	    assertEquals(null, v);
-	    return;
-	}
-	int size = unpacker.readArrayBegin();
-	List<E> ret = new ArrayList<E>(size);
-	for (int i = 0; i < size; ++i) {
-	    ret.add(unpacker.read(elementClass));
-	}
-	unpacker.readArrayEnd();
-	assertEquals(v.size(), ret.size());
-	Iterator<E> v_iter = v.iterator();
-	Iterator<E> ret_iter = ret.iterator();
-	while (v_iter.hasNext()) {
-	    assertEquals(v_iter.next(), ret_iter.next());
-	}
+        Converter unpacker = new Converter(msgpack, r);
+        if (unpacker.trySkipNil()) {
+            assertEquals(null, v);
+            return;
+        }
+        int size = unpacker.readArrayBegin();
+        List<E> ret = new ArrayList<E>(size);
+        for (int i = 0; i < size; ++i) {
+            ret.add(unpacker.read(elementClass));
+        }
+        unpacker.readArrayEnd();
+        assertEquals(v.size(), ret.size());
+        Iterator<E> v_iter = v.iterator();
+        Iterator<E> ret_iter = ret.iterator();
+        while (v_iter.hasNext()) {
+            assertEquals(v_iter.next(), ret_iter.next());
+        }
     }
 
-    @Test @Override
+    @Test
+    @Override
     public void testMap() throws Exception {
-	super.testMap();
+        super.testMap();
     }
 
     @Override
-    public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
-	MessagePack msgpack = new MessagePack();
+    public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass,
+            Class<V> valueElementClass) throws Exception {
+        MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         if (v == null) {
             packer.writeNil();
         } else {
             packer.writeMapBegin(v.size());
-            for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
-        	packer.write(e.getKey());
-        	packer.write(e.getValue());
+            for (Map.Entry<K, V> e : v.entrySet()) {
+                packer.write(e.getKey());
+                packer.write(e.getValue());
             }
             packer.writeMapEnd();
         }
         Value r = packer.getResult();
-	Converter unpacker = new Converter(msgpack, r);
-	if (unpacker.trySkipNil()) {
-	    assertEquals(null, v);
-	    return;
-	}
-	int size = unpacker.readMapBegin();
-	Map<K, V> ret = new HashMap<K, V>(size);
-	for (int i = 0; i < size; ++i) {
-	    K key = unpacker.read(keyElementClass);
-	    V value = unpacker.read(valueElementClass);
-	    ret.put(key, value);
-	}
-	unpacker.readMapEnd();
-	assertEquals(v.size(), ret.size());
-	for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
-	    Object value = ret.get(e.getKey());
-	    assertEquals(e.getValue(), value);
-	}
+        Converter unpacker = new Converter(msgpack, r);
+        if (unpacker.trySkipNil()) {
+            assertEquals(null, v);
+            return;
+        }
+        int size = unpacker.readMapBegin();
+        Map<K, V> ret = new HashMap<K, V>(size);
+        for (int i = 0; i < size; ++i) {
+            K key = unpacker.read(keyElementClass);
+            V value = unpacker.read(valueElementClass);
+            ret.put(key, value);
+        }
+        unpacker.readMapEnd();
+        assertEquals(v.size(), ret.size());
+        for (Map.Entry<K, V> e : v.entrySet()) {
+            Object value = ret.get(e.getKey());
+            assertEquals(e.getValue(), value);
+        }
     }
 }
-

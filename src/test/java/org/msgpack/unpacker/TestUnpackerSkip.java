@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 

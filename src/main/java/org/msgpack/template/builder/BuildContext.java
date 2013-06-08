@@ -21,16 +21,16 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
-import org.msgpack.*;
-import org.msgpack.packer.Packer;
-import org.msgpack.template.*;
-import org.msgpack.unpacker.Unpacker;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
+
+import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
+import org.msgpack.template.Template;
+import org.msgpack.unpacker.Unpacker;
 
 @SuppressWarnings({ "rawtypes" })
 public abstract class BuildContext<T extends FieldEntry> {
@@ -43,11 +43,14 @@ public abstract class BuildContext<T extends FieldEntry> {
 
     protected CtClass tmplCtClass;
 
-    protected abstract Template buildTemplate(Class<?> targetClass, T[] entries, Template[] templates);
+    protected abstract Template buildTemplate(Class<?> targetClass,
+            T[] entries, Template[] templates);
 
-    protected abstract void setSuperClass() throws CannotCompileException, NotFoundException;
+    protected abstract void setSuperClass() throws CannotCompileException,
+            NotFoundException;
 
-    protected abstract void buildConstructor() throws CannotCompileException, NotFoundException;
+    protected abstract void buildConstructor() throws CannotCompileException,
+            NotFoundException;
 
     public BuildContext(JavassistTemplateBuilder director) {
         this.director = director;
@@ -56,15 +59,17 @@ public abstract class BuildContext<T extends FieldEntry> {
     protected Template build(final String className) {
         try {
             reset(className, false);
-            LOG.fine(String.format("started generating template class %s for original class %s",
-                    new Object[] { tmplCtClass.getName(), className }));
+            LOG.fine(String
+                    .format("started generating template class %s for original class %s",
+                            new Object[] { tmplCtClass.getName(), className }));
             buildClass();
             buildConstructor();
             buildMethodInit();
             buildWriteMethod();
             buildReadMethod();
-            LOG.fine(String.format("finished generating template class %s for original class %s",
-                    new Object[] { tmplCtClass.getName(), className }));
+            LOG.fine(String
+                    .format("finished generating template class %s for original class %s",
+                            new Object[] { tmplCtClass.getName(), className }));
             return buildInstance(createClass());
         } catch (Exception e) {
             String code = getBuiltString();
@@ -88,7 +93,8 @@ public abstract class BuildContext<T extends FieldEntry> {
         tmplCtClass = director.makeCtClass(tmplName);
     }
 
-    protected void buildClass() throws CannotCompileException, NotFoundException {
+    protected void buildClass() throws CannotCompileException,
+            NotFoundException {
         setSuperClass();
         tmplCtClass.addInterface(director.getCtClass(Template.class.getName()));
     }
@@ -100,8 +106,10 @@ public abstract class BuildContext<T extends FieldEntry> {
             throws NoSuchMethodException, InstantiationException,
             IllegalAccessException, InvocationTargetException;
 
-    protected void buildWriteMethod() throws CannotCompileException, NotFoundException {
-        LOG.fine(String.format("started generating write method in template class %s",
+    protected void buildWriteMethod() throws CannotCompileException,
+            NotFoundException {
+        LOG.fine(String.format(
+                "started generating write method in template class %s",
                 new Object[] { tmplCtClass.getName() }));
         String mbody = buildWriteMethodBody();
         int mod = javassist.Modifier.PUBLIC;
@@ -110,23 +118,25 @@ public abstract class BuildContext<T extends FieldEntry> {
         CtClass[] paramTypes = new CtClass[] {
                 director.getCtClass(Packer.class.getName()),
                 director.getCtClass(Object.class.getName()),
-                CtClass.booleanType
-        };
-        CtClass[] exceptTypes = new CtClass[] {
-                director.getCtClass(IOException.class.getName())
-        };
-        LOG.fine(String.format("compiling write method body: %s", new Object[] { mbody }));
-        CtMethod newCtMethod = CtNewMethod.make(
-                mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
+                CtClass.booleanType };
+        CtClass[] exceptTypes = new CtClass[] { director
+                .getCtClass(IOException.class.getName()) };
+        LOG.fine(String.format("compiling write method body: %s",
+                new Object[] { mbody }));
+        CtMethod newCtMethod = CtNewMethod.make(mod, returnType, mname,
+                paramTypes, exceptTypes, mbody, tmplCtClass);
         tmplCtClass.addMethod(newCtMethod);
-        LOG.fine(String.format("finished generating write method in template class %s",
+        LOG.fine(String.format(
+                "finished generating write method in template class %s",
                 new Object[] { tmplCtClass.getName() }));
     }
 
     protected abstract String buildWriteMethodBody();
 
-    protected void buildReadMethod() throws CannotCompileException, NotFoundException {
-        LOG.fine(String.format("started generating read method in template class %s",
+    protected void buildReadMethod() throws CannotCompileException,
+            NotFoundException {
+        LOG.fine(String.format(
+                "started generating read method in template class %s",
                 new Object[] { tmplCtClass.getName() }));
         String mbody = buildReadMethodBody();
         int mod = javassist.Modifier.PUBLIC;
@@ -135,26 +145,28 @@ public abstract class BuildContext<T extends FieldEntry> {
         CtClass[] paramTypes = new CtClass[] {
                 director.getCtClass(Unpacker.class.getName()),
                 director.getCtClass(Object.class.getName()),
-                CtClass.booleanType
-        };
-        CtClass[] exceptTypes = new CtClass[] {
-                director.getCtClass(MessageTypeException.class.getName())
-        };
-        LOG.fine(String.format("compiling read method body: %s", new Object[] { mbody }));
-        CtMethod newCtMethod = CtNewMethod.make(
-                mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
+                CtClass.booleanType };
+        CtClass[] exceptTypes = new CtClass[] { director
+                .getCtClass(MessageTypeException.class.getName()) };
+        LOG.fine(String.format("compiling read method body: %s",
+                new Object[] { mbody }));
+        CtMethod newCtMethod = CtNewMethod.make(mod, returnType, mname,
+                paramTypes, exceptTypes, mbody, tmplCtClass);
         tmplCtClass.addMethod(newCtMethod);
-        LOG.fine(String.format("finished generating read method in template class %s",
+        LOG.fine(String.format(
+                "finished generating read method in template class %s",
                 new Object[] { tmplCtClass.getName() }));
     }
 
     protected abstract String buildReadMethodBody();
 
     protected Class<?> createClass() throws CannotCompileException {
-        return (Class<?>) tmplCtClass.toClass(director.getClassLoader(), getClass().getProtectionDomain());
+        return tmplCtClass.toClass(director.getClassLoader(),
+                getClass().getProtectionDomain());
     }
 
-    protected void saveClass(final String directoryName) throws CannotCompileException, IOException {
+    protected void saveClass(final String directoryName)
+            throws CannotCompileException, IOException {
         tmplCtClass.writeFile(directoryName);
     }
 
@@ -227,12 +239,14 @@ public abstract class BuildContext<T extends FieldEntry> {
         }
     }
 
-    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries, Template[] templates);
+    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries,
+            Template[] templates);
 
     protected Template load(final String className) {
         String tmplName = className + "_$$_Template";
         try {
-            Class<?> tmplClass = getClass().getClassLoader().loadClass(tmplName);
+            Class<?> tmplClass = getClass().getClassLoader()
+                    .loadClass(tmplName);
             return buildInstance(tmplClass);
         } catch (ClassNotFoundException e) {
             return null;

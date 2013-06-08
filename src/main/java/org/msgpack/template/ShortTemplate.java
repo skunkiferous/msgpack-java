@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class ShortTemplate extends AbstractTemplate<Short> {
     private ShortTemplate() {
     }
 
+    @Override
     public void write(Packer pk, Short target, boolean required)
             throws IOException {
         if (target == null) {
@@ -38,6 +40,7 @@ public class ShortTemplate extends AbstractTemplate<Short> {
         pk.write(target);
     }
 
+    @Override
     public Short read(Unpacker u, Short to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

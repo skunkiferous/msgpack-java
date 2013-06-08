@@ -29,6 +29,7 @@ public abstract class FloatValue extends NumberValue {
         return true;
     }
 
+    @Override
     public FloatValue asFloatValue() {
         return this;
     }

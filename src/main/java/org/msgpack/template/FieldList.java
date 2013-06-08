@@ -17,8 +17,8 @@
 //
 package org.msgpack.template;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FieldList {
     public static class Entry {

@@ -18,9 +18,10 @@
 package org.msgpack.util.json;
 
 import java.io.ByteArrayInputStream;
-import java.io.Reader;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.ByteBuffer;
+
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.BufferUnpacker;
 

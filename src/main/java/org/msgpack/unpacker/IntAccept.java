@@ -24,12 +24,12 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptInteger(byte v) {
-        this.value = (int) v;
+        this.value = v;
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = (int) v;
+        this.value = v;
     }
 
     @Override
@@ -39,7 +39,8 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptInteger(long v) {
-        if (value < (long) Integer.MIN_VALUE || value > (long) Integer.MAX_VALUE) {
+        if (value < (long) Integer.MIN_VALUE
+                || value > (long) Integer.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         this.value = (int) v;
@@ -65,7 +66,7 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(long v) {
-        if (v < 0 || v > (long) Integer.MAX_VALUE) {
+        if (v < 0 || v > Integer.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         this.value = (int) v;

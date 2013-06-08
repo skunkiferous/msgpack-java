@@ -40,13 +40,12 @@ import org.msgpack.template.FieldList;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.template.builder.TemplateBuildException;
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     protected TemplateRegistry registry;
 
-    protected AbstractTemplateBuilder(TemplateRegistry registry) {
+    protected AbstractTemplateBuilder(final TemplateRegistry registry) {
         this.registry = registry;
     }
 
@@ -54,48 +53,53 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     public <T> Template<T> buildTemplate(final Type targetType)
             throws TemplateBuildException {
         @SuppressWarnings("unchecked")
-        Class<T> targetClass = (Class<T>) targetType;
+        final Class<T> targetClass = (Class<T>) targetType;
         checkClassValidation(targetClass);
-        FieldOption fieldOption = getFieldOption(targetClass);
-        FieldEntry[] entries = toFieldEntries(targetClass, fieldOption);
+        final FieldOption fieldOption = getFieldOption(targetClass);
+        final FieldEntry[] entries = toFieldEntries(targetClass, fieldOption);
         return buildTemplate(targetClass, entries);
     }
 
     @Override
-    public <T> Template<T> buildTemplate(final Class<T> targetClass, final FieldList fieldList)
-            throws TemplateBuildException {
+    public <T> Template<T> buildTemplate(final Class<T> targetClass,
+            final FieldList fieldList) throws TemplateBuildException {
         checkClassValidation(targetClass);
-        FieldEntry[] entries = toFieldEntries(targetClass, fieldList);
+        final FieldEntry[] entries = toFieldEntries(targetClass, fieldList);
         return buildTemplate(targetClass, entries);
     }
 
-    protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
+    protected abstract <T> Template<T> buildTemplate(
+            final Class<T> targetClass, final FieldEntry[] entries);
 
     protected void checkClassValidation(final Class<?> targetClass) {
         if (Modifier.isAbstract(targetClass.getModifiers())) {
             throw new TemplateBuildException(
-                    "Cannot build template for abstract class: " + targetClass.getName());
+                    "Cannot build template for abstract class: "
+                            + targetClass.getName());
         }
         if (targetClass.isInterface()) {
             throw new TemplateBuildException(
-                    "Cannot build template for interface: " + targetClass.getName());
+                    "Cannot build template for interface: "
+                            + targetClass.getName());
         }
         if (targetClass.isArray()) {
             throw new TemplateBuildException(
-                    "Cannot build template for array class: " + targetClass.getName());
+                    "Cannot build template for array class: "
+                            + targetClass.getName());
         }
         if (targetClass.isPrimitive()) {
             throw new TemplateBuildException(
-                    "Cannot build template of primitive type: " + targetClass.getName());
+                    "Cannot build template of primitive type: "
+                            + targetClass.getName());
         }
     }
 
-    protected FieldOption getFieldOption(Class<?> targetClass) {
-        Message m = targetClass.getAnnotation(Message.class);
+    protected FieldOption getFieldOption(final Class<?> targetClass) {
+        final Message m = targetClass.getAnnotation(Message.class);
         if (m == null) {
             return FieldOption.DEFAULT;
         }
-        MessagePackMessage mpm = targetClass
+        final MessagePackMessage mpm = targetClass
                 .getAnnotation(MessagePackMessage.class);
         if (mpm == null) {
             return FieldOption.DEFAULT;
@@ -104,17 +108,20 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         return m.value();
     }
 
-    private FieldEntry[] toFieldEntries(final Class<?> targetClass, final FieldList flist) {
-        List<FieldList.Entry> src = flist.getList();
-        FieldEntry[] entries = new FieldEntry[src.size()];
+    private FieldEntry[] toFieldEntries(final Class<?> targetClass,
+            final FieldList flist) {
+        final List<FieldList.Entry> src = flist.getList();
+        final FieldEntry[] entries = new FieldEntry[src.size()];
         for (int i = 0; i < src.size(); i++) {
-            FieldList.Entry s = src.get(i);
+            final FieldList.Entry s = src.get(i);
             if (s.isAvailable()) {
                 try {
-                    entries[i] = new DefaultFieldEntry(targetClass.getDeclaredField(s.getName()), s.getOption());
-                } catch (SecurityException e) {
+                    entries[i] = new DefaultFieldEntry(
+                            targetClass.getDeclaredField(s.getName()),
+                            s.getOption());
+                } catch (final SecurityException e) {
                     throw new TemplateBuildException(e);
-                } catch (NoSuchFieldException e) {
+                } catch (final NoSuchFieldException e) {
                     throw new TemplateBuildException(e);
                 }
             } else {
@@ -124,12 +131,13 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         return entries;
     }
 
-    protected FieldEntry[] toFieldEntries(final Class<?> targetClass, final FieldOption from) {
-        Field[] fields = getFields(targetClass);
+    protected FieldEntry[] toFieldEntries(final Class<?> targetClass,
+            final FieldOption from) {
+        final Field[] fields = getFields(targetClass);
 
         /*
          * index:
-         * 
+         *
          * @Index(0)
          * int field_a; // 0
          * int field_b; // 1
@@ -140,16 +148,16 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
          * int field_e; // 2
          * int field_f; // 5
          */
-        List<FieldEntry> indexed = new ArrayList<FieldEntry>();
+        final List<FieldEntry> indexed = new ArrayList<FieldEntry>();
         int maxIndex = -1;
-        for (Field f : fields) {
-            FieldOption opt = getFieldOption(f, from);
+        for (final Field f : fields) {
+            final FieldOption opt = getFieldOption(f, from);
             if (opt == FieldOption.IGNORE) {
                 // skip
                 continue;
             }
 
-            int index = getFieldIndex(f, maxIndex);
+            final int index = getFieldIndex(f, maxIndex);
             if (indexed.size() > index && indexed.get(index) != null) {
                 throw new TemplateBuildException("duplicated index: " + index);
             }
@@ -167,9 +175,9 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
             }
         }
 
-        FieldEntry[] entries = new FieldEntry[maxIndex + 1];
+        final FieldEntry[] entries = new FieldEntry[maxIndex + 1];
         for (int i = 0; i < indexed.size(); i++) {
-            FieldEntry e = indexed.get(i);
+            final FieldEntry e = indexed.get(i);
             if (e == null) {
                 entries[i] = new DefaultFieldEntry();
             } else {
@@ -179,27 +187,27 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         return entries;
     }
 
-    private Field[] getFields(Class<?> targetClass) {
+    private Field[] getFields(final Class<?> targetClass) {
         // order: [fields of super class, ..., fields of this class]
-        List<Field[]> succ = new ArrayList<Field[]>();
+        final List<Field[]> succ = new ArrayList<Field[]>();
         int total = 0;
         for (Class<?> c = targetClass; c != Object.class; c = c.getSuperclass()) {
-            Field[] fields = c.getDeclaredFields();
+            final Field[] fields = c.getDeclaredFields();
             total += fields.length;
             succ.add(fields);
         }
-        Field[] result = new Field[total];
+        final Field[] result = new Field[total];
         int off = 0;
         for (int i = succ.size() - 1; i >= 0; i--) {
-            Field[] fields = succ.get(i);
+            final Field[] fields = succ.get(i);
             System.arraycopy(fields, 0, result, off, fields.length);
             off += fields.length;
         }
         return result;
     }
 
-    private FieldOption getFieldOption(Field field, FieldOption from) {
-        int mod = field.getModifiers();
+    private FieldOption getFieldOption(final Field field, final FieldOption from) {
+        final int mod = field.getModifiers();
         // default mode:
         // transient, static, final : Ignore
         // primitive type : NotNullable
@@ -228,8 +236,8 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         }
     }
 
-    private int getFieldIndex(final Field field, int maxIndex) {
-        Index a = field.getAnnotation(Index.class);
+    private int getFieldIndex(final Field field, final int maxIndex) {
+        final Index a = field.getAnnotation(Index.class);
         if (a == null) {
             return maxIndex + 1;
         } else {
@@ -238,54 +246,66 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     @Override
-    public void writeTemplate(Type targetType, String directoryName) {
+    public void writeTemplate(final Type targetType, final String directoryName) {
         throw new UnsupportedOperationException(targetType.toString());
     }
 
     @Override
-    public <T> Template<T> loadTemplate(Type targetType) {
+    public <T> Template<T> loadTemplate(final Type targetType) {
         return null;
     }
 
-    public static boolean isAnnotated(Class<?> targetClass,
-            Class<? extends Annotation> with) {
+    public static boolean isAnnotated(final Class<?> targetClass,
+            final Class<? extends Annotation> with) {
         return targetClass.getAnnotation(with) != null;
     }
 
-    public static boolean isAnnotated(AccessibleObject accessibleObject, Class<? extends Annotation> with) {
+    public static boolean isAnnotated(final AccessibleObject accessibleObject,
+            final Class<? extends Annotation> with) {
         return accessibleObject.getAnnotation(with) != null;
     }
 
-    public static boolean matchAtClassTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
+    public static boolean matchAtClassTemplateBuilder(
+            final Class<?> targetClass, final boolean hasAnnotation) {
         if (hasAnnotation) {
-            return AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
-                    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
+            return AbstractTemplateBuilder.isAnnotated(targetClass,
+                    Message.class)
+                    || AbstractTemplateBuilder.isAnnotated(targetClass,
+                            MessagePackMessage.class);
         } else {
             return !targetClass.isEnum() && !targetClass.isInterface();
         }
     }
 
-    public static boolean matchAtBeansClassTemplateBuilder(Type targetType, boolean hasAnnotation) {
-        Class<?> targetClass = (Class<?>) targetType;
+    public static boolean matchAtBeansClassTemplateBuilder(
+            final Type targetType, final boolean hasAnnotation) {
+        final Class<?> targetClass = (Class<?>) targetType;
         if (hasAnnotation) {
-            return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
-                    || AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
+            return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType,
+                    Beans.class)
+                    || AbstractTemplateBuilder.isAnnotated(
+                            (Class<?>) targetType, MessagePackBeans.class);
         } else {
             return !targetClass.isEnum() || !targetClass.isInterface();
         }
     }
 
-    public static boolean matchAtArrayTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
-        if (((Type) targetClass) instanceof GenericArrayType) {
+    public static boolean matchAtArrayTemplateBuilder(
+            final Class<?> targetClass, final boolean hasAnnotation) {
+        final Type type = targetClass;
+        if (type instanceof GenericArrayType) {
             return true;
         }
         return targetClass.isArray();
     }
 
-    public static boolean matchAtOrdinalEnumTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
+    public static boolean matchAtOrdinalEnumTemplateBuilder(
+            final Class<?> targetClass, final boolean hasAnnotation) {
         if (hasAnnotation) {
-            return AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
-                    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
+            return AbstractTemplateBuilder.isAnnotated(targetClass,
+                    OrdinalEnum.class)
+                    || AbstractTemplateBuilder.isAnnotated(targetClass,
+                            MessagePackOrdinalEnum.class);
         } else {
             return targetClass.isEnum();
         }

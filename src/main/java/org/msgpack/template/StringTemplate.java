@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class StringTemplate extends AbstractTemplate<String> {
     private StringTemplate() {
     }
 
+    @Override
     public void write(Packer pk, String target, boolean required)
             throws IOException {
         if (target == null) {
@@ -38,6 +40,7 @@ public class StringTemplate extends AbstractTemplate<String> {
         pk.write(target);
     }
 
+    @Override
     public String read(Unpacker u, String to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

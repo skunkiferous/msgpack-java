@@ -19,10 +19,11 @@ package org.msgpack.unpacker;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.msgpack.type.Value;
+
 import org.msgpack.MessagePack;
-import org.msgpack.template.Template;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.template.Template;
+import org.msgpack.type.Value;
 
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
@@ -92,7 +93,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         if (tryReadNil()) {
             return null;
         }
-        return (T) tmpl.read(this, null);
+        return tmpl.read(this, null);
     }
 
     @Override
@@ -100,17 +101,20 @@ public abstract class AbstractUnpacker implements Unpacker {
         if (tryReadNil()) {
             return null;
         }
-        return (T) tmpl.read(this, to);
+        return tmpl.read(this, to);
     }
 
+    @Override
     public int getReadByteCount() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
     public void resetReadByteCount() {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
     public void setRawSizeLimit(int size) {
         if (size < 32) {
             rawSizeLimit = 32;
@@ -119,6 +123,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         }
     }
 
+    @Override
     public void setArraySizeLimit(int size) {
         if (size < 16) {
             arraySizeLimit = 16;
@@ -127,6 +132,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         }
     }
 
+    @Override
     public void setMapSizeLimit(int size) {
         if (size < 16) {
             mapSizeLimit = 16;

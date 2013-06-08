@@ -18,8 +18,8 @@
 package org.msgpack.type;
 
 import java.io.IOException;
+
 import org.msgpack.packer.Packer;
-import org.msgpack.type.ValueType;
 
 public interface Value {
     public ValueType getType();

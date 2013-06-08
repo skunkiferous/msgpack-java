@@ -17,7 +17,6 @@
 
 package org.msgpack.template.builder.beans;
 
-
 /**
  * Describes a bean's global information.
  */
@@ -94,12 +93,13 @@ public class BeanDescriptor extends FeatureDescriptor {
      * @return A String instance or <code>null</code>.
      */
     private String getShortClassName(Class<?> leguminaClass) {
-        if(leguminaClass == null) {
+        if (leguminaClass == null) {
             return null;
         }
         String beanClassName = leguminaClass.getName();
         int lastIndex = beanClassName.lastIndexOf("."); //$NON-NLS-1$
-        return (lastIndex == -1) ? beanClassName : beanClassName.substring(lastIndex + 1);
+        return (lastIndex == -1) ? beanClassName : beanClassName
+                .substring(lastIndex + 1);
     }
 
 }

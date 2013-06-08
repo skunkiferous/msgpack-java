@@ -19,23 +19,25 @@ package org.msgpack.util.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import org.msgpack.io.Output;
-import org.msgpack.io.StreamOutput;
+
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
-import org.msgpack.packer.Packer;
+import org.msgpack.io.Output;
+import org.msgpack.io.StreamOutput;
 import org.msgpack.packer.AbstractPacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.packer.PackerStack;
 
 public class JSONPacker extends AbstractPacker {
     private static final byte[] NULL = new byte[] { 0x6e, 0x75, 0x6c, 0x6c };
     private static final byte[] TRUE = new byte[] { 0x74, 0x72, 0x75, 0x65 };
-    private static final byte[] FALSE = new byte[] { 0x66, 0x61, 0x6c, 0x73, 0x65 };
+    private static final byte[] FALSE = new byte[] { 0x66, 0x61, 0x6c, 0x73,
+            0x65 };
 
     private static final byte COMMA = 0x2c;
     private static final byte COLON = 0x3a;
@@ -154,7 +156,8 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeByteArray(byte[] b, int off, int len) throws IOException {
+    protected void writeByteArray(byte[] b, int off, int len)
+            throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
         escape(out, b, off, len);
@@ -214,7 +217,8 @@ public class JSONPacker extends AbstractPacker {
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
-                        "writeArrayEnd(check=true) is called but the array is not end: " + remain);
+                        "writeArrayEnd(check=true) is called but the array is not end: "
+                                + remain);
             }
             for (int i = 0; i < remain; i++) {
                 writeNil();
@@ -247,7 +251,8 @@ public class JSONPacker extends AbstractPacker {
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
-                        "writeMapEnd(check=true) is called but the map is not end: " + remain);
+                        "writeMapEnd(check=true) is called but the map is not end: "
+                                + remain);
             }
             for (int i = 0; i < remain; i++) {
                 writeNil();
@@ -304,7 +309,8 @@ public class JSONPacker extends AbstractPacker {
         stack.reduceCount();
     }
 
-    private void escape(Output out, byte[] b, int off, int len) throws IOException {
+    private void escape(Output out, byte[] b, int off, int len)
+            throws IOException {
         escape(out, ByteBuffer.wrap(b, off, len));
     }
 

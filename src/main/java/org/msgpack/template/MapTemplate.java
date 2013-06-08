@@ -18,11 +18,12 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class MapTemplate<K, V> extends AbstractTemplate<Map<K, V>> {
     private Template<K> keyTemplate;
@@ -33,6 +34,7 @@ public class MapTemplate<K, V> extends AbstractTemplate<Map<K, V>> {
         this.valueTemplate = valueTemplate;
     }
 
+    @Override
     public void write(Packer pk, Map<K, V> target, boolean required)
             throws IOException {
         if (!(target instanceof Map)) {
@@ -43,9 +45,10 @@ public class MapTemplate<K, V> extends AbstractTemplate<Map<K, V>> {
                 pk.writeNil();
                 return;
             }
-            throw new MessageTypeException("Target is not a Map but " + target.getClass());
+            throw new MessageTypeException("Target is not a Map but "
+                    + target.getClass());
         }
-        Map<K, V> map = (Map<K, V>) target;
+        Map<K, V> map = target;
         pk.writeMapBegin(map.size());
         for (Map.Entry<K, V> pair : map.entrySet()) {
             keyTemplate.write(pk, pair.getKey());
@@ -54,6 +57,7 @@ public class MapTemplate<K, V> extends AbstractTemplate<Map<K, V>> {
         pk.writeMapEnd();
     }
 
+    @Override
     public Map<K, V> read(Unpacker u, Map<K, V> to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {
@@ -62,7 +66,7 @@ public class MapTemplate<K, V> extends AbstractTemplate<Map<K, V>> {
         int n = u.readMapBegin();
         Map<K, V> map;
         if (to != null) {
-            map = (Map<K, V>) to;
+            map = to;
             map.clear();
         } else {
             map = new HashMap<K, V>(n);

@@ -18,15 +18,17 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import org.msgpack.packer.Packer;
-import org.msgpack.unpacker.Unpacker;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 import org.msgpack.type.Value;
+import org.msgpack.unpacker.Unpacker;
 
 public class ValueTemplate extends AbstractTemplate<Value> {
     private ValueTemplate() {
     }
 
+    @Override
     public void write(Packer pk, Value target, boolean required)
             throws IOException {
         if (target == null) {
@@ -39,6 +41,7 @@ public class ValueTemplate extends AbstractTemplate<Value> {
         target.writeTo(pk);
     }
 
+    @Override
     public Value read(Unpacker u, Value to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

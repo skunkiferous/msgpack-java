@@ -18,10 +18,11 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import org.msgpack.packer.Packer;
-import org.msgpack.unpacker.Unpacker;
+
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
+import org.msgpack.unpacker.Unpacker;
 
 public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
     private Class<?> targetClass;
@@ -30,6 +31,7 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
         this.targetClass = targetClass;
     }
 
+    @Override
     public void write(Packer pk, MessagePackable target, boolean required)
             throws IOException {
         if (target == null) {
@@ -42,6 +44,7 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
         target.writeTo(pk);
     }
 
+    @Override
     public MessagePackable read(Unpacker u, MessagePackable to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

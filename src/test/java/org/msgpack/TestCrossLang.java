@@ -1,31 +1,28 @@
 package org.msgpack;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Iterator;
 
-import org.msgpack.MessagePack;
-import org.msgpack.type.Value;
-import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.BufferUnpacker;
-
 import org.junit.Test;
-
+import org.msgpack.packer.BufferPacker;
+import org.msgpack.type.Value;
+import org.msgpack.unpacker.BufferUnpacker;
 
 public class TestCrossLang {
     private byte[] readData(String path) throws IOException {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         FileInputStream input = new FileInputStream(path);
-        byte[] buffer = new byte[32*1024];
-        while(true) {
+        byte[] buffer = new byte[32 * 1024];
+        while (true) {
             int count = input.read(buffer);
-            if(count < 0) {
+            if (count < 0) {
                 break;
             }
             bo.write(buffer, 0, count);
@@ -53,7 +50,7 @@ public class TestCrossLang {
         Iterator<Value> at = au.iterator();
         Iterator<Value> bt = bu.iterator();
 
-        while(at.hasNext()) {
+        while (at.hasNext()) {
             assertTrue(bt.hasNext());
             Value av = at.next();
             Value bv = bt.next();
@@ -71,7 +68,7 @@ public class TestCrossLang {
         BufferPacker pk = msgpack.createBufferPacker();
 
         BufferUnpacker au = msgpack.createBufferUnpacker().wrap(a);
-        for(Value av : au) {
+        for (Value av : au) {
             pk.write(av);
         }
 
@@ -81,4 +78,3 @@ public class TestCrossLang {
         assertArrayEquals(b, c);
     }
 }
-

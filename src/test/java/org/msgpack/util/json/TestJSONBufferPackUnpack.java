@@ -19,7 +19,6 @@ import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.util.json.JSON;
 
 public class TestJSONBufferPackUnpack extends TestSet {
 
@@ -35,8 +34,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         boolean ret = unpacker.readBoolean();
         assertEquals(v, ret);
     }
@@ -53,8 +52,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         byte ret = unpacker.readByte();
         assertEquals(v, ret);
     }
@@ -71,8 +70,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         short ret = unpacker.readShort();
         assertEquals(v, ret);
     }
@@ -89,8 +88,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         int ret = unpacker.readInt();
         assertEquals(v, ret);
     }
@@ -107,8 +106,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         long ret = unpacker.readLong();
         assertEquals(v, ret);
     }
@@ -134,8 +133,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         }
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         float ret = unpacker.readFloat();
         assertEquals(v, ret, 10e-10);
     }
@@ -161,8 +160,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         }
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         double ret = unpacker.readDouble();
         assertEquals(v, ret, 10e-10);
     }
@@ -174,8 +173,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.writeNil();
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         unpacker.readNil();
     }
 
@@ -193,8 +192,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         BigInteger ret = unpacker.read(BigInteger.class);
         assertEquals(v, ret);
     }
@@ -211,8 +210,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(v);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         String ret = unpacker.read(String.class);
         assertEquals(v, ret);
     }
@@ -233,8 +232,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
         String str = new String(v);
         packer.write(str);
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         String ret = unpacker.read(String.class);
         assertEquals(str, ret);
     }
@@ -260,8 +259,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
             packer.writeArrayEnd();
         }
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         if (unpacker.trySkipNil()) {
             assertEquals(null, v);
             return;
@@ -313,8 +312,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
             packer.writeMapEnd();
         }
         byte[] bytes = packer.toByteArray();
-        Unpacker unpacker = msgpack.createUnpacker(
-                new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(
+                bytes));
         if (unpacker.trySkipNil()) {
             assertEquals(null, v);
             return;

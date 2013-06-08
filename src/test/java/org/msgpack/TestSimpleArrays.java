@@ -267,6 +267,7 @@ public class TestSimpleArrays {
         public int[][] i;
         public byte[][] b;
         public String[][] str;
+
         //public List<String>[][] slist;
 
         public Dim2Test() {

@@ -17,10 +17,11 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.math.BigInteger;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class BigIntegerValueImpl extends IntegerValue {
@@ -30,14 +31,22 @@ class BigIntegerValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static BigInteger BYTE_MAX = BigInteger.valueOf((long) Byte.MAX_VALUE);
-    private static BigInteger SHORT_MAX = BigInteger.valueOf((long) Short.MAX_VALUE);
-    private static BigInteger INT_MAX = BigInteger.valueOf((long) Integer.MAX_VALUE);
-    private static BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
-    private static BigInteger BYTE_MIN = BigInteger.valueOf((long) Byte.MIN_VALUE);
-    private static BigInteger SHORT_MIN = BigInteger.valueOf((long) Short.MIN_VALUE);
-    private static BigInteger INT_MIN = BigInteger.valueOf((long) Integer.MIN_VALUE);
-    private static BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
+    private static BigInteger BYTE_MAX = BigInteger
+            .valueOf(Byte.MAX_VALUE);
+    private static BigInteger SHORT_MAX = BigInteger
+            .valueOf(Short.MAX_VALUE);
+    private static BigInteger INT_MAX = BigInteger
+            .valueOf(Integer.MAX_VALUE);
+    private static BigInteger LONG_MAX = BigInteger
+            .valueOf(Long.MAX_VALUE);
+    private static BigInteger BYTE_MIN = BigInteger
+            .valueOf(Byte.MIN_VALUE);
+    private static BigInteger SHORT_MIN = BigInteger
+            .valueOf(Short.MIN_VALUE);
+    private static BigInteger INT_MIN = BigInteger
+            .valueOf(Integer.MIN_VALUE);
+    private static BigInteger LONG_MIN = BigInteger
+            .valueOf(Long.MIN_VALUE);
 
     @Override
     public byte getByte() {

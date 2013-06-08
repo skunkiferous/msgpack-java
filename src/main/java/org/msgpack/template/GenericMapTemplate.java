@@ -25,10 +25,13 @@ public class GenericMapTemplate implements GenericTemplate {
     Constructor<? extends Template> constructor;
 
     @SuppressWarnings("rawtypes")
-    public GenericMapTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
+    public GenericMapTemplate(TemplateRegistry registry,
+            Class<? extends Template> tmpl) {
         try {
-            constructor = tmpl.getConstructor(new Class<?>[] { Template.class, Template.class });
-            constructor.newInstance(new Object[] { new AnyTemplate(registry), new AnyTemplate(registry) });
+            constructor = tmpl.getConstructor(new Class<?>[] { Template.class,
+                    Template.class });
+            constructor.newInstance(new Object[] { new AnyTemplate(registry),
+                    new AnyTemplate(registry) });
             // AnyTemplate.getInstance(registry),
             // AnyTemplate.getInstance(registry)});
         } catch (NoSuchMethodException e) {
@@ -42,6 +45,7 @@ public class GenericMapTemplate implements GenericTemplate {
         }
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public Template build(Template[] params) {
         try {

@@ -3,20 +3,18 @@ package org.msgpack.unpacker;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 import java.util.Collection;
 import java.util.Date;
-import java.math.BigInteger;
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
+import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.template.Templates;
-import org.msgpack.unpacker.Unpacker;
-
-import org.junit.Test;
 
 public class TestReadTemplate {
     public static enum MyEnum {

@@ -17,9 +17,9 @@
 //
 package org.msgpack.io;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
 
 public class StreamOutput implements Output {

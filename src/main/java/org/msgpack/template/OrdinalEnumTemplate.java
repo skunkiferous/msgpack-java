@@ -36,8 +36,8 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
         for (int i = 0; i < entries.length; i++) {
             reverse.put(entries[i], i);
         }
-		strict = !targetClass.isAnnotationPresent(OrdinalEnum.class)
-				|| targetClass.getAnnotation(OrdinalEnum.class).strict();
+        strict = !targetClass.isAnnotationPresent(OrdinalEnum.class)
+                || targetClass.getAnnotation(OrdinalEnum.class).strict();
     }
 
     @Override
@@ -51,8 +51,8 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
         }
         Integer ordinal = reverse.get(target);
         if (ordinal == null) {
-            throw new MessageTypeException(
-                    new IllegalArgumentException("ordinal: " + ordinal));
+            throw new MessageTypeException(new IllegalArgumentException(
+                    "ordinal: " + ordinal));
         }
         pk.write((int) ordinal);
     }
@@ -66,16 +66,16 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
 
         int ordinal = pac.readInt();
 
-		if (ordinal < entries.length) {
-			return entries[ordinal];
-		}
+        if (ordinal < entries.length) {
+            return entries[ordinal];
+        }
 
-		if (!strict) {
-			return null;
-		}
+        if (!strict) {
+            return null;
+        }
 
-		throw new MessageTypeException(new IllegalArgumentException("ordinal: "
-				+ ordinal));
+        throw new MessageTypeException(new IllegalArgumentException("ordinal: "
+                + ordinal));
 
     }
 }

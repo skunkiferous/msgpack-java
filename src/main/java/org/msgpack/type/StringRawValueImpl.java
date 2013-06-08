@@ -17,11 +17,12 @@
 //
 package org.msgpack.type;
 
-import java.util.Arrays;
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 
 class StringRawValueImpl extends AbstractRawValue {
     private String string;

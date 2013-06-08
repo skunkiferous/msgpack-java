@@ -18,8 +18,6 @@ import org.msgpack.template.ListTemplate;
 import org.msgpack.template.MapTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.Templates;
-import org.msgpack.unpacker.SizeLimitException;
-import org.msgpack.unpacker.Unpacker;
 
 public class TestSizeLimit {
 

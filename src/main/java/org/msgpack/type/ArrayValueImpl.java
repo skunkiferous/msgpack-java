@@ -17,12 +17,14 @@
 //
 package org.msgpack.type;
 
-import java.util.ListIterator;
 import java.io.IOException;
+import java.util.ListIterator;
+
 import org.msgpack.packer.Packer;
 
 class ArrayValueImpl extends AbstractArrayValue {
-    private static ArrayValueImpl emptyInstance = new ArrayValueImpl(new Value[0], true);
+    private static ArrayValueImpl emptyInstance = new ArrayValueImpl(
+            new Value[0], true);
 
     public static ArrayValue getEmptyInstance() {
         return emptyInstance;

@@ -18,14 +18,15 @@
 package org.msgpack.packer;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import org.msgpack.io.Output;
-import org.msgpack.io.StreamOutput;
+import java.nio.ByteBuffer;
+
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
+import org.msgpack.io.Output;
+import org.msgpack.io.StreamOutput;
 
 public class MessagePackPacker extends AbstractPacker {
     protected final Output out;
@@ -271,7 +272,8 @@ public class MessagePackPacker extends AbstractPacker {
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
-                        "writeArrayEnd(check=true) is called but the array is not end: " + remain);
+                        "writeArrayEnd(check=true) is called but the array is not end: "
+                                + remain);
             }
             for (int i = 0; i < remain; i++) {
                 writeNil();
@@ -308,7 +310,8 @@ public class MessagePackPacker extends AbstractPacker {
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
-                        "writeMapEnd(check=true) is called but the map is not end: " + remain);
+                        "writeMapEnd(check=true) is called but the map is not end: "
+                                + remain);
             }
             for (int i = 0; i < remain; i++) {
                 writeNil();

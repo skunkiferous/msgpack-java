@@ -17,12 +17,13 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.IOException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.msgpack.type.Value;
+
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.Value;
 
 public class UnpackerIterator implements Iterator<Value> {
     private final AbstractUnpacker u; // FIXME -> Unpacker
@@ -34,6 +35,7 @@ public class UnpackerIterator implements Iterator<Value> {
         this.uc = new Unconverter(u.msgpack);
     }
 
+    @Override
     public boolean hasNext() {
         if (uc.getResult() != null) {
             return true;
@@ -50,6 +52,7 @@ public class UnpackerIterator implements Iterator<Value> {
         return uc.getResult() != null;
     }
 
+    @Override
     public Value next() {
         if (!hasNext()) {
             throw new NoSuchElementException();
@@ -59,6 +62,7 @@ public class UnpackerIterator implements Iterator<Value> {
         return v;
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }

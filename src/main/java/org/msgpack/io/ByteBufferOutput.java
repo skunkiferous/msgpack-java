@@ -18,8 +18,8 @@
 package org.msgpack.io;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 
 public class ByteBufferOutput implements Output {
     public static interface ExpandBufferCallback {

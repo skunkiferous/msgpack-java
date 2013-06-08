@@ -17,12 +17,13 @@
 //
 package org.msgpack.packer;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.io.IOException;
-import org.msgpack.type.Value;
+
 import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
+import org.msgpack.type.Value;
 
 public abstract class AbstractPacker implements Packer {
     protected MessagePack msgpack;
@@ -251,7 +252,8 @@ public abstract class AbstractPacker implements Packer {
         writeByteArray(b, 0, b.length);
     }
 
-    abstract protected void writeByteArray(byte[] b, int off, int len) throws IOException;
+    abstract protected void writeByteArray(byte[] b, int off, int len)
+            throws IOException;
 
     abstract protected void writeByteBuffer(ByteBuffer bb) throws IOException;
 

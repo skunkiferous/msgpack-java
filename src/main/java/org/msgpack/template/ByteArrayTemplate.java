@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
     private ByteArrayTemplate() {
     }
 
+    @Override
     public void write(Packer pk, byte[] target, boolean required)
             throws IOException {
         if (target == null) {
@@ -38,6 +40,7 @@ public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
         pk.write(target);
     }
 
+    @Override
     public byte[] read(Unpacker u, byte[] to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

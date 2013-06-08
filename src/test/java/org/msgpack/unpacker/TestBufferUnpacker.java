@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Test;
 import org.msgpack.MessagePack;
+import org.msgpack.packer.BufferPacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
-import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.unpacker.UnpackerIterator;
-
-import org.junit.Test;
 
 public class TestBufferUnpacker {
     @Test

@@ -18,13 +18,14 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 /**
  * CharacterTemplate<br/>
- * 
+ *
  * @author watabiki
  */
 public class CharacterTemplate extends AbstractTemplate<Character> {
@@ -33,8 +34,8 @@ public class CharacterTemplate extends AbstractTemplate<Character> {
     }
 
     @Override
-    public void write(Packer pk, Character target, boolean required)
-            throws IOException {
+    public void write(final Packer pk, final Character target,
+            final boolean required) throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -42,12 +43,13 @@ public class CharacterTemplate extends AbstractTemplate<Character> {
             pk.writeNil();
             return;
         }
-        pk.write((int) (char) target);
+        final int i = target.charValue();
+        pk.write(i);
     }
 
     @Override
-    public Character read(Unpacker u, Character to, boolean required)
-            throws IOException {
+    public Character read(final Unpacker u, final Character to,
+            final boolean required) throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }

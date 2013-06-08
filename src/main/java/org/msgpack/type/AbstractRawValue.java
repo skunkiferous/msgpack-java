@@ -17,12 +17,12 @@
 //
 package org.msgpack.type;
 
-import java.util.Arrays;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.util.Arrays;
 
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
     @Override

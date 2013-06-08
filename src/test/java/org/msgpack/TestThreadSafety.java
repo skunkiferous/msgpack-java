@@ -15,9 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.type.ArrayValue;
 import org.msgpack.type.MapValue;
@@ -35,7 +33,7 @@ public class TestThreadSafety {
         }
         EXAMPLE_STRING = buf.toString();
     }
-    
+
     private List<String> createList(int n) {
         List<String> src = new ArrayList<String>();
         for (int i = 0; i < n; i++) {
@@ -124,14 +122,15 @@ public class TestThreadSafety {
     }
 
     @Test
-    public void testWithBulkData() throws InterruptedException, ExecutionException, TimeoutException {
+    public void testWithBulkData() throws InterruptedException,
+            ExecutionException, TimeoutException {
         final TestThreadSafety main = new TestThreadSafety();
         List<Future<Void>> futures = new LinkedList<Future<Void>>();
         ExecutorService executorService = Executors.newCachedThreadPool();
         for (int i = 0; i < 20; i++) {
             futures.add(executorService.submit(new TestRunner(main)));
         }
-        
+
         for (Future<Void> future : futures) {
             future.get(30, TimeUnit.SECONDS);
         }

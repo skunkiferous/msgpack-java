@@ -24,17 +24,17 @@ final class LongAccept extends Accept {
 
     @Override
     void acceptInteger(byte v) {
-        this.value = (long) v;
+        this.value = v;
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = (long) v;
+        this.value = v;
     }
 
     @Override
     void acceptInteger(int v) {
-        this.value = (long) v;
+        this.value = v;
     }
 
     @Override
@@ -44,20 +44,20 @@ final class LongAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) {
-        this.value = (long) (v & 0xff);
+        this.value = v & 0xff;
     }
 
     @Override
     void acceptUnsignedInteger(short v) {
-        this.value = (long) (v & 0xffff);
+        this.value = v & 0xffff;
     }
 
     @Override
     void acceptUnsignedInteger(int v) {
         if (v < 0) {
-            this.value = (long) (v & 0x7fffffff) + 0x80000000L;
+            this.value = (v & 0x7fffffff) + 0x80000000L;
         } else {
-            this.value = (long) v;
+            this.value = v;
         }
     }
 

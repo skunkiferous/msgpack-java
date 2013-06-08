@@ -17,23 +17,25 @@
 //
 package org.msgpack.type;
 
-import java.util.Arrays;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import org.msgpack.packer.Packer;
+import java.util.Arrays;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 
 class ByteArrayRawValueImpl extends AbstractRawValue {
-    private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);
-    
+    private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(
+            new byte[0], true);
+
     public static RawValue getEmptyInstance() {
         return emptyInstance;
     }
-    
+
     private static final ThreadLocal<CharsetDecoder> decoderStore = new ThreadLocal<CharsetDecoder>() {
         @Override
         protected CharsetDecoder initialValue() {

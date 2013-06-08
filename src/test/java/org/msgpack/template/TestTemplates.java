@@ -1,25 +1,39 @@
 package org.msgpack.template;
 
 import static org.junit.Assert.assertEquals;
+import static org.msgpack.template.Templates.TBigDecimal;
+import static org.msgpack.template.Templates.TBigInteger;
+import static org.msgpack.template.Templates.TBoolean;
+import static org.msgpack.template.Templates.TByte;
+import static org.msgpack.template.Templates.TByteArray;
+import static org.msgpack.template.Templates.TByteBuffer;
+import static org.msgpack.template.Templates.TCharacter;
+import static org.msgpack.template.Templates.TDate;
+import static org.msgpack.template.Templates.TDouble;
+import static org.msgpack.template.Templates.TFloat;
+import static org.msgpack.template.Templates.TInteger;
+import static org.msgpack.template.Templates.TLong;
+import static org.msgpack.template.Templates.TShort;
+import static org.msgpack.template.Templates.TString;
+import static org.msgpack.template.Templates.tCollection;
+import static org.msgpack.template.Templates.tList;
+import static org.msgpack.template.Templates.tMap;
+import static org.msgpack.template.Templates.tOrdinalEnum;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.math.BigInteger;
-import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
-
-import static org.msgpack.template.Templates.*;
-
-import org.junit.Test;
-
 
 public class TestTemplates {
     public static enum MyEnum {
@@ -45,7 +59,7 @@ public class TestTemplates {
         Template<Date> tdate = TDate;
 
         Template<List<String>> tlist = tList(TString);
-        Template<Map<String,Integer>> tmap = tMap(TString, TInteger);
+        Template<Map<String, Integer>> tmap = tMap(TString, TInteger);
         Template<Collection<Long>> tcollection = tCollection(TLong);
         Template<MyEnum> tordinalenum = tOrdinalEnum(MyEnum.class);
     }
@@ -69,4 +83,3 @@ public class TestTemplates {
         assertEquals(list1, list2);
     }
 }
-

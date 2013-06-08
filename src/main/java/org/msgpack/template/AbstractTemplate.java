@@ -18,15 +18,18 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 public abstract class AbstractTemplate<T> implements Template<T> {
 
+    @Override
     public void write(Packer pk, T v) throws IOException {
         write(pk, v, false);
     }
 
+    @Override
     public T read(Unpacker u, T to) throws IOException {
         return read(u, to, false);
     }

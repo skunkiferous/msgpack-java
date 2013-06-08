@@ -34,11 +34,11 @@ public final class ValueFactory {
     }
 
     public static IntegerValue createIntegerValue(byte v) {
-        return new IntValueImpl((int) v);
+        return new IntValueImpl(v);
     }
 
     public static IntegerValue createIntegerValue(short v) {
-        return new IntValueImpl((int) v);
+        return new IntValueImpl(v);
     }
 
     public static IntegerValue createIntegerValue(int v) {

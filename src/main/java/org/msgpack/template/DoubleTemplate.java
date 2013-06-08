@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class DoubleTemplate extends AbstractTemplate<Double> {
     private DoubleTemplate() {
     }
 
+    @Override
     public void write(Packer pk, Double target, boolean required)
             throws IOException {
         if (target == null) {
@@ -38,6 +40,7 @@ public class DoubleTemplate extends AbstractTemplate<Double> {
         pk.write((double) target);
     }
 
+    @Override
     public Double read(Unpacker u, Double to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

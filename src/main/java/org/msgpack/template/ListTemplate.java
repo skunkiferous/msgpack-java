@@ -18,11 +18,12 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class ListTemplate<E> extends AbstractTemplate<List<E>> {
     private Template<E> elementTemplate;
@@ -31,6 +32,7 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         this.elementTemplate = elementTemplate;
     }
 
+    @Override
     public void write(Packer pk, List<E> target, boolean required)
             throws IOException {
         if (!(target instanceof List)) {
@@ -51,6 +53,7 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public List<E> read(Unpacker u, List<E> to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

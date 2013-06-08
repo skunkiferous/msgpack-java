@@ -22,7 +22,8 @@ import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferInput;
 
-public class MessagePackBufferUnpacker extends MessagePackUnpacker implements BufferUnpacker {
+public class MessagePackBufferUnpacker extends MessagePackUnpacker implements
+        BufferUnpacker {
     private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer
                                                         // size
 
@@ -72,7 +73,8 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
     }
 
     @Override
-    public MessagePackBufferUnpacker feed(byte[] b, int off, int len, boolean reference) {
+    public MessagePackBufferUnpacker feed(byte[] b, int off, int len,
+            boolean reference) {
         ((LinkedBufferInput) in).feed(b, off, len, reference);
         return this;
     }

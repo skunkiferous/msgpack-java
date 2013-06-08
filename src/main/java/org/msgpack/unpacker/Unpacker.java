@@ -17,11 +17,10 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.IOException;
 import java.io.Closeable;
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.lang.Iterable;
+import java.nio.ByteBuffer;
 
 import org.msgpack.template.Template;
 import org.msgpack.type.Value;
@@ -85,6 +84,7 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public ValueType getNextType() throws IOException;
 
+    @Override
     public UnpackerIterator iterator();
 
     public int getReadByteCount();

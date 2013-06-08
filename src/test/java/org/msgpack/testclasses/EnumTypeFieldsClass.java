@@ -5,14 +5,16 @@ import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.OrdinalEnum;
 
-
-@Ignore @Message @Beans
+@Ignore
+@Message
+@Beans
 public class EnumTypeFieldsClass {
     public int f0;
 
     public SampleEnum f1;
 
-    public EnumTypeFieldsClass() {}
+    public EnumTypeFieldsClass() {
+    }
 
     public int getF0() {
         return f0;
@@ -32,21 +34,22 @@ public class EnumTypeFieldsClass {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof EnumTypeFieldsClass)) {
-	    return false;
-	}
-	EnumTypeFieldsClass that = (EnumTypeFieldsClass) o;
-	if (f0 != that.f0) {
-	    return false;
-	}
-	if (f1 != that.f1) {
-	    return false;
-	}
-	return true;
+        if (!(o instanceof EnumTypeFieldsClass)) {
+            return false;
+        }
+        EnumTypeFieldsClass that = (EnumTypeFieldsClass) o;
+        if (f0 != that.f0) {
+            return false;
+        }
+        if (f1 != that.f1) {
+            return false;
+        }
+        return true;
     }
 
-    @Ignore @OrdinalEnum
+    @Ignore
+    @OrdinalEnum
     public static enum SampleEnum {
-	ONE, TWO, THREE;
+        ONE, TWO, THREE;
     }
 }

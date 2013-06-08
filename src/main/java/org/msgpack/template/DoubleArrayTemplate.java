@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
     private DoubleArrayTemplate() {
     }
 
+    @Override
     public void write(Packer pk, double[] target, boolean required)
             throws IOException {
         if (target == null) {
@@ -42,6 +44,7 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public double[] read(Unpacker u, double[] to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

@@ -20,11 +20,12 @@ package org.msgpack.util.json;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+
 import org.msgpack.MessagePack;
-import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.Unpacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 public class JSON extends MessagePack {
     public JSON() {

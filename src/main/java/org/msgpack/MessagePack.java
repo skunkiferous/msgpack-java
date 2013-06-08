@@ -17,24 +17,25 @@
 //
 package org.msgpack;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
+
+import org.msgpack.packer.BufferPacker;
+import org.msgpack.packer.MessagePackBufferPacker;
+import org.msgpack.packer.MessagePackPacker;
+import org.msgpack.packer.Packer;
+import org.msgpack.packer.Unconverter;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.packer.Packer;
-import org.msgpack.packer.BufferPacker;
-import org.msgpack.packer.MessagePackPacker;
-import org.msgpack.packer.MessagePackBufferPacker;
-import org.msgpack.packer.Unconverter;
-import org.msgpack.unpacker.Unpacker;
-import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.unpacker.MessagePackUnpacker;
-import org.msgpack.unpacker.MessagePackBufferUnpacker;
-import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
+import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Converter;
+import org.msgpack.unpacker.MessagePackBufferUnpacker;
+import org.msgpack.unpacker.MessagePackUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 /**
  * <p>
@@ -385,7 +386,7 @@ public class MessagePack {
      */
     public <T> T read(byte[] bytes, T v, Template<T> tmpl) throws IOException {
         BufferUnpacker u = createBufferUnpacker(bytes);
-        return (T) tmpl.read(u, v);
+        return tmpl.read(u, v);
     }
 
     /**
@@ -398,11 +399,12 @@ public class MessagePack {
      * @return
      * @throws IOException
      */
-    public <T> T read(byte[] bytes, int off, int len, Class<T> c) throws IOException {
+    public <T> T read(byte[] bytes, int off, int len, Class<T> c)
+            throws IOException {
         @SuppressWarnings("unchecked")
         Template<T> tmpl = registry.lookup(c);
         BufferUnpacker u = createBufferUnpacker(bytes, off, len);
-        return (T) tmpl.read(u, null);
+        return tmpl.read(u, null);
     }
 
     /**
@@ -556,7 +558,7 @@ public class MessagePack {
         Template<T> tmpl = registry.lookup(c);
         return tmpl.read(new Converter(this, v), null);
     }
-        
+
     /**
      * Converts {@link org.msgpack.type.Value} object to object according to template
      * 
@@ -726,14 +728,18 @@ public class MessagePack {
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] bytes, Template<T> template) throws IOException {
-        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+    public static <T> T unpack(byte[] bytes, Template<T> template)
+            throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack)
+                .wrap(bytes);
         return template.read(u, null);
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] bytes, Template<T> template, T to) throws IOException {
-        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+    public static <T> T unpack(byte[] bytes, Template<T> template, T to)
+            throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack)
+                .wrap(bytes);
         return template.read(u, to);
     }
 
@@ -803,7 +809,8 @@ public class MessagePack {
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl, T to)
             throws IOException, MessageTypeException {
-        return (T) tmpl.read(new MessagePackUnpacker(globalMessagePack, in), to);
+        return tmpl
+                .read(new MessagePackUnpacker(globalMessagePack, in), to);
     }
 
     /**

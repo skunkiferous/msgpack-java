@@ -6,8 +6,6 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 import org.msgpack.TestSet;
-import org.msgpack.type.Value;
-import org.msgpack.type.ValueFactory;
 
 public class TestEquals extends TestSet {
     @Override
@@ -147,17 +145,17 @@ public class TestEquals extends TestSet {
 
     @Override
     public void testByte(byte v) throws Exception {
-        testLong((long) v);
+        testLong(v);
     }
 
     @Override
     public void testShort(short v) throws Exception {
-        testLong((long) v);
+        testLong(v);
     }
 
     @Override
     public void testInteger(int v) throws Exception {
-        testLong((long) v);
+        testLong(v);
     }
 
     @Override
@@ -225,36 +223,36 @@ public class TestEquals extends TestSet {
 
     @SuppressWarnings("unused")
     private boolean compatibleWithByte(long v) {
-        return (long) Byte.MIN_VALUE <= v && v <= (long) Byte.MAX_VALUE;
+        return Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE;
     }
 
     @SuppressWarnings("unused")
     private boolean compatibleWithShort(long v) {
-        return (long) Short.MIN_VALUE <= v && v <= (long) Short.MAX_VALUE;
+        return Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
     }
 
     @SuppressWarnings("unused")
     private boolean compatibleWithInt(long v) {
-        return (long) Integer.MIN_VALUE <= v && v <= (long) Integer.MAX_VALUE;
+        return Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
     }
 
     private static BigInteger BYTE_MAX = BigInteger
-            .valueOf((long) Byte.MAX_VALUE);
+            .valueOf(Byte.MAX_VALUE);
     private static BigInteger SHORT_MAX = BigInteger
-            .valueOf((long) Short.MAX_VALUE);
+            .valueOf(Short.MAX_VALUE);
     private static BigInteger INT_MAX = BigInteger
-            .valueOf((long) Integer.MAX_VALUE);
+            .valueOf(Integer.MAX_VALUE);
     private static BigInteger LONG_MAX = BigInteger
-            .valueOf((long) Long.MAX_VALUE);
+            .valueOf(Long.MAX_VALUE);
 
     private static BigInteger BYTE_MIN = BigInteger
-            .valueOf((long) Byte.MIN_VALUE);
+            .valueOf(Byte.MIN_VALUE);
     private static BigInteger SHORT_MIN = BigInteger
-            .valueOf((long) Short.MIN_VALUE);
+            .valueOf(Short.MIN_VALUE);
     private static BigInteger INT_MIN = BigInteger
-            .valueOf((long) Integer.MIN_VALUE);
+            .valueOf(Integer.MIN_VALUE);
     private static BigInteger LONG_MIN = BigInteger
-            .valueOf((long) Long.MIN_VALUE);
+            .valueOf(Long.MIN_VALUE);
 
     protected boolean compatibleWithByte(BigInteger v) {
         if (v.compareTo(BYTE_MAX) > 0 || v.compareTo(BYTE_MIN) < 0) {
@@ -287,11 +285,13 @@ public class TestEquals extends TestSet {
     protected void testEquals(final Value v1, final Value v2) {
         assertTrue(v2.equals(v1));
         assertTrue(v2.equals(new ProxyValue() {
+            @Override
             protected Value getValue() {
                 return v1;
             }
         }));
         assertTrue(v1.equals(new ProxyValue() {
+            @Override
             protected Value getValue() {
                 return v2;
             }

@@ -20,10 +20,12 @@ package org.msgpack.unpacker;
 final class DoubleAccept extends Accept {
     double value;
 
+    @Override
     void acceptFloat(float v) {
-        this.value = (double) v;
+        this.value = v;
     }
 
+    @Override
     void acceptDouble(double v) {
         this.value = v;
     }

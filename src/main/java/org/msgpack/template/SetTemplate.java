@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class SetTemplate<E> extends AbstractTemplate<Set<E>> {
     private Template<E> elementTemplate;
@@ -32,6 +32,7 @@ public class SetTemplate<E> extends AbstractTemplate<Set<E>> {
         this.elementTemplate = elementTemplate;
     }
 
+    @Override
     public void write(Packer pk, Set<E> target, boolean required)
             throws IOException {
         if (!(target instanceof Set)) {
@@ -52,6 +53,7 @@ public class SetTemplate<E> extends AbstractTemplate<Set<E>> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public Set<E> read(Unpacker u, Set<E> to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

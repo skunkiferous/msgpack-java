@@ -45,7 +45,8 @@ import org.msgpack.template.builder.JavassistTemplateBuilder;
  */
 public class TemplatePrecompiler {
 
-    private static final Logger LOG = Logger.getLogger(TemplatePrecompiler.class.getName());
+    private static final Logger LOG = Logger
+            .getLogger(TemplatePrecompiler.class.getName());
 
     public static final String DEST = "msgpack.template.destdir";
 
@@ -83,9 +84,11 @@ public class TemplatePrecompiler {
             }
         };
 
-        for (JavaFileObject f : fm.list(StandardLocation.PLATFORM_CLASS_PATH, packageName, kind, false)) {
+        for (JavaFileObject f : fm.list(StandardLocation.PLATFORM_CLASS_PATH,
+                packageName, kind, false)) {
             String relatived0 = f.getName();
-            String name0 = relatived0.substring(0, relatived0.length() - ".class".length());
+            String name0 = relatived0.substring(0, relatived0.length()
+                    - ".class".length());
             Matcher m = pat.matcher(name0);
             if (m.matches()) {
                 String name = packageName + '.' + name0;
@@ -107,15 +110,15 @@ public class TemplatePrecompiler {
         return ret;
     }
 
-    public static void saveTemplateClasses(TemplateRegistry registry, Class<?>[] targetClasses)
-            throws IOException {
+    public static void saveTemplateClasses(TemplateRegistry registry,
+            Class<?>[] targetClasses) throws IOException {
         for (Class<?> c : targetClasses) {
             saveTemplateClass(registry, c);
         }
     }
 
-    public static void saveTemplateClass(TemplateRegistry registry, Class<?> targetClass) 
-            throws IOException {
+    public static void saveTemplateClass(TemplateRegistry registry,
+            Class<?> targetClass) throws IOException {
         LOG.info("Saving template of " + targetClass.getName() + "...");
         Properties props = System.getProperties();
         String distDirName = getDirName(props, DEST, DEFAULT_DEST);
@@ -126,7 +129,8 @@ public class TemplatePrecompiler {
             new JavassistTemplateBuilder(registry).writeTemplate(targetClass,
                     distDirName);
         }
-        LOG.info("Saved .class file of template class of " + targetClass.getName());
+        LOG.info("Saved .class file of template class of "
+                + targetClass.getName());
     }
 
     public static boolean deleteTemplateClass(Class<?> targetClass)
@@ -143,12 +147,13 @@ public class TemplatePrecompiler {
         if (!targetFile.isDirectory() && targetFile.exists()) {
             deleted = targetFile.delete();
         }
-        LOG.info("Deleted .class file of template class of " + targetClass.getName());
+        LOG.info("Deleted .class file of template class of "
+                + targetClass.getName());
         return deleted;
     }
 
-    private static String getDirName(Properties props, String dirName, String defaultDirName)
-            throws IOException {
+    private static String getDirName(Properties props, String dirName,
+            String defaultDirName) throws IOException {
         String dName = props.getProperty(dirName, defaultDirName);
         File d = new File(dName);
         if (!d.isDirectory() && !d.exists()) {

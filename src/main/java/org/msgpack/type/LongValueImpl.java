@@ -17,10 +17,11 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.math.BigInteger;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class LongValueImpl extends IntegerValue {
@@ -30,13 +31,13 @@ class LongValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static long BYTE_MAX = (long) Byte.MAX_VALUE;
-    private static long SHORT_MAX = (long) Short.MAX_VALUE;
-    private static long INT_MAX = (long) Integer.MAX_VALUE;
+    private static long BYTE_MAX = Byte.MAX_VALUE;
+    private static long SHORT_MAX = Short.MAX_VALUE;
+    private static long INT_MAX = Integer.MAX_VALUE;
 
-    private static long BYTE_MIN = (long) Byte.MIN_VALUE;
-    private static long SHORT_MIN = (long) Short.MIN_VALUE;
-    private static long INT_MIN = (long) Integer.MIN_VALUE;
+    private static long BYTE_MIN = Byte.MIN_VALUE;
+    private static long SHORT_MIN = Short.MIN_VALUE;
+    private static long INT_MIN = Integer.MIN_VALUE;
 
     @Override
     public byte getByte() {
@@ -99,12 +100,12 @@ class LongValueImpl extends IntegerValue {
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override

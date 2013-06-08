@@ -17,7 +17,6 @@
 
 package org.msgpack.template.builder.beans;
 
-
 /**
  * Indicates that a proposed property change is unacceptable.
  */

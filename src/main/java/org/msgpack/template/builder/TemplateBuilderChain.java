@@ -27,10 +27,8 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
-	private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
-			"org.msgpack.template.builder.JavassistTemplateBuilder";
-	private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
-			"org.msgpack.template.builder.ReflectionTemplateBuilder";
+    private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME = "org.msgpack.template.builder.JavassistTemplateBuilder";
+    private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME = "org.msgpack.template.builder.ReflectionTemplateBuilder";
 
     private static boolean enableDynamicCodeGeneration() {
         return !DalvikVmChecker.isDalvikVm();
@@ -44,7 +42,8 @@ public class TemplateBuilderChain {
         this(registry, null);
     }
 
-    public TemplateBuilderChain(final TemplateRegistry registry, final ClassLoader cl) {
+    public TemplateBuilderChain(final TemplateRegistry registry,
+            final ClassLoader cl) {
         templateBuilders = new ArrayList<TemplateBuilder>();
         reset(registry, cl);
     }
@@ -65,7 +64,8 @@ public class TemplateBuilderChain {
         }
 
         // create builder chain
-        forceBuilder = createForceTemplateBuilder(forceBuilderClassName, registry, cl);
+        forceBuilder = createForceTemplateBuilder(forceBuilderClassName,
+                registry, cl);
         TemplateBuilder builder = forceBuilder;
         templateBuilders.add(new ArrayTemplateBuilder(registry));
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
@@ -73,36 +73,37 @@ public class TemplateBuilderChain {
         templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
     }
 
-	private static TemplateBuilder createForceTemplateBuilder(String className,
-			TemplateRegistry registry, ClassLoader cl) {
-		try {
-			Class<?> c = (Class<?>) Class.forName(className); // TODO
-			Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
-					ClassLoader.class);
-			return (TemplateBuilder) cons.newInstance(registry, cl);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace(); // TODO
-		} catch (SecurityException e) {
-			e.printStackTrace(); // TODO
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace(); // TODO
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace(); // TODO
-		} catch (InstantiationException e) {
-			e.printStackTrace(); // TODO
-		} catch (IllegalAccessException e) {
-			e.printStackTrace(); // TODO
-		} catch (InvocationTargetException e) {
-			e.printStackTrace(); // TODO
-		}
-		return new ReflectionTemplateBuilder(registry, cl);
+    private static TemplateBuilder createForceTemplateBuilder(String className,
+            TemplateRegistry registry, ClassLoader cl) {
+        try {
+            Class<?> c = Class.forName(className); // TODO
+            Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
+                    ClassLoader.class);
+            return (TemplateBuilder) cons.newInstance(registry, cl);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace(); // TODO
+        } catch (SecurityException e) {
+            e.printStackTrace(); // TODO
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace(); // TODO
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace(); // TODO
+        } catch (InstantiationException e) {
+            e.printStackTrace(); // TODO
+        } catch (IllegalAccessException e) {
+            e.printStackTrace(); // TODO
+        } catch (InvocationTargetException e) {
+            e.printStackTrace(); // TODO
+        }
+        return new ReflectionTemplateBuilder(registry, cl);
     }
 
     public TemplateBuilder getForceBuilder() {
         return forceBuilder;
     }
 
-    public TemplateBuilder select(final Type targetType, final boolean hasAnnotation) {
+    public TemplateBuilder select(final Type targetType,
+            final boolean hasAnnotation) {
         for (TemplateBuilder tb : templateBuilders) {
             if (tb.matchType(targetType, hasAnnotation)) {
                 return tb;

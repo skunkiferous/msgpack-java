@@ -17,10 +17,11 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.math.BigInteger;
+
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class IntValueImpl extends IntegerValue {
@@ -30,11 +31,11 @@ class IntValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static int BYTE_MAX = (int) Byte.MAX_VALUE;
-    private static int SHORT_MAX = (int) Short.MAX_VALUE;
+    private static int BYTE_MAX = Byte.MAX_VALUE;
+    private static int SHORT_MAX = Short.MAX_VALUE;
 
-    private static int BYTE_MIN = (int) Byte.MIN_VALUE;
-    private static int SHORT_MIN = (int) Short.MIN_VALUE;
+    private static int BYTE_MIN = Byte.MIN_VALUE;
+    private static int SHORT_MIN = Short.MIN_VALUE;
 
     @Override
     public byte getByte() {
@@ -64,7 +65,7 @@ class IntValueImpl extends IntegerValue {
 
     @Override
     public BigInteger getBigInteger() {
-        return BigInteger.valueOf((long) value);
+        return BigInteger.valueOf(value);
     }
 
     @Override
@@ -84,22 +85,22 @@ class IntValueImpl extends IntegerValue {
 
     @Override
     public long longValue() {
-        return (long) value;
+        return value;
     }
 
     @Override
     public BigInteger bigIntegerValue() {
-        return BigInteger.valueOf((long) value);
+        return BigInteger.valueOf(value);
     }
 
     @Override
     public float floatValue() {
-        return (float) value;
+        return value;
     }
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override

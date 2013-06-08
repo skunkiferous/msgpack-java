@@ -17,9 +17,10 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
-import java.math.BigDecimal;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
@@ -37,7 +38,7 @@ class FloatValueImpl extends FloatValue {
 
     @Override
     public double getDouble() {
-        return (double) value;
+        return value;
     }
 
     @Override
@@ -62,7 +63,7 @@ class FloatValueImpl extends FloatValue {
 
     @Override
     public BigInteger bigIntegerValue() {
-        return new BigDecimal((double) value).toBigInteger();
+        return new BigDecimal(value).toBigInteger();
     }
 
     @Override
@@ -72,7 +73,7 @@ class FloatValueImpl extends FloatValue {
 
     @Override
     public double doubleValue() {
-        return (double) value;
+        return value;
     }
 
     @Override
@@ -88,7 +89,7 @@ class FloatValueImpl extends FloatValue {
             return false;
         }
 
-        return (double) value == v.asFloatValue().getDouble();
+        return value == v.asFloatValue().getDouble();
     }
 
     @Override

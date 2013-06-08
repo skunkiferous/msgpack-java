@@ -196,6 +196,7 @@ public class Statement {
                         arguments, false);
                 if (iterator.hasNext()) {
                     result = new PrivilegedAction<Object>() {
+                        @Override
                         public Object run() {
                             try {
                                 method.setAccessible(true);
@@ -268,10 +269,11 @@ public class Statement {
     private Method findArrayMethod(String methodName, Object[] args)
             throws NoSuchMethodException {
         // the code below reproduces exact RI exception throwing behavior
-        boolean isGet = BeansUtils.GET.equals(methodName); //$NON-NLS-1$
-        boolean isSet = BeansUtils.SET.equals(methodName); //$NON-NLS-1$
+        boolean isGet = BeansUtils.GET.equals(methodName); 
+        boolean isSet = BeansUtils.SET.equals(methodName); 
         if (!isGet && !isSet) {
-            throw new NoSuchMethodException(Messages.getString("custom.beans.3C")); //$NON-NLS-1$
+            throw new NoSuchMethodException(
+                    Messages.getString("custom.beans.3C")); //$NON-NLS-1$
         } else if (args.length > 0 && args[0].getClass() != Integer.class) {
             throw new ClassCastException(Messages.getString("custom.beans.3D")); //$NON-NLS-1$
         } else if (isGet && args.length != 1) {
@@ -521,6 +523,7 @@ public class Statement {
             cache = new HashMap<Method, Integer>();
         }
 
+        @Override
         public int compare(Method m1, Method m2) {
             Integer norm1 = cache.get(m1);
             Integer norm2 = cache.get(m2);

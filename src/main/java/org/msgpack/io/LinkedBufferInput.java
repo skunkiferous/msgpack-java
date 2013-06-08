@@ -17,12 +17,11 @@
 //
 package org.msgpack.io;
 
-import java.io.IOException;
 import java.io.EOFException;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 public class LinkedBufferInput extends AbstractInput {
     LinkedList<ByteBuffer> link;
@@ -45,6 +44,7 @@ public class LinkedBufferInput extends AbstractInput {
         this.bufferSize = bufferSize;
     }
 
+    @Override
     public int read(byte[] b, int off, int len) throws EOFException {
         if (link.isEmpty()) {
             return 0;
@@ -69,11 +69,13 @@ public class LinkedBufferInput extends AbstractInput {
         return olen - len;
     }
 
+    @Override
     public boolean tryRefer(BufferReferer ref, int len) throws IOException {
         ByteBuffer bb = null;
         try {
             bb = link.getFirst();
-        } catch(NoSuchElementException e) {}
+        } catch (NoSuchElementException e) {
+        }
         if (bb == null) {
             throw new EndOfBufferException();
         } else if (bb.remaining() < len) {
@@ -101,11 +103,13 @@ public class LinkedBufferInput extends AbstractInput {
         return true;
     }
 
+    @Override
     public byte readByte() throws EOFException {
         ByteBuffer bb = null;
         try {
             bb = link.getFirst();
-        } catch(NoSuchElementException e) {}
+        } catch (NoSuchElementException e) {
+        }
         if (bb == null || bb.remaining() == 0) {
             throw new EndOfBufferException();
         }
@@ -117,6 +121,7 @@ public class LinkedBufferInput extends AbstractInput {
         return result;
     }
 
+    @Override
     public void advance() {
         if (link.isEmpty()) {
             return;
@@ -179,7 +184,8 @@ public class LinkedBufferInput extends AbstractInput {
         ByteBuffer bb = null;
         try {
             bb = link.getFirst();
-        } catch(NoSuchElementException e) {}
+        } catch (NoSuchElementException e) {
+        }
         if (bb == null) {
             throw new EndOfBufferException();
         }
@@ -193,31 +199,37 @@ public class LinkedBufferInput extends AbstractInput {
         }
     }
 
+    @Override
     public byte getByte() throws EOFException {
         ByteBuffer bb = require(1);
         return bb.get(bb.position());
     }
 
+    @Override
     public short getShort() throws EOFException {
         ByteBuffer bb = require(2);
         return bb.getShort(bb.position());
     }
 
+    @Override
     public int getInt() throws EOFException {
         ByteBuffer bb = require(4);
         return bb.getInt(bb.position());
     }
 
+    @Override
     public long getLong() throws EOFException {
         ByteBuffer bb = require(8);
         return bb.getLong(bb.position());
     }
 
+    @Override
     public float getFloat() throws EOFException {
         ByteBuffer bb = require(4);
         return bb.getFloat(bb.position());
     }
 
+    @Override
     public double getDouble() throws EOFException {
         ByteBuffer bb = require(8);
         return bb.getDouble(bb.position());
@@ -238,7 +250,7 @@ public class LinkedBufferInput extends AbstractInput {
     public void feed(byte[] b, int off, int len, boolean reference) {
         if (reference) {
             if (writable > 0 && link.getLast().remaining() == 0) {
-                link.add(link.size()-1, ByteBuffer.wrap(b, off, len));
+                link.add(link.size() - 1, ByteBuffer.wrap(b, off, len));
                 return;
             }
             link.addLast(ByteBuffer.wrap(b, off, len));
@@ -249,7 +261,8 @@ public class LinkedBufferInput extends AbstractInput {
         ByteBuffer bb = null;
         try {
             bb = link.getLast();
-        } catch(NoSuchElementException e) {}
+        } catch (NoSuchElementException e) {
+        }
         if (len <= writable) {
             int pos = bb.position();
             bb.position(bb.limit());
@@ -287,7 +300,7 @@ public class LinkedBufferInput extends AbstractInput {
     public void feed(ByteBuffer buf, boolean reference) {
         if (reference) {
             if (writable > 0 && link.getLast().remaining() == 0) {
-                link.add(link.size()-1, buf);
+                link.add(link.size() - 1, buf);
                 return;
             }
             link.addLast(buf);
@@ -300,7 +313,8 @@ public class LinkedBufferInput extends AbstractInput {
         ByteBuffer bb = null;
         try {
             bb = link.getLast();
-        } catch(NoSuchElementException e) {}
+        } catch (NoSuchElementException e) {
+        }
         if (rem <= writable) {
             int pos = bb.position();
             bb.position(bb.limit());
@@ -352,7 +366,7 @@ public class LinkedBufferInput extends AbstractInput {
         }
 
         int size = 0;
-        for(ByteBuffer bb : link) {
+        for (ByteBuffer bb : link) {
             size += bb.remaining();
         }
         if (size == 0) {
@@ -363,7 +377,7 @@ public class LinkedBufferInput extends AbstractInput {
             ByteBuffer last = link.removeLast();
             byte[] copy = new byte[size - last.remaining()];
             int off = 0;
-            for(ByteBuffer bb : link) {
+            for (ByteBuffer bb : link) {
                 int len = bb.remaining();
                 bb.get(copy, off, len);
                 off += len;
@@ -375,7 +389,7 @@ public class LinkedBufferInput extends AbstractInput {
         } else {
             byte[] copy = new byte[size];
             int off = 0;
-            for(ByteBuffer bb : link) {
+            for (ByteBuffer bb : link) {
                 int len = bb.remaining();
                 bb.get(copy, off, len);
                 off += len;
@@ -388,12 +402,13 @@ public class LinkedBufferInput extends AbstractInput {
 
     public int getSize() {
         int size = 0;
-        for(ByteBuffer bb : link) {
+        for (ByteBuffer bb : link) {
             size += bb.remaining();
         }
         return size;
     }
 
+    @Override
     public void close() {
     }
 }

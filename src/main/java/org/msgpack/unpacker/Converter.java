@@ -17,17 +17,17 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.IOException;
 import java.io.EOFException;
+import java.io.IOException;
 import java.math.BigInteger;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.type.Value;
-import org.msgpack.type.ValueType;
 import org.msgpack.type.ArrayValue;
 import org.msgpack.type.MapValue;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueType;
 
 public class Converter extends AbstractUnpacker {
     private final UnpackerStack stack;
@@ -403,6 +403,7 @@ public class Converter extends AbstractUnpacker {
         }
     }
 
+    @Override
     public ValueType getNextType() throws IOException {
         return getTop().getType();
     }

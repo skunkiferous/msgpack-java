@@ -28,8 +28,9 @@ public class ObjectArrayTemplate extends AbstractTemplate {
             packer.writeNil();
             return;
         }
-        if (!(v instanceof Object[]) ||
-                !componentClass.isAssignableFrom(v.getClass().getComponentType())) {
+        if (!(v instanceof Object[])
+                || !componentClass.isAssignableFrom(v.getClass()
+                        .getComponentType())) {
             throw new MessageTypeException();
         }
 

@@ -19,14 +19,16 @@ package org.msgpack.template;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
     private BigDecimalTemplate() {
     }
 
+    @Override
     public void write(Packer pk, BigDecimal target, boolean required)
             throws IOException {
         if (target == null) {
@@ -39,6 +41,7 @@ public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
         pk.write(target.toString());
     }
 
+    @Override
     public BigDecimal read(Unpacker u, BigDecimal to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

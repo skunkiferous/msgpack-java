@@ -26,17 +26,19 @@ import javassist.CtClass;
 import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
+import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
-import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static Logger LOG = Logger.getLogger(JavassistTemplateBuilder.class.getName());
+    private static Logger LOG = Logger.getLogger(JavassistTemplateBuilder.class
+            .getName());
 
-    public static abstract class JavassistTemplate<T> extends AbstractTemplate<T> {
+    public static abstract class JavassistTemplate<T> extends
+            AbstractTemplate<T> {
         public Class<T> targetClass;
         public Template<?>[] templates;
 
@@ -82,15 +84,16 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
-        boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
+        boolean matched = matchAtClassTemplateBuilder(targetClass,
+                hasAnnotation);
         if (matched && LOG.isLoggable(Level.FINE)) {
             LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }
-    
+
     public void addClassLoader(ClassLoader cl) {
-    	pool.appendClassPath(new LoaderClassPath(cl));
+        pool.appendClassPath(new LoaderClassPath(cl));
     }
 
     protected CtClass makeCtClass(String className) {
@@ -110,7 +113,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
+    public <T> Template<T> buildTemplate(Class<T> targetClass,
+            FieldEntry[] entries) {
         Template<?>[] tmpls = toTemplate(entries);
         BuildContext bc = createBuildContext();
         return bc.buildTemplate(targetClass, entries, tmpls);
@@ -139,7 +143,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
         writeTemplate(targetClass, entries, directoryName);
     }
 
-    private void writeTemplate(Class<?> targetClass, FieldEntry[] entries, String directoryName) {
+    private void writeTemplate(Class<?> targetClass, FieldEntry[] entries,
+            String directoryName) {
         Template[] tmpls = toTemplate(entries);
         BuildContext bc = createBuildContext();
         bc.writeTemplate(targetClass, entries, tmpls, directoryName);

@@ -230,20 +230,20 @@ public class FeatureDescriptor {
     public boolean isExpert() {
         return expert;
     }
-    
-    void merge(FeatureDescriptor feature){
-        assert(name.equals(feature.name));
+
+    void merge(FeatureDescriptor feature) {
+        assert (name.equals(feature.name));
         expert |= feature.expert;
         hidden |= feature.hidden;
         preferred |= feature.preferred;
-        if(shortDescription == null){
+        if (shortDescription == null) {
             shortDescription = feature.shortDescription;
         }
-        if(name == null){
+        if (name == null) {
             name = feature.name;
         }
-        if(displayName == null){
+        if (displayName == null) {
             displayName = feature.displayName;
-        }        
+        }
     }
 }

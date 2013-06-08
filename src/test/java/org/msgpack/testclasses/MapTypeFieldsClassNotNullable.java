@@ -7,8 +7,9 @@ import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 
-
-@Ignore @Message @Beans
+@Ignore
+@Message
+@Beans
 public class MapTypeFieldsClassNotNullable {
     @NotNullable
     public Map<Integer, Integer> f0;
@@ -106,70 +107,70 @@ public class MapTypeFieldsClassNotNullable {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof MapTypeFieldsClassNotNullable)) {
-	    return false;
-	}
-	MapTypeFieldsClassNotNullable that = (MapTypeFieldsClassNotNullable) o;
-	// f0
-	if (f0 == null) {
-	    if (that.f0 != null) {
-		return false;
-	    }
-	}
-	if (that.f0 != null) {
-	    for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
-		Integer key = e.getKey();
-		Integer val = that.f0.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f1
-	if (f1 == null) {
-	    if (that.f1 != null) {
-		return false;
-	    }
-	}
-	if (that.f1 != null) {
-	    for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
-		Integer key = e.getKey();
-		Integer val = that.f1.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f2
-	if (f2 == null) {
-	    if (that.f2 != null) {
-		return false;
-	    }
-	}
-	if (that.f2 != null) {
-	    for (Map.Entry<String, Integer> e : f2.entrySet()) {
-		String key = e.getKey();
-		Integer val = that.f2.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
-	// f3
-	if (f3 == null) {
-	    if (that.f3 != null) {
-		return false;
-	    }
-	}
-	if (that.f3 != null) {
-	    for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
-		String key = e.getKey();
-		NestedClass val = that.f3.get(key);
-		if (!e.getValue().equals(val)) {
-		    return false;
-		}
-	    }
-	}
+        if (!(o instanceof MapTypeFieldsClassNotNullable)) {
+            return false;
+        }
+        MapTypeFieldsClassNotNullable that = (MapTypeFieldsClassNotNullable) o;
+        // f0
+        if (f0 == null) {
+            if (that.f0 != null) {
+                return false;
+            }
+        }
+        if (that.f0 != null) {
+            for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
+                Integer key = e.getKey();
+                Integer val = that.f0.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f1
+        if (f1 == null) {
+            if (that.f1 != null) {
+                return false;
+            }
+        }
+        if (that.f1 != null) {
+            for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
+                Integer key = e.getKey();
+                Integer val = that.f1.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f2
+        if (f2 == null) {
+            if (that.f2 != null) {
+                return false;
+            }
+        }
+        if (that.f2 != null) {
+            for (Map.Entry<String, Integer> e : f2.entrySet()) {
+                String key = e.getKey();
+                Integer val = that.f2.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
+        // f3
+        if (f3 == null) {
+            if (that.f3 != null) {
+                return false;
+            }
+        }
+        if (that.f3 != null) {
+            for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
+                String key = e.getKey();
+                NestedClass val = that.f3.get(key);
+                if (!e.getValue().equals(val)) {
+                    return false;
+                }
+            }
+        }
         // f4
         if (f4 == null) {
             if (that.f4 != null) {
@@ -228,41 +229,44 @@ public class MapTypeFieldsClassNotNullable {
         return true;
     }
 
-    @Ignore @Message @Beans
+    @Ignore
+    @Message
+    @Beans
     public static class NestedClass {
-	@NotNullable
-	public String f0;
+        @NotNullable
+        public String f0;
 
-	public NestedClass() {}
+        public NestedClass() {
+        }
 
-	@NotNullable
-	public String getF0() {
-	    return f0;
-	}
+        @NotNullable
+        public String getF0() {
+            return f0;
+        }
 
-	@NotNullable
-	public void setF0(String f0) {
-	    this.f0 = f0;
-	}
+        @NotNullable
+        public void setF0(String f0) {
+            this.f0 = f0;
+        }
 
-	@Override
-	public boolean equals(Object o) {
-	    if (! (o instanceof NestedClass)) {
-		return false;
-	    }
-	    NestedClass that = (NestedClass) o;
-	    // f0
-	    if (f0 == null) {
-		if (that.f0 != null) {
-		    return false;
-		}
-	    }
-	    if (that.f0 != null) {
-		if (! f0.equals(that.f0)) {
-		    return false;
-		}
-	    }
-	    return true;
-	}
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof NestedClass)) {
+                return false;
+            }
+            NestedClass that = (NestedClass) o;
+            // f0
+            if (f0 == null) {
+                if (that.f0 != null) {
+                    return false;
+                }
+            }
+            if (that.f0 != null) {
+                if (!f0.equals(that.f0)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

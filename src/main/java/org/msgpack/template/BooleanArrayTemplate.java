@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
     private BooleanArrayTemplate() {
     }
 
+    @Override
     public void write(Packer pk, boolean[] target, boolean required)
             throws IOException {
         if (target == null) {
@@ -42,6 +44,7 @@ public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
         pk.writeArrayEnd();
     }
 
+    @Override
     public boolean[] read(Unpacker u, boolean[] to, boolean required)
             throws IOException {
         if (!required && u.trySkipNil()) {

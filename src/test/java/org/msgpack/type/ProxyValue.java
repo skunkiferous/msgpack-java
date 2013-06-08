@@ -10,6 +10,7 @@ public abstract class ProxyValue implements Value {
 
     protected abstract Value getValue();
 
+    @Override
     public ValueType getType() {
         return getValue().getType();
     }

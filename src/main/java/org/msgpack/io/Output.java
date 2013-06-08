@@ -17,9 +17,9 @@
 //
 package org.msgpack.io;
 
-import java.io.IOException;
 import java.io.Closeable;
 import java.io.Flushable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public interface Output extends Closeable, Flushable {

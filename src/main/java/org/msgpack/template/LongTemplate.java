@@ -18,14 +18,16 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 public class LongTemplate extends AbstractTemplate<Long> {
     private LongTemplate() {
     }
 
+    @Override
     public void write(Packer pk, Long target, boolean required)
             throws IOException {
         if (target == null) {
@@ -38,6 +40,7 @@ public class LongTemplate extends AbstractTemplate<Long> {
         pk.write((long) target);
     }
 
+    @Override
     public Long read(Unpacker u, Long to, boolean required) throws IOException {
         if (!required && u.trySkipNil()) {
             return null;

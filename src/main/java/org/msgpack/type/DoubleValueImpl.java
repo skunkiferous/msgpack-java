@@ -17,9 +17,10 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
-import java.math.BigDecimal;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")

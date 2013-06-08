@@ -8,9 +8,6 @@ import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
-import org.msgpack.util.json.JSONBufferPacker;
-import org.msgpack.util.json.JSONBufferUnpacker;
-
 
 public class TestSimpleJSONPackUnpack {
     @Test
@@ -18,17 +15,15 @@ public class TestSimpleJSONPackUnpack {
         MessagePack msgpack = new MessagePack();
 
         Value v = ValueFactory.createMapValue(new Value[] {
-                        ValueFactory.createRawValue("k1"),
-                        ValueFactory.createIntegerValue(1),
-                        ValueFactory.createRawValue("k2"),
-                        ValueFactory.createArrayValue(new Value[] {
-                            ValueFactory.createNilValue(),
-                            ValueFactory.createBooleanValue(true),
-                            ValueFactory.createBooleanValue(false)
-                        }),
-                        ValueFactory.createRawValue("k3"),
-                        ValueFactory.createFloatValue(0.1)
-                    });
+                ValueFactory.createRawValue("k1"),
+                ValueFactory.createIntegerValue(1),
+                ValueFactory.createRawValue("k2"),
+                ValueFactory.createArrayValue(new Value[] {
+                        ValueFactory.createNilValue(),
+                        ValueFactory.createBooleanValue(true),
+                        ValueFactory.createBooleanValue(false) }),
+                ValueFactory.createRawValue("k3"),
+                ValueFactory.createFloatValue(0.1) });
 
         JSONBufferPacker pk = new JSONBufferPacker(msgpack);
         pk.write(v);
@@ -44,4 +39,3 @@ public class TestSimpleJSONPackUnpack {
         assertEquals(v, v2);
     }
 }
-

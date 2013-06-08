@@ -20,14 +20,14 @@ package org.msgpack.template.builder;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.msgpack.*;
-import org.msgpack.template.*;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtNewConstructor;
 import javassist.NotFoundException;
+
+import org.msgpack.MessageTypeException;
+import org.msgpack.template.Template;
 
 @SuppressWarnings("rawtypes")
 public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
@@ -43,6 +43,7 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
         super(director);
     }
 
+    @Override
     public Template buildTemplate(Class<?> targetClass,
             BeansFieldEntry[] entries, Template[] templates) {
         this.entries = entries;
@@ -52,29 +53,36 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
         return build(origName);
     }
 
-    protected void setSuperClass() throws CannotCompileException, NotFoundException {
-        tmplCtClass.setSuperclass(director.getCtClass(
-                JavassistTemplateBuilder.JavassistTemplate.class.getName()));
+    @Override
+    protected void setSuperClass() throws CannotCompileException,
+            NotFoundException {
+        tmplCtClass.setSuperclass(director
+                .getCtClass(JavassistTemplateBuilder.JavassistTemplate.class
+                        .getName()));
     }
 
+    @Override
     protected void buildConstructor() throws CannotCompileException,
             NotFoundException {
         // Constructor(Class targetClass, Template[] templates)
         CtConstructor newCtCons = CtNewConstructor.make(
-                new CtClass[] {
-                        director.getCtClass(Class.class.getName()),
-                        director.getCtClass(Template.class.getName() + "[]")
-                }, new CtClass[0], tmplCtClass);
+                new CtClass[] { director.getCtClass(Class.class.getName()),
+                        director.getCtClass(Template.class.getName() + "[]") },
+                new CtClass[0], tmplCtClass);
         tmplCtClass.addConstructor(newCtCons);
     }
 
+    @Override
     protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
+            InstantiationException, IllegalAccessException,
+            InvocationTargetException {
+        Constructor<?> cons = c.getConstructor(new Class[] { Class.class,
+                Template[].class });
         Object tmpl = cons.newInstance(new Object[] { origClass, templates });
         return (Template) tmpl;
     }
 
+    @Override
     protected void buildMethodInit() {
     }
 
@@ -85,7 +93,8 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 
         buildString("if($2 == null) {");
         buildString("  if($3) {");
-        buildString("    throw new %s(\"Attempted to write null\");", MessageTypeException.class.getName());
+        buildString("    throw new %s(\"Attempted to write null\");",
+                MessageTypeException.class.getName());
         buildString("  }");
         buildString("  $1.writeNil();");
         buildString("  return;");
@@ -102,16 +111,19 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
             }
             Class<?> type = e.getType();
             if (type.isPrimitive()) {
-                buildString("$1.%s(_$$_t.%s());", primitiveWriteName(type), e.getGetterName());
+                buildString("$1.%s(_$$_t.%s());", primitiveWriteName(type),
+                        e.getGetterName());
             } else {
                 buildString("if(_$$_t.%s() == null) {", e.getGetterName());
                 if (e.isNotNullable()) {
-                    buildString("throw new %s();", MessageTypeException.class.getName());
+                    buildString("throw new %s();",
+                            MessageTypeException.class.getName());
                 } else {
                     buildString("$1.writeNil();");
                 }
                 buildString("} else {");
-                buildString("  this.templates[%d].write($1, _$$_t.%s());", i, e.getGetterName());
+                buildString("  this.templates[%d].write($1, _$$_t.%s());", i,
+                        e.getGetterName());
                 buildString("}");
             }
         }
@@ -155,11 +167,13 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 
             Class<?> type = e.getType();
             if (type.isPrimitive()) {
-                buildString("_$$_t.%s( $1.%s() );", e.getSetterName(), primitiveReadName(type));
+                buildString("_$$_t.%s( $1.%s() );", e.getSetterName(),
+                        primitiveReadName(type));
             } else {
                 buildString(
                         "_$$_t.%s( (%s)this.templates[%d].read($1, _$$_t.%s()) );",
-                        e.getSetterName(), e.getJavaTypeName(), i, e.getGetterName());
+                        e.getSetterName(), e.getJavaTypeName(), i,
+                        e.getGetterName());
             }
 
             if (e.isOptional()) {

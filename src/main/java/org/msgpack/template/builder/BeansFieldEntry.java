@@ -24,7 +24,8 @@ public class BeansFieldEntry extends FieldEntry {
         this(desc, FieldOption.DEFAULT);
     }
 
-    public BeansFieldEntry(final PropertyDescriptor desc, final FieldOption option) {
+    public BeansFieldEntry(final PropertyDescriptor desc,
+            final FieldOption option) {
         super(option);
         this.desc = desc;
     }

@@ -19,17 +19,18 @@ package org.msgpack.util.json;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
+
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.msgpack.MessagePack;
-import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
+import org.msgpack.unpacker.Converter;
 
 public class JSONUnpacker extends Converter {
     protected Reader in;
@@ -113,6 +114,7 @@ public class JSONUnpacker extends Converter {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
+    @Override
     public void close() throws IOException {
         in.close();
         super.close();

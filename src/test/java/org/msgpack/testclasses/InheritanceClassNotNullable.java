@@ -5,8 +5,9 @@ import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 
-
-@Ignore @Message @Beans
+@Ignore
+@Message
+@Beans
 public class InheritanceClassNotNullable extends SuperClassNotNullable {
     @NotNullable
     public String f1;
@@ -14,7 +15,8 @@ public class InheritanceClassNotNullable extends SuperClassNotNullable {
     @NotNullable
     public int f2;
 
-    public InheritanceClassNotNullable() {}
+    public InheritanceClassNotNullable() {
+    }
 
     @NotNullable
     public String getF1() {
@@ -38,36 +40,36 @@ public class InheritanceClassNotNullable extends SuperClassNotNullable {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof InheritanceClassNotNullable)) {
-	    return false;
-	}
-	InheritanceClassNotNullable that = (InheritanceClassNotNullable) o;
-	// f0
-	if (f0 == null) {
-	    if (that.f0 != null) {
-		return false;
-	    }
-	}
-	if (that.f0 != null) {
-	    if (! f0.equals(that.f0)) {
-		return false;
-	    }
-	}
-	// f1
-	if (f1 == null) {
-	    if (that.f1 != null) {
-		return false;
-	    }
-	}
-	if (that.f1 != null) {
-	    if (! f1.equals(that.f1)) {
-		return false;
-	    }
-	}
-	// f2
-	if (f2 != that.f2) {
-	    return false;
-	}
-	return true;
+        if (!(o instanceof InheritanceClassNotNullable)) {
+            return false;
+        }
+        InheritanceClassNotNullable that = (InheritanceClassNotNullable) o;
+        // f0
+        if (f0 == null) {
+            if (that.f0 != null) {
+                return false;
+            }
+        }
+        if (that.f0 != null) {
+            if (!f0.equals(that.f0)) {
+                return false;
+            }
+        }
+        // f1
+        if (f1 == null) {
+            if (that.f1 != null) {
+                return false;
+            }
+        }
+        if (that.f1 != null) {
+            if (!f1.equals(that.f1)) {
+                return false;
+            }
+        }
+        // f2
+        if (f2 != that.f2) {
+            return false;
+        }
+        return true;
     }
 }

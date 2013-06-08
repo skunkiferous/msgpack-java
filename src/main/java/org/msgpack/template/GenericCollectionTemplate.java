@@ -25,9 +25,11 @@ public class GenericCollectionTemplate implements GenericTemplate {
     Constructor<? extends Template> constructor;
 
     @SuppressWarnings("rawtypes")
-    public GenericCollectionTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
+    public GenericCollectionTemplate(TemplateRegistry registry,
+            Class<? extends Template> tmpl) {
         try {
-            constructor = tmpl.getConstructor(new Class<?>[] { Template.class });
+            constructor = tmpl
+                    .getConstructor(new Class<?>[] { Template.class });
             constructor.newInstance(new Object[] { new AnyTemplate(registry) });
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
@@ -40,6 +42,7 @@ public class GenericCollectionTemplate implements GenericTemplate {
         }
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public Template build(Template[] params) {
         try {
