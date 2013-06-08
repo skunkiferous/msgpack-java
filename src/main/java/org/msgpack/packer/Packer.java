@@ -29,63 +29,70 @@ import org.msgpack.type.Value;
  * Standard serializer in MessagePack for Java. It allows users to serialize
  * objects like <tt>String</tt>, <tt>List</tt>, <tt>Map</tt>, <tt>byte[]</tt>,
  * primitive types and so on.
- * 
+ *
  * @version 0.6.0
  */
 public interface Packer extends Closeable, Flushable {
-    public Packer write(boolean o) throws IOException;
+    public Packer write(final boolean o) throws IOException;
 
-    public Packer write(byte o) throws IOException;
+    public Packer write(final byte o) throws IOException;
 
-    public Packer write(short o) throws IOException;
+    public Packer write(final short o) throws IOException;
 
-    public Packer write(int o) throws IOException;
+    // TODO Make sure it it used and tested ...
+    public Packer write(final char o) throws IOException;
 
-    public Packer write(long o) throws IOException;
+    public Packer write(final int o) throws IOException;
 
-    public Packer write(float o) throws IOException;
+    public Packer write(final long o) throws IOException;
 
-    public Packer write(double o) throws IOException;
+    public Packer write(final float o) throws IOException;
 
-    public Packer write(Boolean o) throws IOException;
+    public Packer write(final double o) throws IOException;
 
-    public Packer write(Byte o) throws IOException;
+    public Packer write(final Boolean o) throws IOException;
 
-    public Packer write(Short o) throws IOException;
+    public Packer write(final Byte o) throws IOException;
 
-    public Packer write(Integer o) throws IOException;
+    public Packer write(final Short o) throws IOException;
 
-    public Packer write(Long o) throws IOException;
+    // TODO Make sure it it used and tested ...
+    public Packer write(final Character o) throws IOException;
 
-    public Packer write(Float o) throws IOException;
+    public Packer write(final Integer o) throws IOException;
 
-    public Packer write(Double o) throws IOException;
+    public Packer write(final Long o) throws IOException;
 
-    public Packer write(BigInteger o) throws IOException;
+    public Packer write(final Float o) throws IOException;
 
-    public Packer write(byte[] o) throws IOException;
+    public Packer write(final Double o) throws IOException;
 
-    public Packer write(byte[] o, int off, int len) throws IOException;
+    public Packer write(final BigInteger o) throws IOException;
 
-    public Packer write(ByteBuffer o) throws IOException;
+    public Packer write(final byte[] o) throws IOException;
 
-    public Packer write(String o) throws IOException;
+    public Packer write(final byte[] o, final int off, final int len)
+            throws IOException;
 
-    public Packer write(Value v) throws IOException;
+    public Packer write(final ByteBuffer o) throws IOException;
 
-    public Packer write(Object o) throws IOException;
+    public Packer write(final String o) throws IOException;
+
+    public Packer write(final Value v) throws IOException;
+
+    public Packer write(final Object o) throws IOException;
 
     public Packer writeNil() throws IOException;
 
-    public Packer writeArrayBegin(int size) throws IOException;
+    public Packer writeArrayBegin(final int size) throws IOException;
 
-    public Packer writeArrayEnd(boolean check) throws IOException;
+    public Packer writeArrayEnd(final boolean check) throws IOException;
 
     public Packer writeArrayEnd() throws IOException;
 
-    public Packer writeMapBegin(int size) throws IOException;
+    public Packer writeMapBegin(final int size) throws IOException;
 
-    public Packer writeMapEnd(boolean check) throws IOException;
+    public Packer writeMapEnd(final boolean check) throws IOException;
 
     public Packer writeMapEnd() throws IOException;
 }

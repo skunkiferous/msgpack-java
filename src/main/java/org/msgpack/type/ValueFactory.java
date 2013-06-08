@@ -25,7 +25,7 @@ public final class ValueFactory {
         return NilValue.getInstance();
     }
 
-    public static BooleanValue createBooleanValue(boolean v) {
+    public static BooleanValue createBooleanValue(final boolean v) {
         if (v) {
             return TrueValueImpl.getInstance();
         } else {
@@ -33,31 +33,35 @@ public final class ValueFactory {
         }
     }
 
-    public static IntegerValue createIntegerValue(byte v) {
+    public static IntegerValue createIntegerValue(final byte v) {
         return new IntValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(short v) {
+    public static IntegerValue createIntegerValue(final short v) {
         return new IntValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(int v) {
+    public static IntegerValue createIntegerValue(final char v) {
         return new IntValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(long v) {
+    public static IntegerValue createIntegerValue(final int v) {
+        return new IntValueImpl(v);
+    }
+
+    public static IntegerValue createIntegerValue(final long v) {
         return new LongValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(BigInteger v) {
+    public static IntegerValue createIntegerValue(final BigInteger v) {
         return new BigIntegerValueImpl(v);
     }
 
-    public static FloatValue createFloatValue(float v) {
+    public static FloatValue createFloatValue(final float v) {
         return new FloatValueImpl(v);
     }
 
-    public static FloatValue createFloatValue(double v) {
+    public static FloatValue createFloatValue(final double v) {
         return new DoubleValueImpl(v);
     }
 
@@ -65,26 +69,27 @@ public final class ValueFactory {
         return ByteArrayRawValueImpl.getEmptyInstance();
     }
 
-    public static RawValue createRawValue(byte[] b) {
+    public static RawValue createRawValue(final byte[] b) {
         return createRawValue(b, false);
     }
 
-    public static RawValue createRawValue(byte[] b, boolean gift) {
+    public static RawValue createRawValue(final byte[] b, final boolean gift) {
         return new ByteArrayRawValueImpl(b, gift);
     }
 
-    public static RawValue createRawValue(byte[] b, int off, int len) {
+    public static RawValue createRawValue(final byte[] b, final int off,
+            final int len) {
         return new ByteArrayRawValueImpl(b, off, len);
     }
 
-    public static RawValue createRawValue(String s) {
+    public static RawValue createRawValue(final String s) {
         return new StringRawValueImpl(s);
     }
 
-    public static RawValue createRawValue(ByteBuffer bb) {
-        int pos = bb.position();
+    public static RawValue createRawValue(final ByteBuffer bb) {
+        final int pos = bb.position();
         try {
-            byte[] buf = new byte[bb.remaining()];
+            final byte[] buf = new byte[bb.remaining()];
             bb.get(buf);
             return new ByteArrayRawValueImpl(buf, true);
         } finally {
@@ -96,7 +101,7 @@ public final class ValueFactory {
         return ArrayValueImpl.getEmptyInstance();
     }
 
-    public static ArrayValue createArrayValue(Value[] array) {
+    public static ArrayValue createArrayValue(final Value[] array) {
         if (array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
@@ -104,7 +109,8 @@ public final class ValueFactory {
         return createArrayValue(array, false);
     }
 
-    public static ArrayValue createArrayValue(Value[] array, boolean gift) {
+    public static ArrayValue createArrayValue(final Value[] array,
+            final boolean gift) {
         if (array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
@@ -116,7 +122,7 @@ public final class ValueFactory {
         return SequentialMapValueImpl.getEmptyInstance();
     }
 
-    public static MapValue createMapValue(Value[] kvs) {
+    public static MapValue createMapValue(final Value[] kvs) {
         if (kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();
@@ -124,7 +130,7 @@ public final class ValueFactory {
         return createMapValue(kvs, false);
     }
 
-    public static MapValue createMapValue(Value[] kvs, boolean gift) {
+    public static MapValue createMapValue(final Value[] kvs, final boolean gift) {
         if (kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();

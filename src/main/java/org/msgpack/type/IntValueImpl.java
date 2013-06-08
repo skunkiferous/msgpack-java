@@ -25,17 +25,19 @@ import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class IntValueImpl extends IntegerValue {
-    private int value;
+    private final int value;
 
-    IntValueImpl(int value) {
+    IntValueImpl(final int value) {
         this.value = value;
     }
 
     private static int BYTE_MAX = Byte.MAX_VALUE;
     private static int SHORT_MAX = Short.MAX_VALUE;
+    private static int CHAR_MAX = Character.MAX_VALUE;
 
     private static int BYTE_MIN = Byte.MIN_VALUE;
     private static int SHORT_MIN = Short.MIN_VALUE;
+    private static int CHAR_MIN = Character.MIN_VALUE;
 
     @Override
     public byte getByte() {
@@ -51,6 +53,14 @@ class IntValueImpl extends IntegerValue {
             throw new MessageTypeException(); // TODO message
         }
         return (short) value;
+    }
+
+    @Override
+    public char getChar() {
+        if (value > CHAR_MAX || value < CHAR_MIN) {
+            throw new MessageTypeException(); // TODO message
+        }
+        return (char) value;
     }
 
     @Override
@@ -104,21 +114,21 @@ class IntValueImpl extends IntegerValue {
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
+    public void writeTo(final Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this) {
             return true;
         }
         if (!(o instanceof Value)) {
             return false;
         }
-        Value v = (Value) o;
+        final Value v = (Value) o;
         if (!v.isIntegerValue()) {
             return false;
         }
@@ -126,7 +136,7 @@ class IntValueImpl extends IntegerValue {
         try {
             // TODO
             return value == v.asIntegerValue().getInt();
-        } catch (MessageTypeException ex) {
+        } catch (final MessageTypeException ex) {
             return false;
         }
     }
@@ -142,7 +152,7 @@ class IntValueImpl extends IntegerValue {
     }
 
     @Override
-    public StringBuilder toString(StringBuilder sb) {
+    public StringBuilder toString(final StringBuilder sb) {
         return sb.append(Integer.toString(value));
     }
 }

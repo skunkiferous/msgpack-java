@@ -52,11 +52,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final ValueAccept valueAccept = new ValueAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
-    public MessagePackUnpacker(MessagePack msgpack, InputStream stream) {
+    public MessagePackUnpacker(final MessagePack msgpack,
+            final InputStream stream) {
         this(msgpack, new StreamInput(stream));
     }
 
-    protected MessagePackUnpacker(MessagePack msgpack, Input in) {
+    protected MessagePackUnpacker(final MessagePack msgpack, final Input in) {
         super(msgpack);
         this.in = in;
     }
@@ -69,14 +70,14 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return b;
     }
 
-    final void readOne(Accept a) throws IOException {
+    final void readOne(final Accept a) throws IOException {
         stack.checkCount();
         if (readOneWithoutStack(a)) {
             stack.reduceCount();
         }
     }
 
-    final boolean readOneWithoutStack(Accept a) throws IOException {
+    final boolean readOneWithoutStack(final Accept a) throws IOException {
         if (raw != null) {
             readRawBodyCont();
             a.acceptRaw(raw);
@@ -102,7 +103,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
 
         if ((b & 0xe0) == 0xa0) { // FixRaw
-            int count = b & 0x1f;
+            final int count = b & 0x1f;
             if (count == 0) {
                 a.acceptEmptyRaw();
                 headByte = REQUIRE_TO_READ_HEAD;
@@ -118,7 +119,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
 
         if ((b & 0xf0) == 0x90) { // FixArray
-            int count = b & 0x0f;
+            final int count = b & 0x0f;
             // System.out.println("fixarray count:"+count);
             a.acceptArray(count);
             stack.reduceCount();
@@ -128,7 +129,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
 
         if ((b & 0xf0) == 0x80) { // FixMap
-            int count = b & 0x0f;
+            final int count = b & 0x0f;
             // System.out.println("fixmap count:"+count/2);
             a.acceptMap(count);
             stack.reduceCount();
@@ -140,7 +141,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return readOneWithoutStackLarge(a, b);
     }
 
-    private boolean readOneWithoutStackLarge(Accept a, final int b)
+    private boolean readOneWithoutStackLarge(final Accept a, final int b)
             throws IOException {
         switch (b & 0xff) {
         case 0xc0: // nil
@@ -207,7 +208,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         case 0xda: // raw 16
         {
-            int count = in.getShort() & 0xffff;
+            final int count = in.getShort() & 0xffff;
             if (count == 0) {
                 a.acceptEmptyRaw();
                 in.advance();
@@ -215,7 +216,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 return true;
             }
             if (count >= rawSizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of raw (%d) over limit at %d", new Object[] {
                                 count, rawSizeLimit });
                 throw new SizeLimitException(reason);
@@ -231,7 +232,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         case 0xdb: // raw 32
         {
-            int count = in.getInt();
+            final int count = in.getInt();
             if (count == 0) {
                 a.acceptEmptyRaw();
                 in.advance();
@@ -239,7 +240,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 return true;
             }
             if (count < 0 || count >= rawSizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of raw (%d) over limit at %d", new Object[] {
                                 count, rawSizeLimit });
                 throw new SizeLimitException(reason);
@@ -255,9 +256,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         case 0xdc: // array 16
         {
-            int count = in.getShort() & 0xffff;
+            final int count = in.getShort() & 0xffff;
             if (count >= arraySizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of array (%d) over limit at %d", new Object[] {
                                 count, arraySizeLimit });
                 throw new SizeLimitException(reason);
@@ -271,9 +272,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         case 0xdd: // array 32
         {
-            int count = in.getInt();
+            final int count = in.getInt();
             if (count < 0 || count >= arraySizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of array (%d) over limit at %d", new Object[] {
                                 count, arraySizeLimit });
                 throw new SizeLimitException(reason);
@@ -287,9 +288,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         case 0xde: // map 16
         {
-            int count = in.getShort() & 0xffff;
+            final int count = in.getShort() & 0xffff;
             if (count >= mapSizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of map (%d) over limit at %d", new Object[] {
                                 count, mapSizeLimit });
                 throw new SizeLimitException(reason);
@@ -303,9 +304,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         case 0xdf: // map 32
         {
-            int count = in.getInt();
+            final int count = in.getInt();
             if (count < 0 || count >= mapSizeLimit) {
-                String reason = String.format(
+                final String reason = String.format(
                         "Size of map (%d) over limit at %d", new Object[] {
                                 count, mapSizeLimit });
                 throw new SizeLimitException(reason);
@@ -325,19 +326,19 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
     }
 
-    private boolean tryReferRawBody(BufferReferer referer, int size)
+    private boolean tryReferRawBody(final BufferReferer referer, final int size)
             throws IOException {
         return in.tryRefer(referer, size);
     }
 
-    private void readRawBody(int size) throws IOException {
+    private void readRawBody(final int size) throws IOException {
         raw = new byte[size];
         rawFilled = 0;
         readRawBodyCont();
     }
 
     private void readRawBodyCont() throws IOException {
-        int len = in.read(raw, rawFilled, raw.length - rawFilled);
+        final int len = in.read(raw, rawFilled, raw.length - rawFilled);
         rawFilled += len;
         if (rawFilled < raw.length) {
             throw new EOFException();
@@ -347,7 +348,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     protected boolean tryReadNil() throws IOException {
         stack.checkCount();
-        int b = getHeadByte() & 0xff;
+        final int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
             // nil is read
             stack.reduceCount();
@@ -365,7 +366,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        int b = getHeadByte() & 0xff;
+        final int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
             // nil is skipped
             stack.reduceCount();
@@ -380,7 +381,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     public void readNil() throws IOException {
         // optimized not to allocate nilAccept
         stack.checkCount();
-        int b = getHeadByte() & 0xff;
+        final int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -393,7 +394,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     public boolean readBoolean() throws IOException {
         // optimized not to allocate booleanAccept
         stack.checkCount();
-        int b = getHeadByte() & 0xff;
+        final int b = getHeadByte() & 0xff;
         if (b == 0xc2) {
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -412,7 +413,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         // optimized not to allocate byteAccept
         stack.checkCount();
         readOneWithoutStack(intAccept);
-        int value = intAccept.value;
+        final int value = intAccept.value;
         if (value < Byte.MIN_VALUE || value > Byte.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
@@ -425,12 +426,25 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         // optimized not to allocate shortAccept
         stack.checkCount();
         readOneWithoutStack(intAccept);
-        int value = intAccept.value;
+        final int value = intAccept.value;
         if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         stack.reduceCount();
         return (short) value;
+    }
+
+    @Override
+    public char readChar() throws IOException {
+        // optimized not to allocate shortAccept
+        stack.checkCount();
+        readOneWithoutStack(intAccept);
+        final int value = intAccept.value;
+        if (value < Character.MIN_VALUE || value > Character.MAX_VALUE) {
+            throw new MessageTypeException(); // TODO message
+        }
+        stack.reduceCount();
+        return (char) value;
     }
 
     @Override
@@ -482,13 +496,13 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
-    public void readArrayEnd(boolean check) throws IOException {
+    public void readArrayEnd(final boolean check) throws IOException {
         if (!stack.topIsArray()) {
             throw new MessageTypeException(
                     "readArrayEnd() is called but readArrayBegin() is not called");
         }
 
-        int remain = stack.getTopCount();
+        final int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
@@ -508,13 +522,13 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
-    public void readMapEnd(boolean check) throws IOException {
+    public void readMapEnd(final boolean check) throws IOException {
         if (!stack.topIsMap()) {
             throw new MessageTypeException(
                     "readMapEnd() is called but readMapBegin() is not called");
         }
 
-        int remain = stack.getTopCount();
+        final int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
@@ -528,7 +542,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
-    protected void readValue(Unconverter uc) throws IOException {
+    protected void readValue(final Unconverter uc) throws IOException {
         if (uc.getResult() != null) {
             uc.resetResult();
         }
@@ -569,7 +583,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             stack.reduceCount();
             return;
         }
-        int targetDepth = stack.getDepth() - 1;
+        final int targetDepth = stack.getDepth() - 1;
         while (true) {
             while (stack.getTopCount() == 0) {
                 stack.pop();

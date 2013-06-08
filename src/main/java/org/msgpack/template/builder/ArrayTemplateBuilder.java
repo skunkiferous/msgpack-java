@@ -30,6 +30,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.BooleanArrayTemplate;
 import org.msgpack.template.ByteArrayTemplate;
+import org.msgpack.template.CharArrayTemplate;
 import org.msgpack.template.DoubleArrayTemplate;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.FloatArrayTemplate;
@@ -50,12 +51,12 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     static class ReflectionMultidimentionalArrayTemplate extends
             AbstractTemplate {
 
-        private Class componentClass;
+        private final Class componentClass;
 
-        private Template componentTemplate;
+        private final Template componentTemplate;
 
-        public ReflectionMultidimentionalArrayTemplate(Class componentClass,
-                Template componentTemplate) {
+        public ReflectionMultidimentionalArrayTemplate(
+                final Class componentClass, final Template componentTemplate) {
             this.componentClass = componentClass;
             this.componentTemplate = componentTemplate;
         }
@@ -65,8 +66,8 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
         }
 
         @Override
-        public void write(Packer packer, Object v, boolean required)
-                throws IOException {
+        public void write(final Packer packer, final Object v,
+                final boolean required) throws IOException {
             if (v == null) {
                 if (required) {
                     throw new MessageTypeException("Attempted to write null");
@@ -80,8 +81,8 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
                 throw new MessageTypeException();
             }
 
-            Object[] array = (Object[]) v;
-            int length = array.length;
+            final Object[] array = (Object[]) v;
+            final int length = array.length;
             packer.writeArrayBegin(length);
             for (int i = 0; i < length; i++) {
                 componentTemplate.write(packer, array[i], required);
@@ -90,14 +91,14 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
         }
 
         @Override
-        public Object read(Unpacker unpacker, Object to, boolean required)
-                throws IOException {
+        public Object read(final Unpacker unpacker, final Object to,
+                final boolean required) throws IOException {
             if (!required && unpacker.trySkipNil()) {
                 return null;
             }
 
-            int length = unpacker.readArrayBegin();
-            Object[] array = (Object[]) Array.newInstance(componentClass,
+            final int length = unpacker.readArrayBegin();
+            final Object[] array = (Object[]) Array.newInstance(componentClass,
                     length);
             for (int i = 0; i < length; i++) {
                 array[i] = componentTemplate.read(unpacker, null, required);
@@ -107,15 +108,15 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
         }
     }
 
-    public ArrayTemplateBuilder(TemplateRegistry registry) {
+    public ArrayTemplateBuilder(final TemplateRegistry registry) {
         super(registry);
     }
 
     @Override
-    public boolean matchType(Type targetType, boolean forceBuild) {
-        Class<?> targetClass = (Class<?>) targetType;
-        boolean matched = AbstractTemplateBuilder.matchAtArrayTemplateBuilder(
-                targetClass, false);
+    public boolean matchType(final Type targetType, final boolean forceBuild) {
+        final Class<?> targetClass = (Class<?>) targetType;
+        final boolean matched = AbstractTemplateBuilder
+                .matchAtArrayTemplateBuilder(targetClass, false);
         if (matched && LOG.isLoggable(Level.FINE)) {
             LOG.fine("matched type: " + targetClass.getName());
         }
@@ -123,12 +124,12 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Type arrayType) {
+    public <T> Template<T> buildTemplate(final Type arrayType) {
         Type baseType;
         Class<?> baseClass;
         int dim = 1;
         if (arrayType instanceof GenericArrayType) {
-            GenericArrayType type = (GenericArrayType) arrayType;
+            final GenericArrayType type = (GenericArrayType) arrayType;
             baseType = type.getGenericComponentType();
             while (baseType instanceof GenericArrayType) {
                 baseType = ((GenericArrayType) baseType)
@@ -142,7 +143,7 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
                 baseClass = (Class<?>) baseType;
             }
         } else {
-            Class<?> type = (Class<?>) arrayType;
+            final Class<?> type = (Class<?>) arrayType;
             baseClass = type.getComponentType();
             while (baseClass.isArray()) {
                 baseClass = baseClass.getComponentType();
@@ -153,13 +154,15 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
         return toTemplate(arrayType, baseType, baseClass, dim);
     }
 
-    private Template toTemplate(Type arrayType, Type genericBaseType,
-            Class baseClass, int dim) {
+    private Template toTemplate(final Type arrayType,
+            final Type genericBaseType, final Class baseClass, final int dim) {
         if (dim == 1) {
             if (baseClass == boolean.class) {
                 return BooleanArrayTemplate.getInstance();
             } else if (baseClass == short.class) {
                 return ShortArrayTemplate.getInstance();
+            } else if (baseClass == char.class) {
+                return CharArrayTemplate.getInstance();
             } else if (baseClass == int.class) {
                 return IntegerArrayTemplate.getInstance();
             } else if (baseClass == long.class) {
@@ -171,19 +174,20 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
             } else if (baseClass == byte.class) {
                 return ByteArrayTemplate.getInstance();
             } else {
-                Template baseTemplate = registry.lookup(genericBaseType);
+                final Template baseTemplate = registry.lookup(genericBaseType);
                 return new ObjectArrayTemplate(baseClass, baseTemplate);
             }
         } else if (dim == 2) {
-            Class componentClass = Array.newInstance(baseClass, 0).getClass();
-            Template componentTemplate = toTemplate(arrayType, genericBaseType,
-                    baseClass, dim - 1);
+            final Class componentClass = Array.newInstance(baseClass, 0)
+                    .getClass();
+            final Template componentTemplate = toTemplate(arrayType,
+                    genericBaseType, baseClass, dim - 1);
             return new ReflectionMultidimentionalArrayTemplate(componentClass,
                     componentTemplate);
         } else {
-            ReflectionMultidimentionalArrayTemplate componentTemplate = (ReflectionMultidimentionalArrayTemplate) toTemplate(
+            final ReflectionMultidimentionalArrayTemplate componentTemplate = (ReflectionMultidimentionalArrayTemplate) toTemplate(
                     arrayType, genericBaseType, baseClass, dim - 1);
-            Class componentClass = Array.newInstance(
+            final Class componentClass = Array.newInstance(
                     componentTemplate.getComponentClass(), 0).getClass();
             return new ReflectionMultidimentionalArrayTemplate(componentClass,
                     componentTemplate);
@@ -191,24 +195,24 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist)
-            throws TemplateBuildException {
+    public <T> Template<T> buildTemplate(final Class<T> targetClass,
+            final FieldList flist) throws TemplateBuildException {
         throw new UnsupportedOperationException(targetClass.getName());
     }
 
     @Override
-    protected <T> Template<T> buildTemplate(Class<T> targetClass,
-            FieldEntry[] entries) {
+    protected <T> Template<T> buildTemplate(final Class<T> targetClass,
+            final FieldEntry[] entries) {
         throw new UnsupportedOperationException(targetClass.getName());
     }
 
     @Override
-    public void writeTemplate(Type targetType, String directoryName) {
+    public void writeTemplate(final Type targetType, final String directoryName) {
         throw new UnsupportedOperationException(targetType.toString());
     }
 
     @Override
-    public <T> Template<T> loadTemplate(Type targetType) {
+    public <T> Template<T> loadTemplate(final Type targetType) {
         return null;
     }
 

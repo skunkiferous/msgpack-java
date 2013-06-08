@@ -27,8 +27,8 @@ import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
 public class Unconverter extends AbstractPacker {
-    private PackerStack stack;
-    private Object[] values;
+    private final PackerStack stack;
+    private final Object[] values;
     private Value result;
 
     // private Value topContainer;
@@ -37,7 +37,7 @@ public class Unconverter extends AbstractPacker {
         this(new MessagePack());
     }
 
-    public Unconverter(MessagePack msgpack) {
+    public Unconverter(final MessagePack msgpack) {
         super(msgpack);
         this.stack = new PackerStack();
         this.values = new Object[PackerStack.MAX_STACK_SIZE];
@@ -52,57 +52,63 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeBoolean(boolean v) throws IOException {
+    public void writeBoolean(final boolean v) throws IOException {
         put(ValueFactory.createBooleanValue(v));
     }
 
     @Override
-    public void writeByte(byte v) throws IOException {
+    public void writeByte(final byte v) throws IOException {
         put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
-    public void writeShort(short v) throws IOException {
+    public void writeShort(final short v) throws IOException {
         put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
-    public void writeInt(int v) throws IOException {
+    public void writeChar(final char v) throws IOException {
         put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
-    public void writeBigInteger(BigInteger v) throws IOException {
+    public void writeInt(final int v) throws IOException {
         put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
-    public void writeLong(long v) throws IOException {
+    public void writeBigInteger(final BigInteger v) throws IOException {
         put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
-    public void writeFloat(float v) throws IOException {
+    public void writeLong(final long v) throws IOException {
+        put(ValueFactory.createIntegerValue(v));
+    }
+
+    @Override
+    public void writeFloat(final float v) throws IOException {
         put(ValueFactory.createFloatValue(v));
     }
 
     @Override
-    public void writeDouble(double v) throws IOException {
+    public void writeDouble(final double v) throws IOException {
         put(ValueFactory.createFloatValue(v));
     }
 
     @Override
-    public void writeByteArray(byte[] b, int off, int len) throws IOException {
+    public void writeByteArray(final byte[] b, final int off, final int len)
+            throws IOException {
         put(ValueFactory.createRawValue(b, off, len));
     }
 
     @Override
-    public void writeByteBuffer(ByteBuffer bb) throws IOException {
+    public void writeByteBuffer(final ByteBuffer bb) throws IOException {
         put(ValueFactory.createRawValue(bb));
     }
 
     @Override
-    public void writeString(String s) throws IOException {
+    public void writeString(final String s) throws IOException {
         put(ValueFactory.createRawValue(s));
     }
 
@@ -113,14 +119,14 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer writeArrayBegin(int size) throws IOException {
+    public Packer writeArrayBegin(final int size) throws IOException {
         if (size == 0) {
             // Value[] array = new Value[size];
             putContainer(ValueFactory.createArrayValue());
             stack.pushArray(0);
             values[stack.getDepth()] = null;
         } else {
-            Value[] array = new Value[size];
+            final Value[] array = new Value[size];
             putContainer(ValueFactory.createArrayValue(array, true));
             stack.pushArray(size);
             values[stack.getDepth()] = array;
@@ -129,13 +135,13 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer writeArrayEnd(boolean check) throws IOException {
+    public Packer writeArrayEnd(final boolean check) throws IOException {
         if (!stack.topIsArray()) {
             throw new MessageTypeException(
                     "writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
-        int remain = stack.getTopCount();
+        final int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
@@ -153,14 +159,14 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer writeMapBegin(int size) throws IOException {
+    public Packer writeMapBegin(final int size) throws IOException {
         stack.checkCount();
         if (size == 0) {
             putContainer(ValueFactory.createMapValue());
             stack.pushMap(0);
             values[stack.getDepth()] = null;
         } else {
-            Value[] array = new Value[size * 2];
+            final Value[] array = new Value[size * 2];
             putContainer(ValueFactory.createMapValue(array, true));
             stack.pushMap(size);
             values[stack.getDepth()] = array;
@@ -169,13 +175,13 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer writeMapEnd(boolean check) throws IOException {
+    public Packer writeMapEnd(final boolean check) throws IOException {
         if (!stack.topIsMap()) {
             throw new MessageTypeException(
                     "writeMapEnd() is called but writeMapBegin() is not called");
         }
 
-        int remain = stack.getTopCount();
+        final int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
                 throw new MessageTypeException(
@@ -193,28 +199,28 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer write(Value v) throws IOException {
+    public Packer write(final Value v) throws IOException {
         put(v);
         return this;
     }
 
-    private void put(Value v) {
+    private void put(final Value v) {
         if (stack.getDepth() <= 0) {
             this.result = v;
         } else {
             stack.checkCount();
-            Value[] array = (Value[]) values[stack.getDepth()];
+            final Value[] array = (Value[]) values[stack.getDepth()];
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }
     }
 
-    private void putContainer(Value v) {
+    private void putContainer(final Value v) {
         if (stack.getDepth() <= 0) {
             values[0] = v;
         } else {
             stack.checkCount();
-            Value[] array = (Value[]) values[stack.getDepth()];
+            final Value[] array = (Value[]) values[stack.getDepth()];
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }

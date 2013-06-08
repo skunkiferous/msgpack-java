@@ -48,7 +48,7 @@ public class TemplateRegistry {
 
     Map<Type, Template<Type>> cache;
 
-    private Map<Type, GenericTemplate> genericCache;
+    private final Map<Type, GenericTemplate> genericCache;
 
     /**
      * create <code>TemplateRegistry</code> object of root.
@@ -66,7 +66,7 @@ public class TemplateRegistry {
      *
      * @param registry
      */
-    public TemplateRegistry(TemplateRegistry registry) {
+    public TemplateRegistry(final TemplateRegistry registry) {
         if (registry != null) {
             parent = registry;
         } else {
@@ -106,6 +106,7 @@ public class TemplateRegistry {
         register(Character.class, CharacterTemplate.getInstance());
         register(boolean[].class, BooleanArrayTemplate.getInstance());
         register(short[].class, ShortArrayTemplate.getInstance());
+        register(char[].class, CharArrayTemplate.getInstance());
         register(int[].class, IntegerArrayTemplate.getInstance());
         register(long[].class, LongArrayTemplate.getInstance());
         register(float[].class, FloatArrayTemplate.getInstance());
@@ -122,7 +123,7 @@ public class TemplateRegistry {
     }
 
     protected void registerTemplatesWhichRefersRegistry() {
-        AnyTemplate anyTemplate = new AnyTemplate(this);
+        final AnyTemplate anyTemplate = new AnyTemplate(this);
 
         register(List.class, new ListTemplate(anyTemplate));
         register(Set.class, new SetTemplate(anyTemplate));
@@ -173,7 +174,7 @@ public class TemplateRegistry {
     }
 
     public synchronized boolean unregister(final Type targetType) {
-        Template<Type> tmpl = cache.remove(targetType);
+        final Template<Type> tmpl = cache.remove(targetType);
         return tmpl != null;
     }
 
@@ -186,7 +187,7 @@ public class TemplateRegistry {
 
         if (targetType instanceof ParameterizedType) {
             // ParameterizedType is not a Class<?>
-            ParameterizedType paramedType = (ParameterizedType) targetType;
+            final ParameterizedType paramedType = (ParameterizedType) targetType;
             tmpl = lookupGenericType(paramedType);
             if (tmpl != null) {
                 return tmpl;
@@ -212,7 +213,7 @@ public class TemplateRegistry {
             return tmpl;
         }
 
-        Class<?> targetClass = (Class<?>) targetType;
+        final Class<?> targetClass = (Class<?>) targetType;
 
         // MessagePackable interface is implemented
         if (MessagePackable.class.isAssignableFrom(targetClass)) {
@@ -263,7 +264,7 @@ public class TemplateRegistry {
                         + "Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
-    private Template<Type> lookupGenericType(ParameterizedType paramedType) {
+    private Template<Type> lookupGenericType(final ParameterizedType paramedType) {
         Template<Type> tmpl = lookupGenericTypeImpl(paramedType);
         if (tmpl != null) {
             return tmpl;
@@ -274,7 +275,7 @@ public class TemplateRegistry {
             if (tmpl != null) {
                 return tmpl;
             }
-        } catch (NullPointerException e) { // ignore
+        } catch (final NullPointerException e) { // ignore
         }
 
         tmpl = lookupGenericInterfaceTypes(paramedType);
@@ -290,20 +291,20 @@ public class TemplateRegistry {
         return null;
     }
 
-    private Template lookupGenericTypeImpl(ParameterizedType targetType) {
-        Type rawType = targetType.getRawType();
+    private Template lookupGenericTypeImpl(final ParameterizedType targetType) {
+        final Type rawType = targetType.getRawType();
         return lookupGenericTypeImpl0(targetType, rawType);
     }
 
-    private Template lookupGenericTypeImpl0(ParameterizedType targetType,
-            Type rawType) {
-        GenericTemplate gtmpl = genericCache.get(rawType);
+    private Template lookupGenericTypeImpl0(final ParameterizedType targetType,
+            final Type rawType) {
+        final GenericTemplate gtmpl = genericCache.get(rawType);
         if (gtmpl == null) {
             return null;
         }
 
-        Type[] types = targetType.getActualTypeArguments();
-        Template[] tmpls = new Template[types.length];
+        final Type[] types = targetType.getActualTypeArguments();
+        final Template[] tmpls = new Template[types.length];
         for (int i = 0; i < types.length; ++i) {
             tmpls[i] = lookup(types[i]);
         }
@@ -312,27 +313,27 @@ public class TemplateRegistry {
     }
 
     private <T> Template<T> lookupGenericInterfaceTypes(
-            ParameterizedType targetType) {
-        Type rawType = targetType.getRawType();
+            final ParameterizedType targetType) {
+        final Type rawType = targetType.getRawType();
         Template<T> tmpl = null;
 
         try {
-            Class<?>[] infTypes = ((Class) rawType).getInterfaces();
-            for (Class<?> infType : infTypes) {
+            final Class<?>[] infTypes = ((Class) rawType).getInterfaces();
+            for (final Class<?> infType : infTypes) {
                 tmpl = lookupGenericTypeImpl0(targetType, infType);
                 if (tmpl != null) {
                     return tmpl;
                 }
             }
-        } catch (ClassCastException e) { // ignore
+        } catch (final ClassCastException e) { // ignore
         }
 
         return tmpl;
     }
 
     private <T> Template<T> lookupGenericSuperclasses(
-            ParameterizedType targetType) {
-        Type rawType = targetType.getRawType();
+            final ParameterizedType targetType) {
+        final Type rawType = targetType.getRawType();
         Template<T> tmpl = null;
 
         try {
@@ -349,19 +350,19 @@ public class TemplateRegistry {
                     return tmpl;
                 }
             }
-        } catch (ClassCastException e) { // ignore
+        } catch (final ClassCastException e) { // ignore
         }
 
         return tmpl;
     }
 
-    private Template<Type> lookupGenericArrayType(Type targetType) {
+    private Template<Type> lookupGenericArrayType(final Type targetType) {
         // TODO GenericArrayType is not a Class<?> => buildArrayTemplate
         if (!(targetType instanceof GenericArrayType)) {
             return null;
         }
 
-        GenericArrayType genericArrayType = (GenericArrayType) targetType;
+        final GenericArrayType genericArrayType = (GenericArrayType) targetType;
         Template<Type> tmpl = lookupGenericArrayTypeImpl(genericArrayType);
         if (tmpl != null) {
             return tmpl;
@@ -372,16 +373,16 @@ public class TemplateRegistry {
             if (tmpl != null) {
                 return tmpl;
             }
-        } catch (NullPointerException e) { // ignore
+        } catch (final NullPointerException e) { // ignore
         }
 
         return null;
     }
 
     private Template lookupGenericArrayTypeImpl(
-            GenericArrayType genericArrayType) {
-        String genericArrayTypeName = "" + genericArrayType;
-        int dim = genericArrayTypeName.split("\\[").length - 1;
+            final GenericArrayType genericArrayType) {
+        final String genericArrayTypeName = "" + genericArrayType;
+        final int dim = genericArrayTypeName.split("\\[").length - 1;
         if (dim <= 0) {
             throw new MessageTypeException(String.format("fatal error: type=",
                     genericArrayTypeName));
@@ -391,10 +392,10 @@ public class TemplateRegistry {
                     genericArrayTypeName));
         }
 
-        String genericCompTypeName = ""
+        final String genericCompTypeName = ""
                 + genericArrayType.getGenericComponentType();
-        boolean isPrimitiveType = isPrimitiveType(genericCompTypeName);
-        StringBuffer sbuf = new StringBuffer();
+        final boolean isPrimitiveType = isPrimitiveType(genericCompTypeName);
+        final StringBuffer sbuf = new StringBuffer();
         for (int i = 0; i < dim; i++) {
             sbuf.append('[');
         }
@@ -406,7 +407,7 @@ public class TemplateRegistry {
             sbuf.append(toJvmPrimitiveTypeName(genericCompTypeName));
         }
 
-        String jvmArrayClassName = sbuf.toString();
+        final String jvmArrayClassName = sbuf.toString();
         Class jvmArrayClass = null;
         ClassLoader cl = null;
         try {
@@ -417,7 +418,7 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
         } // ignore
 
         try {
@@ -428,7 +429,7 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
         } // ignore
 
         try {
@@ -436,14 +437,14 @@ public class TemplateRegistry {
             if (jvmArrayClass != null) {
                 return lookupAfterBuilding(jvmArrayClass);
             }
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
         } // ignore
 
         throw new MessageTypeException(String.format(
                 "cannot find template of %s", jvmArrayClassName));
     }
 
-    private Template<Type> lookupCache(Type targetType) {
+    private Template<Type> lookupCache(final Type targetType) {
         Template<Type> tmpl = cache.get(targetType);
         if (tmpl != null) {
             return tmpl;
@@ -451,13 +452,13 @@ public class TemplateRegistry {
 
         try {
             tmpl = parent.lookupCache(targetType);
-        } catch (NullPointerException e) { // ignore
+        } catch (final NullPointerException e) { // ignore
         }
         return tmpl;
     }
 
-    private <T> Template<T> lookupAfterBuilding(Class<T> targetClass) {
-        TemplateBuilder builder = chain.select(targetClass, true);
+    private <T> Template<T> lookupAfterBuilding(final Class<T> targetClass) {
+        final TemplateBuilder builder = chain.select(targetClass, true);
         Template<T> tmpl = null;
         if (builder != null) {
             // TODO #MN for Android, we should modify here
@@ -471,10 +472,10 @@ public class TemplateRegistry {
         return tmpl;
     }
 
-    private <T> Template<T> lookupInterfaceTypes(Class<T> targetClass) {
-        Class<?>[] infTypes = targetClass.getInterfaces();
+    private <T> Template<T> lookupInterfaceTypes(final Class<T> targetClass) {
+        final Class<?>[] infTypes = targetClass.getInterfaces();
         Template<T> tmpl = null;
-        for (Class<?> infType : infTypes) {
+        for (final Class<?> infType : infTypes) {
             tmpl = (Template<T>) cache.get(infType);
             if (tmpl != null) {
                 register(targetClass, tmpl);
@@ -486,14 +487,14 @@ public class TemplateRegistry {
                         register(targetClass, tmpl);
                         return tmpl;
                     }
-                } catch (NullPointerException e) { // ignore
+                } catch (final NullPointerException e) { // ignore
                 }
             }
         }
         return tmpl;
     }
 
-    private <T> Template<T> lookupSuperclasses(Class<T> targetClass) {
+    private <T> Template<T> lookupSuperclasses(final Class<T> targetClass) {
         Class<?> superClass = targetClass.getSuperclass();
         Template<T> tmpl = null;
         if (superClass != null) {
@@ -510,7 +511,7 @@ public class TemplateRegistry {
                             register(targetClass, tmpl);
                             return tmpl;
                         }
-                    } catch (NullPointerException e) { // ignore
+                    } catch (final NullPointerException e) { // ignore
                     }
                 }
             }
@@ -518,7 +519,8 @@ public class TemplateRegistry {
         return tmpl;
     }
 
-    private <T> Template<T> lookupSuperclassInterfaceTypes(Class<T> targetClass) {
+    private <T> Template<T> lookupSuperclassInterfaceTypes(
+            final Class<T> targetClass) {
         Class<?> superClass = targetClass.getSuperclass();
         Template<T> tmpl = null;
         if (superClass != null) {
@@ -535,7 +537,7 @@ public class TemplateRegistry {
                             register(targetClass, tmpl);
                             return tmpl;
                         }
-                    } catch (NullPointerException e) { // ignore
+                    } catch (final NullPointerException e) { // ignore
                     }
                 }
             }
@@ -560,7 +562,7 @@ public class TemplateRegistry {
             newTmpl = flist != null ? builder.buildTemplate(targetClass, flist)
                     : builder.buildTemplate(targetClass);
             return newTmpl;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (oldTmpl != null) {
                 cache.put(targetClass, oldTmpl);
             } else {
@@ -579,7 +581,7 @@ public class TemplateRegistry {
         }
     }
 
-    private static boolean isPrimitiveType(String genericCompTypeName) {
+    private static boolean isPrimitiveType(final String genericCompTypeName) {
         return (genericCompTypeName.equals("byte")
                 || genericCompTypeName.equals("short")
                 || genericCompTypeName.equals("int")
@@ -590,13 +592,13 @@ public class TemplateRegistry {
                     .equals("char"));
     }
 
-    private static String toJvmReferenceTypeName(String typeName) {
+    private static String toJvmReferenceTypeName(final String typeName) {
         // delete "class " from class name
         // e.g. "class Foo" to "Foo" by this method
         return typeName.substring(6);
     }
 
-    private static String toJvmPrimitiveTypeName(String typeName) {
+    private static String toJvmPrimitiveTypeName(final String typeName) {
         if (typeName.equals("byte")) {
             return "B";
         } else if (typeName.equals("short")) {

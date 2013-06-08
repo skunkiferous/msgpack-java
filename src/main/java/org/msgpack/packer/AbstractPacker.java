@@ -28,54 +28,60 @@ import org.msgpack.type.Value;
 public abstract class AbstractPacker implements Packer {
     protected MessagePack msgpack;
 
-    protected AbstractPacker(MessagePack msgpack) {
+    protected AbstractPacker(final MessagePack msgpack) {
         this.msgpack = msgpack;
     }
 
     @Override
-    public Packer write(boolean o) throws IOException {
+    public Packer write(final boolean o) throws IOException {
         writeBoolean(o);
         return this;
     }
 
     @Override
-    public Packer write(byte o) throws IOException {
+    public Packer write(final byte o) throws IOException {
         writeByte(o);
         return this;
     }
 
     @Override
-    public Packer write(short o) throws IOException {
+    public Packer write(final short o) throws IOException {
         writeShort(o);
         return this;
     }
 
     @Override
-    public Packer write(int o) throws IOException {
+    public Packer write(final char o) throws IOException {
+        writeChar(o);
+        return this;
+    }
+
+    @Override
+    public Packer write(final int o) throws IOException {
         writeInt(o);
         return this;
     }
 
     @Override
-    public Packer write(long o) throws IOException {
+    public Packer write(final long o) throws IOException {
         writeLong(o);
         return this;
     }
 
     @Override
-    public Packer write(float o) throws IOException {
+    public Packer write(final float o) throws IOException {
         writeFloat(o);
         return this;
     }
 
     @Override
-    public Packer write(double o) throws IOException {
+    public Packer write(final double o) throws IOException {
         writeDouble(o);
         return this;
     }
 
     @Override
-    public Packer write(Boolean o) throws IOException {
+    public Packer write(final Boolean o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -85,7 +91,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Byte o) throws IOException {
+    public Packer write(final Byte o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -95,7 +101,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Short o) throws IOException {
+    public Packer write(final Short o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -105,7 +111,17 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Integer o) throws IOException {
+    public Packer write(final Character o) throws IOException {
+        if (o == null) {
+            writeNil();
+        } else {
+            writeChar(o);
+        }
+        return this;
+    }
+
+    @Override
+    public Packer write(final Integer o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -115,7 +131,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Long o) throws IOException {
+    public Packer write(final Long o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -125,7 +141,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(BigInteger o) throws IOException {
+    public Packer write(final BigInteger o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -135,7 +151,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Float o) throws IOException {
+    public Packer write(final Float o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -145,7 +161,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(Double o) throws IOException {
+    public Packer write(final Double o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -155,7 +171,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(byte[] o) throws IOException {
+    public Packer write(final byte[] o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -165,7 +181,8 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(byte[] o, int off, int len) throws IOException {
+    public Packer write(final byte[] o, final int off, final int len)
+            throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -175,7 +192,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(ByteBuffer o) throws IOException {
+    public Packer write(final ByteBuffer o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -185,7 +202,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
     @Override
-    public Packer write(String o) throws IOException {
+    public Packer write(final String o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
@@ -196,18 +213,18 @@ public abstract class AbstractPacker implements Packer {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public Packer write(Object o) throws IOException {
+    public Packer write(final Object o) throws IOException {
         if (o == null) {
             writeNil();
         } else {
-            Template tmpl = msgpack.lookup(o.getClass());
+            final Template tmpl = msgpack.lookup(o.getClass());
             tmpl.write(this, o);
         }
         return this;
     }
 
     @Override
-    public Packer write(Value v) throws IOException {
+    public Packer write(final Value v) throws IOException {
         if (v == null) {
             writeNil();
         } else {
@@ -232,30 +249,34 @@ public abstract class AbstractPacker implements Packer {
     public void close() throws IOException {
     }
 
-    abstract protected void writeBoolean(boolean v) throws IOException;
+    abstract protected void writeBoolean(final boolean v) throws IOException;
 
-    abstract protected void writeByte(byte v) throws IOException;
+    abstract protected void writeByte(final byte v) throws IOException;
 
-    abstract protected void writeShort(short v) throws IOException;
+    abstract protected void writeShort(final short v) throws IOException;
 
-    abstract protected void writeInt(int v) throws IOException;
+    abstract protected void writeChar(final char v) throws IOException;
 
-    abstract protected void writeLong(long v) throws IOException;
+    abstract protected void writeInt(final int v) throws IOException;
 
-    abstract protected void writeBigInteger(BigInteger v) throws IOException;
+    abstract protected void writeLong(final long v) throws IOException;
 
-    abstract protected void writeFloat(float v) throws IOException;
+    abstract protected void writeBigInteger(final BigInteger v)
+            throws IOException;
 
-    abstract protected void writeDouble(double v) throws IOException;
+    abstract protected void writeFloat(final float v) throws IOException;
 
-    protected void writeByteArray(byte[] b) throws IOException {
+    abstract protected void writeDouble(final double v) throws IOException;
+
+    protected void writeByteArray(final byte[] b) throws IOException {
         writeByteArray(b, 0, b.length);
     }
 
-    abstract protected void writeByteArray(byte[] b, int off, int len)
+    abstract protected void writeByteArray(final byte[] b, final int off,
+            final int len) throws IOException;
+
+    abstract protected void writeByteBuffer(final ByteBuffer bb)
             throws IOException;
 
-    abstract protected void writeByteBuffer(ByteBuffer bb) throws IOException;
-
-    abstract protected void writeString(String s) throws IOException;
+    abstract protected void writeString(final String s) throws IOException;
 }

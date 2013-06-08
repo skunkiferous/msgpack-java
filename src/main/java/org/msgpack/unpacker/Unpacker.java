@@ -28,29 +28,29 @@ import org.msgpack.type.ValueType;
 
 /**
  * Standard deserializer.
- * 
+ *
  * @version 0.6.0
  */
 public interface Unpacker extends Iterable<Value>, Closeable {
-    public <T> T read(Class<T> klass) throws IOException;
+    public <T> T read(final Class<T> klass) throws IOException;
 
-    public <T> T read(T to) throws IOException;
+    public <T> T read(final T to) throws IOException;
 
-    public <T> T read(Template<T> tmpl) throws IOException;
+    public <T> T read(final Template<T> tmpl) throws IOException;
 
-    public <T> T read(T to, Template<T> tmpl) throws IOException;
+    public <T> T read(final T to, final Template<T> tmpl) throws IOException;
 
     public void skip() throws IOException;
 
     public int readArrayBegin() throws IOException;
 
-    public void readArrayEnd(boolean check) throws IOException;
+    public void readArrayEnd(final boolean check) throws IOException;
 
     public void readArrayEnd() throws IOException;
 
     public int readMapBegin() throws IOException;
 
-    public void readMapEnd(boolean check) throws IOException;
+    public void readMapEnd(final boolean check) throws IOException;
 
     public void readMapEnd() throws IOException;
 
@@ -63,6 +63,9 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public byte readByte() throws IOException;
 
     public short readShort() throws IOException;
+
+    // TODO Make sure it it used and tested ...
+    public char readChar() throws IOException;
 
     public int readInt() throws IOException;
 
@@ -91,9 +94,9 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public void resetReadByteCount();
 
-    public void setRawSizeLimit(int size);
+    public void setRawSizeLimit(final int size);
 
-    public void setArraySizeLimit(int size);
+    public void setArraySizeLimit(final int size);
 
-    public void setMapSizeLimit(int size);
+    public void setMapSizeLimit(final int size);
 }

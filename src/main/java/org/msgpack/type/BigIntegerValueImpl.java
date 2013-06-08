@@ -25,28 +25,24 @@ import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class BigIntegerValueImpl extends IntegerValue {
-    private BigInteger value;
+    private final BigInteger value;
 
-    BigIntegerValueImpl(BigInteger value) {
+    BigIntegerValueImpl(final BigInteger value) {
         this.value = value;
     }
 
-    private static BigInteger BYTE_MAX = BigInteger
-            .valueOf(Byte.MAX_VALUE);
-    private static BigInteger SHORT_MAX = BigInteger
-            .valueOf(Short.MAX_VALUE);
-    private static BigInteger INT_MAX = BigInteger
-            .valueOf(Integer.MAX_VALUE);
-    private static BigInteger LONG_MAX = BigInteger
-            .valueOf(Long.MAX_VALUE);
-    private static BigInteger BYTE_MIN = BigInteger
-            .valueOf(Byte.MIN_VALUE);
-    private static BigInteger SHORT_MIN = BigInteger
-            .valueOf(Short.MIN_VALUE);
-    private static BigInteger INT_MIN = BigInteger
-            .valueOf(Integer.MIN_VALUE);
-    private static BigInteger LONG_MIN = BigInteger
-            .valueOf(Long.MIN_VALUE);
+    private static BigInteger BYTE_MAX = BigInteger.valueOf(Byte.MAX_VALUE);
+    private static BigInteger SHORT_MAX = BigInteger.valueOf(Short.MAX_VALUE);
+    private static BigInteger CHAR_MAX = BigInteger
+            .valueOf(Character.MAX_VALUE);
+    private static BigInteger INT_MAX = BigInteger.valueOf(Integer.MAX_VALUE);
+    private static BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
+    private static BigInteger BYTE_MIN = BigInteger.valueOf(Byte.MIN_VALUE);
+    private static BigInteger SHORT_MIN = BigInteger.valueOf(Short.MIN_VALUE);
+    private static BigInteger CHAR_MIN = BigInteger
+            .valueOf(Character.MIN_VALUE);
+    private static BigInteger INT_MIN = BigInteger.valueOf(Integer.MIN_VALUE);
+    private static BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
 
     @Override
     public byte getByte() {
@@ -62,6 +58,14 @@ class BigIntegerValueImpl extends IntegerValue {
             throw new MessageTypeException(); // TODO message
         }
         return value.shortValue();
+    }
+
+    @Override
+    public char getChar() {
+        if (value.compareTo(CHAR_MAX) > 0 || value.compareTo(CHAR_MIN) < 0) {
+            throw new MessageTypeException(); // TODO message
+        }
+        return (char) value.intValue();
     }
 
     @Override
@@ -121,21 +125,21 @@ class BigIntegerValueImpl extends IntegerValue {
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
+    public void writeTo(final Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this) {
             return true;
         }
         if (!(o instanceof Value)) {
             return false;
         }
-        Value v = (Value) o;
+        final Value v = (Value) o;
         if (!v.isIntegerValue()) {
             return false;
         }
@@ -149,7 +153,7 @@ class BigIntegerValueImpl extends IntegerValue {
             return (int) value.longValue();
         } else if (LONG_MIN.compareTo(value) <= 0
                 && value.compareTo(LONG_MAX) <= 0) {
-            long v = value.longValue();
+            final long v = value.longValue();
             return (int) (v ^ (v >>> 32));
         }
         return value.hashCode();
@@ -161,7 +165,7 @@ class BigIntegerValueImpl extends IntegerValue {
     }
 
     @Override
-    public StringBuilder toString(StringBuilder sb) {
+    public StringBuilder toString(final StringBuilder sb) {
         return sb.append(value.toString());
     }
 }

@@ -25,18 +25,20 @@ import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
 class LongValueImpl extends IntegerValue {
-    private long value;
+    private final long value;
 
-    LongValueImpl(long value) {
+    LongValueImpl(final long value) {
         this.value = value;
     }
 
     private static long BYTE_MAX = Byte.MAX_VALUE;
     private static long SHORT_MAX = Short.MAX_VALUE;
+    private static long CHAR_MAX = Character.MAX_VALUE;
     private static long INT_MAX = Integer.MAX_VALUE;
 
     private static long BYTE_MIN = Byte.MIN_VALUE;
     private static long SHORT_MIN = Short.MIN_VALUE;
+    private static long CHAR_MIN = Character.MIN_VALUE;
     private static long INT_MIN = Integer.MIN_VALUE;
 
     @Override
@@ -53,6 +55,14 @@ class LongValueImpl extends IntegerValue {
             throw new MessageTypeException(); // TODO message
         }
         return (short) value;
+    }
+
+    @Override
+    public char getChar() {
+        if (value > CHAR_MAX || value < CHAR_MIN) {
+            throw new MessageTypeException(); // TODO message
+        }
+        return (char) value;
     }
 
     @Override
@@ -109,21 +119,21 @@ class LongValueImpl extends IntegerValue {
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
+    public void writeTo(final Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this) {
             return true;
         }
         if (!(o instanceof Value)) {
             return false;
         }
-        Value v = (Value) o;
+        final Value v = (Value) o;
         if (!v.isIntegerValue()) {
             return false;
         }
@@ -131,7 +141,7 @@ class LongValueImpl extends IntegerValue {
         try {
             // TODO
             return value == v.asIntegerValue().getLong();
-        } catch (MessageTypeException ex) {
+        } catch (final MessageTypeException ex) {
             return false;
         }
     }
@@ -151,7 +161,7 @@ class LongValueImpl extends IntegerValue {
     }
 
     @Override
-    public StringBuilder toString(StringBuilder sb) {
+    public StringBuilder toString(final StringBuilder sb) {
         return sb.append(Long.toString(value));
     }
 }

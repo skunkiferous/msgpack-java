@@ -40,6 +40,9 @@ public abstract class IntegerValue extends NumberValue {
 
     public abstract short getShort();
 
+    // TODO Make sure it it used and tested ...
+    public abstract char getChar();
+
     public abstract int getInt();
 
     public abstract long getLong();
