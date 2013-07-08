@@ -15,26 +15,25 @@
  */
 package com.blockwithme.msgpack.templates;
 
-import java.io.IOException;
-
-import com.blockwithme.msgpack.Packer;
+import com.blockwithme.msgpack.ObjectUnpacker;
 import com.blockwithme.msgpack.Unpacker;
 
 /**
- * Boolean Array Template
+ * Represents the context information for this serialization, while unpacking.
  *
  * @author monster
  */
-public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
-    @Override
-    protected boolean[] _read(final Unpacker u, final Context context)
-            throws IOException {
-        return u.readBooleanArray();
+public class UnpackerContext extends Context {
+    /**
+     * @param idToTemplate
+     */
+    public UnpackerContext(final Template<?>[] idToTemplate) {
+        super(idToTemplate);
     }
 
-    @Override
-    protected void _write(final Packer pk, final boolean[] value,
-            final Context context) throws IOException {
-        pk.write(value);
-    }
+    /** The Unpacker. */
+    public Unpacker unpacker;
+
+    /** The Object Unpacker. */
+    public ObjectUnpacker objectUnpacker;
 }

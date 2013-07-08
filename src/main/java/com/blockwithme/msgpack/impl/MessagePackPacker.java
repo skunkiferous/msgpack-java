@@ -32,8 +32,13 @@ public class MessagePackPacker extends AbstractPacker {
 
     private final PackerStack stack = new PackerStack();
 
-    protected MessagePackPacker(final DataOutput out) {
+    public MessagePackPacker(final DataOutput out) {
         this.out = out;
+    }
+
+    /** Returns the DataOutput. */
+    public DataOutput getDataOutput() {
+        return out;
     }
 
     @Override

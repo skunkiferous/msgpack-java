@@ -45,9 +45,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private byte[] raw;
     private int rawFilled;
 
-    // monster: I don't like this, but since here was no comment in the
-    // original source, and I don't "get it", the I will leave it, since
-    // I cannot replace it until I get it.
     private final IntAccept intAccept = new IntAccept();
     private final LongAccept longAccept = new LongAccept();
     private final BigIntegerAccept bigIntegerAccept = new BigIntegerAccept();
@@ -58,7 +55,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final MapAccept mapAccept = new MapAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
-    protected MessagePackUnpacker(final DataInput in) {
+    public MessagePackUnpacker(final DataInput in) {
         this.in = in;
     }
 

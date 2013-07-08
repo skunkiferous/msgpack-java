@@ -18,12 +18,17 @@
 package com.blockwithme.msgpack.impl;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import com.blockwithme.msgpack.Packer;
 
 public abstract class AbstractPacker implements Packer {
+
+    /** Deduce from index to optimize storage. */
+    public static final int INDEX_OFFSET = 31;
+
     @Override
     public Packer write(final boolean o) throws IOException {
         writeBoolean(o);
@@ -138,6 +143,17 @@ public abstract class AbstractPacker implements Packer {
             writeNil();
         } else {
             writeBigInteger(o);
+        }
+        return this;
+    }
+
+    @Override
+    public Packer write(final BigDecimal o) throws IOException {
+        if (o == null) {
+            writeNil();
+        } else {
+            writeBigInteger(o.unscaledValue());
+            writeInt(o.scale());
         }
         return this;
     }
@@ -310,6 +326,161 @@ public abstract class AbstractPacker implements Packer {
             writeDouble(a);
         }
         writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(boolean[][])
+     */
+
+    @Override
+    public Packer write(final boolean[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final boolean[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(byte[][])
+     */
+
+    @Override
+    public Packer write(final byte[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final byte[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(short[][])
+     */
+
+    @Override
+    public Packer write(final short[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final short[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(char[][])
+     */
+
+    @Override
+    public Packer write(final char[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final char[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(int[][])
+     */
+
+    @Override
+    public Packer write(final int[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final int[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(long[][])
+     */
+
+    @Override
+    public Packer write(final long[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final long[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(float[][])
+     */
+
+    @Override
+    public Packer write(final float[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final float[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#write(double[][])
+     */
+
+    @Override
+    public Packer write(final double[][] target) throws IOException {
+        if (target == null) {
+            writeNil();
+            return this;
+        }
+        writeArrayBegin(target.length);
+        for (final double[] a : target) {
+            write(a);
+        }
+        writeArrayEnd();
+        return this;
+    }
+
+    /**
+     * Deduce 31 from the index, so it is more likely to be saved as one byte.
+     * This methods should be used for normally non-negative integers.
+     * -1 also stores as one byte.
+     */
+    @Override
+    public Packer writeIndex(final int index) throws IOException {
+        writeInt(index - INDEX_OFFSET);
         return this;
     }
 

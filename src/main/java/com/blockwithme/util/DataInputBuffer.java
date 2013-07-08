@@ -129,7 +129,7 @@ public class DataInputBuffer implements DataInput {
      */
     public final int read(final byte[] buffer, final int offset,
             final int length) throws IOException {
-        final int left = length - read;
+        final int left = this.length - read;
         if (left == 0) {
             return -1;
         }
@@ -139,7 +139,7 @@ public class DataInputBuffer implements DataInput {
             return length;
         }
         System.arraycopy(buff, read, buffer, offset, left);
-        read = length;
+        read = this.length;
         return left;
     }
 

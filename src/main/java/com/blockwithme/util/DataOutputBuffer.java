@@ -28,7 +28,7 @@ import java.io.UTFDataFormatException;
  * Wraps an existing {@link OutputStream} and writes typed data to it.
  * Typically, this stream can be read in by DataInputStream. Types that can be
  * written include byte, 16-bit short, 32-bit int, 32-bit float, 64-bit long,
- * 64-bit double, byte strings, and {@link DataInput MUTF-8} encoded strings.
+ * 64-bit double, byte strings, and {@link DataInput UTF-8} encoded strings.
  *
  * @see DataInputStream
  */

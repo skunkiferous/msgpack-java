@@ -16,9 +16,7 @@
 package com.blockwithme.msgpack.templates;
 
 import java.io.IOException;
-
-import com.blockwithme.msgpack.Packer;
-import com.blockwithme.msgpack.Unpacker;
+import java.util.Objects;
 
 /**
  * Object template, for anything beyond primitive types.
@@ -26,39 +24,72 @@ import com.blockwithme.msgpack.Unpacker;
  * @author monster
  */
 public abstract class AbstractTemplate<T> implements Template<T> {
+    /** The template ID. */
+    protected final int id;
 
-    /** Reads a value. */
+    /** The type that is supported. */
+    protected final Class<T> type;
+
+    /** Constructor. */
+    protected AbstractTemplate(final int id, final Class<T> type) {
+        this.id = id;
+        this.type = Objects.requireNonNull(type);
+    }
+
+    /** Returns the template ID. */
     @Override
-    public final T read(final Unpacker u, final Context context)
+    public final int getID() {
+        return id;
+    }
+
+    /** Returns the type that is supported. */
+    @Override
+    public final Class<T> getType() {
+        return type;
+    }
+
+    /**
+     * Writes a value. The value cannot be null. The Template must check the
+     * type matching, and write first the type ID.
+     */
+    @Override
+    public final void checkAndWrite(final PackerContext context, final T value)
             throws IOException {
-        if (u.trySkipNil()) {
-            if (!context.required) {
-                return null;
+        if (value.getClass() != type) {
+            if ((this != BasicTemplates.OBJECT_ARRAY)
+                    || !value.getClass().isArray()
+                    || value.getClass().getComponentType().isPrimitive()) {
+                if ((this != BasicTemplates.ENUM) || !value.getClass().isEnum()) {
+                    throw new IOException("Expected a " + type + " but got a "
+                            + value.getClass());
+                }
             }
-            throw new IOException("Attempted to read null");
         }
-        return read(u, context);
+        context.packer.write(id);
+        write2(context, value);
     }
 
-    /** Writes a value. */
+    /**
+     * Writes a value. The value cannot be null and will be of the right type.
+     */
     @Override
-    public final void write(final Packer pk, final T value,
-            final Context context) throws IOException {
-        if (value == null) {
-            if (context.required) {
-                throw new IOException("Attempted to write null");
-            }
-            pk.writeNil();
-            return;
-        }
-        write(pk, value, context);
+    public final void write(final PackerContext context, final T value)
+            throws IOException {
+        context.packer.write(id);
+        write2(context, value);
     }
 
-    /** Reads a non-null value. */
-    protected abstract T _read(final Unpacker u, final Context context)
-            throws IOException;
+    /**
+     * Writes a value. The value cannot be null and will be of the right type.
+     * No ID is written.
+     */
+    @Override
+    public final void writeNoID(final PackerContext context, final T value)
+            throws IOException {
+        write2(context, value);
+    }
 
-    /** Writes a non-null value. */
-    protected abstract void _write(final Packer pk, final T value,
-            final Context context) throws IOException;
+    /** Writes a non-null value (assumes some failure on null). */
+    protected abstract void write2(final PackerContext context, final T value)
+            throws IOException;
 }

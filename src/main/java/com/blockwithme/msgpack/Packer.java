@@ -20,6 +20,7 @@ package com.blockwithme.msgpack;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
@@ -29,74 +30,143 @@ import java.nio.ByteBuffer;
  * primitive types and so on.
  */
 public interface Packer extends Closeable, Flushable {
-    public Packer write(final boolean o) throws IOException;
+    /** Writes a boolean. */
+    Packer write(final boolean o) throws IOException;
 
-    public Packer write(final byte o) throws IOException;
+    /** Writes a byte. */
+    Packer write(final byte o) throws IOException;
 
-    public Packer write(final short o) throws IOException;
+    /** Writes a short. */
+    Packer write(final short o) throws IOException;
 
-    public Packer write(final char o) throws IOException;
+    /** Writes a char. */
+    Packer write(final char o) throws IOException;
 
-    public Packer write(final int o) throws IOException;
+    /** Writes a int. */
+    Packer write(final int o) throws IOException;
 
-    public Packer write(final long o) throws IOException;
+    /** Writes a long. */
+    Packer write(final long o) throws IOException;
 
-    public Packer write(final float o) throws IOException;
+    /** Writes a float. */
+    Packer write(final float o) throws IOException;
 
-    public Packer write(final double o) throws IOException;
+    /** Writes a double. */
+    Packer write(final double o) throws IOException;
 
-    public Packer write(final boolean[] o) throws IOException;
+    /** Writes a boolean array. */
+    Packer write(final boolean[] o) throws IOException;
 
-    public Packer write(final short[] o) throws IOException;
+    /** Writes a byte array. */
+    Packer write(final byte[] o) throws IOException;
 
-    public Packer write(final char[] o) throws IOException;
+    /** Writes a short array. */
+    Packer write(final short[] o) throws IOException;
 
-    public Packer write(final int[] o) throws IOException;
+    /** Writes a char array. */
+    Packer write(final char[] o) throws IOException;
 
-    public Packer write(final long[] o) throws IOException;
+    /** Writes a int array. */
+    Packer write(final int[] o) throws IOException;
 
-    public Packer write(final float[] o) throws IOException;
+    /** Writes a long array. */
+    Packer write(final long[] o) throws IOException;
 
-    public Packer write(final double[] o) throws IOException;
+    /** Writes a float array. */
+    Packer write(final float[] o) throws IOException;
 
-    public Packer write(final Boolean o) throws IOException;
+    /** Writes a double array. */
+    Packer write(final double[] o) throws IOException;
 
-    public Packer write(final Byte o) throws IOException;
+    /** Writes a boolean array array. */
+    Packer write(final boolean[][] o) throws IOException;
 
-    public Packer write(final Short o) throws IOException;
+    /** Writes a byte array array. */
+    Packer write(final byte[][] o) throws IOException;
 
-    public Packer write(final Character o) throws IOException;
+    /** Writes a short array array. */
+    Packer write(final short[][] o) throws IOException;
 
-    public Packer write(final Integer o) throws IOException;
+    /** Writes a char array array. */
+    Packer write(final char[][] o) throws IOException;
 
-    public Packer write(final Long o) throws IOException;
+    /** Writes a int array array. */
+    Packer write(final int[][] o) throws IOException;
 
-    public Packer write(final Float o) throws IOException;
+    /** Writes a long array array. */
+    Packer write(final long[][] o) throws IOException;
 
-    public Packer write(final Double o) throws IOException;
+    /** Writes a float array array. */
+    Packer write(final float[][] o) throws IOException;
 
-    public Packer write(final BigInteger o) throws IOException;
+    /** Writes a double array array. */
+    Packer write(final double[][] o) throws IOException;
 
-    public Packer write(final byte[] o) throws IOException;
+    /** Writes a Boolean. */
+    Packer write(final Boolean o) throws IOException;
 
-    public Packer write(final byte[] o, final int off, final int len)
+    /** Writes a Byte. */
+    Packer write(final Byte o) throws IOException;
+
+    /** Writes a Short. */
+    Packer write(final Short o) throws IOException;
+
+    /** Writes a Character. */
+    Packer write(final Character o) throws IOException;
+
+    /** Writes a Integer. */
+    Packer write(final Integer o) throws IOException;
+
+    /** Writes a Long. */
+    Packer write(final Long o) throws IOException;
+
+    /** Writes a Float. */
+    Packer write(final Float o) throws IOException;
+
+    /** Writes a Double. */
+    Packer write(final Double o) throws IOException;
+
+    /** Writes a BigInteger. */
+    Packer write(final BigInteger o) throws IOException;
+
+    /** Writes a BigDecimal. */
+    Packer write(final BigDecimal o) throws IOException;
+
+    /** Writes a String. */
+    Packer write(final String o) throws IOException;
+
+    /** Writes a byte[]. */
+    Packer write(final byte[] o, final int off, final int len)
             throws IOException;
 
-    public Packer write(final ByteBuffer o) throws IOException;
+    /** Writes a ByteBuffer. */
+    Packer write(final ByteBuffer o) throws IOException;
 
-    public Packer write(final String o) throws IOException;
+    /** Writes nil/null. */
+    Packer writeNil() throws IOException;
 
-    public Packer writeNil() throws IOException;
+    /** Writes an array begin. */
+    Packer writeArrayBegin(final int size) throws IOException;
 
-    public Packer writeArrayBegin(final int size) throws IOException;
+    /** Writes an array end. */
+    Packer writeArrayEnd(final boolean check) throws IOException;
 
-    public Packer writeArrayEnd(final boolean check) throws IOException;
+    /** Writes an array end. */
+    Packer writeArrayEnd() throws IOException;
 
-    public Packer writeArrayEnd() throws IOException;
+    /** Writes a map begin. */
+    Packer writeMapBegin(final int size) throws IOException;
 
-    public Packer writeMapBegin(final int size) throws IOException;
+    /** Writes a map end. */
+    Packer writeMapEnd(final boolean check) throws IOException;
 
-    public Packer writeMapEnd(final boolean check) throws IOException;
+    /** Writes a map end. */
+    Packer writeMapEnd() throws IOException;
 
-    public Packer writeMapEnd() throws IOException;
+    /**
+     * Deduce 31 from the index, so it is more likely to be saved as one byte.
+     * This methods should be used for normally non-negative integers.
+     * -1 also stores as one byte.
+     */
+    Packer writeIndex(final int index) throws IOException;
 }
