@@ -17,6 +17,11 @@
 //
 package com.blockwithme.msgpack.impl.accept;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class MapAccept extends Accept {
     public int size;
 

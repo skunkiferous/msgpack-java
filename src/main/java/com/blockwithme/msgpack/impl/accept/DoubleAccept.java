@@ -17,6 +17,11 @@
 //
 package com.blockwithme.msgpack.impl.accept;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class DoubleAccept extends Accept {
     public double value;
 

@@ -27,8 +27,8 @@ import java.util.Date;
 
 /**
  * Standard serializer in MessagePack for Java. It allows users to serialize
- * objects like <tt>String</tt>, <tt>List</tt>, <tt>Map</tt>, <tt>byte[]</tt>,
- * primitive types and so on.
+ * objects like <tt>String</tt>, <tt>byte[]</tt>, primitive types and so on.
+ * Things <tt>List</tt>, <tt>Map</tt> ... must be built on top of it.
  */
 public interface Packer extends Closeable, Flushable {
     /** Writes a boolean. */
@@ -115,7 +115,14 @@ public interface Packer extends Closeable, Flushable {
     /** Writes a Date out. */
     Packer write(final Date o) throws IOException;
 
-    /** Writes a byte[]. */
+    /**
+     * Deduce 31 from the index, so it is more likely to be saved as one byte.
+     * This methods should be used for normally non-negative integers.
+     * -1 also stores as one byte.
+     */
+    Packer writeIndex(final int index) throws IOException;
+
+    /** Writes a slice of a byte[]. */
     Packer write(final byte[] o, final int off, final int len)
             throws IOException;
 
@@ -143,26 +150,19 @@ public interface Packer extends Closeable, Flushable {
     /** Writes a map end. */
     Packer writeMapEnd() throws IOException;
 
-    /**
-     * Deduce 31 from the index, so it is more likely to be saved as one byte.
-     * This methods should be used for normally non-negative integers.
-     * -1 also stores as one byte.
-     */
-    Packer writeIndex(final int index) throws IOException;
-
     /** Writes an raw begin. */
     Packer writeRawBegin(final int size) throws IOException;
 
     /** Writes an raw end. */
     Packer writeRawEnd() throws IOException;
 
-    /** Writes a byte array. */
+    /** Writes a byte array *content*. */
     Packer writePartial(final byte[] o) throws IOException;
 
-    /** Writes a byte[]. */
+    /** Writes a slice of a byte[] *content*. */
     Packer writePartial(final byte[] o, final int off, final int len)
             throws IOException;
 
-    /** Writes a ByteBuffer. */
+    /** Writes a ByteBuffer *content*. */
     Packer writePartial(final ByteBuffer o) throws IOException;
 }

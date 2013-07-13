@@ -17,19 +17,28 @@ package com.blockwithme.msgpack.templates;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.Packer;
+import com.blockwithme.util.ObjectTracker;
 
 /**
  * Represents the context information for this serialization, while packing.
+ *
+ * It is used mostly, to allow third-party extensions, that would give context
+ * information required by custom templates.
  *
  * @author monster
  */
 public class PackerContext extends Context {
     /**
+     * All the templates, each at the right position.
+     *
      * @param idToTemplate
      */
     public PackerContext(final Template<?>[] idToTemplate) {
         super(idToTemplate);
     }
+
+    /** The ObjectTracker */
+    public final ObjectTracker tracker = new ObjectTracker();
 
     /** The Packer. */
     public Packer packer;

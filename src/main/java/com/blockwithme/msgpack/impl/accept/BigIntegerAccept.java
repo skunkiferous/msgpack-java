@@ -19,6 +19,11 @@ package com.blockwithme.msgpack.impl.accept;
 
 import java.math.BigInteger;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class BigIntegerAccept extends Accept {
     public BigInteger value;
 

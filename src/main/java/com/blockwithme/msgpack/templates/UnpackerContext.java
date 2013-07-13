@@ -23,10 +23,15 @@ import com.blockwithme.msgpack.Unpacker;
 /**
  * Represents the context information for this serialization, while unpacking.
  *
+ * It is used mostly, to allow third-party extensions, that would give context
+ * information required by custom templates.
+ *
  * @author monster
  */
 public class UnpackerContext extends Context {
     /**
+     * All the templates, each at the right position.
+     *
      * @param idToTemplate
      */
     public UnpackerContext(final Template<?>[] idToTemplate) {

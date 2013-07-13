@@ -356,4 +356,35 @@ public class TestSimple {
         Assert.assertSame(mapCopy, arrayCopy[0]);
         Assert.assertSame(listCopy, arrayCopy[1]);
     }
+
+    @Test
+    public void testPartial() throws Exception {
+        throw new Exception("TODO: Test Packer.writePartial(*)");
+    }
+
+    @Test
+    public void testFixedSizeArray() throws Exception {
+        throw new Exception(
+                "TODO: Test AbstractTemplate.writeArrayAsMyNonNullObjectsOfFixedSize(*)");
+    }
+
+    @Test
+    public void testSlice() throws Exception {
+        throw new Exception("TODO: Test byte array slices");
+    }
+
+    @Test
+    public void test2D() throws Exception {
+        throw new Exception("TODO: Test 2D array");
+    }
+
+    @Test
+    public void test3D() throws Exception {
+        throw new Exception("TODO: Test 3D array");
+    }
+
+    @Test
+    public void testObject() throws Exception {
+        throw new Exception("TODO: Test a 'pure' java.lang.Object");
+    }
 }

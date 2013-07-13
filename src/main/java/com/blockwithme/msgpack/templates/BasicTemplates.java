@@ -39,7 +39,7 @@ import com.blockwithme.msgpack.impl.ByteArraySlice;
  *
  * They are defined as internal classes, to simplify the package structure.
  *
- * TODO Add Collection implementation classes
+ * TODO Add (more) Collection implementation classes
  * TODO Check for other JDK Classes (EnumSet, StringBuffer, TimeZone, ...)
  * TODO Reserve Class ID up to at least 1024 for JDK and other critical API collections.
  *
@@ -49,7 +49,7 @@ public class BasicTemplates {
 
     /**
      * Own AbstractTemplate extension, which allow us to easily track all the
-     * Templates defined within this class.
+     * Templates defined within BasicTemplates.
      */
     private static abstract class MyAbstractTemplate<T> extends
             AbstractTemplate<T> {
@@ -85,6 +85,9 @@ public class BasicTemplates {
 
     /**
      * AbstractTemplate for primitive arrays.
+     *
+     * Primitive array templates do NOT pre-create, because by definition,
+     * primitive arrays cannot cause cycles.
      */
     private static abstract class MyPrimitiveArrayAbstractTemplate<T> extends
             MyAbstractTemplate<T> {
@@ -99,7 +102,14 @@ public class BasicTemplates {
         }
     }
 
-    /** The Abstract Collection template. */
+    /**
+     * The Abstract Collection template.
+     *
+     * It is a complete Collection Template implementation, except for
+     * preCreate(int)
+     *
+     * The collection is stored as an "array" object.
+     */
     @SuppressWarnings("rawtypes")
     private static abstract class AbstractCollectionTemplate<C extends Collection<?>>
             extends MyAbstractTemplate<C> {
@@ -112,6 +122,7 @@ public class BasicTemplates {
             super(id, type, true, false);
         }
 
+        /** Writes the collection. */
         @Override
         public final void writeData(final PackerContext context,
                 final int size, final C value) throws IOException {
@@ -121,6 +132,7 @@ public class BasicTemplates {
             }
         }
 
+        /** Reads the collection. */
         @SuppressWarnings("unchecked")
         @Override
         public final C readData(final UnpackerContext context,
@@ -133,16 +145,25 @@ public class BasicTemplates {
             return preCreated;
         }
 
+        /** Computes the size. */
         @Override
         public final int getSpaceRequired(final PackerContext context, final C v) {
             return v.size();
         }
 
+        /** The only thing you need to implement. */
         @Override
         public abstract C preCreate(final int size);
     };
 
-    /** The Abstract Map template. */
+    /**
+     * The Abstract Map template.
+     *
+     * It is a complete Map Template implementation, except for
+     * preCreate(int)
+     *
+     * The Map is stored as a "map" object.
+     */
     @SuppressWarnings("rawtypes")
     private static abstract class AbstractMapTemplate<M extends Map<?, ?>>
             extends MyAbstractTemplate<M> {
@@ -155,6 +176,7 @@ public class BasicTemplates {
             super(id, type, false, false);
         }
 
+        /** Writes the Map */
         @Override
         public final void writeData(final PackerContext context,
                 final int size, final M value) throws IOException {
@@ -165,6 +187,7 @@ public class BasicTemplates {
             }
         }
 
+        /** Reads the Map */
         @SuppressWarnings("unchecked")
         @Override
         public final M readData(final UnpackerContext context,
@@ -180,17 +203,24 @@ public class BasicTemplates {
             return preCreated;
         }
 
+        /** Computes the size; (key+value) counts as *1*. */
         @Override
         public final int getSpaceRequired(final PackerContext context, final M v) {
             return v.size();
         }
 
-        /** Skips the "unused header value" by default. */
+        /**
+         * Skips the "unused header value" by default.
+         * But you could use it for something ...
+         *
+         * @see AbstractTemplate.writeMapHeaderValue(PackerContext, T, int)
+         */
         protected void readHeaderValue(final UnpackerContext context,
                 final M preCreated, final int size) throws IOException {
             context.unpacker.skip();
         }
 
+        /** The only thing you need to implement. */
         @Override
         public abstract M preCreate(final int size);
     };
@@ -200,7 +230,7 @@ public class BasicTemplates {
         // NOP
     }
 
-    /** List of all templates. */
+    /** List of all basic templates. */
     private static final List<Template<?>> ALL_LIST = new ArrayList<Template<?>>();
 
     /** All templates. */
@@ -275,6 +305,8 @@ public class BasicTemplates {
     /** The ByteBuffer template ID. */
     public static final int BYTE_BUFFER_ID = 22;
 
+    // Collection classes
+
     /** The java.util.ArrayList template ID. */
     public static final int JAVA_UTIL_ARRAY_LIST_ID = 23;
 
@@ -319,6 +351,7 @@ public class BasicTemplates {
         @SuppressWarnings("unchecked")
         @Override
         public int getSpaceRequired(final PackerContext context, final Class v) {
+            // Space depends on if this is a class that we use while serializing.
             return (context.findTemplate(v) == null) ? 3 : 1;
         }
 
@@ -346,6 +379,7 @@ public class BasicTemplates {
                     context.objectPacker.writeObject(fqname);
                 }
             } else {
+                // A serializable class
                 final int depth = AbstractTemplate.getArrayDepth(value);
                 context.packer.writeIndex(t.getID() * 4 + depth);
             }
@@ -355,6 +389,7 @@ public class BasicTemplates {
         public Class<?> readData(final UnpackerContext context,
                 final Class preCreated, final int size) throws IOException {
             if (context.unpacker.trySkipNil()) {
+                // OK, a non-serializable Class
                 final String pkg = context.objectUnpacker.readString();
                 final String cls = context.objectUnpacker.readString();
                 if (pkg.isEmpty()) {
@@ -364,6 +399,7 @@ public class BasicTemplates {
                 return AbstractTemplate.getClassNameConverter().getClass(
                         pkg + '.' + cls);
             }
+            // A serialisatble class
             final int id = context.unpacker.readIndex();
             return context.getTemplate(id / 4).getType();
         }

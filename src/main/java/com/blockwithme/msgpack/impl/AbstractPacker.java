@@ -25,6 +25,15 @@ import java.util.Date;
 
 import com.blockwithme.msgpack.Packer;
 
+/**
+ * The Abstract Packer reuses the code form the original Java implementation
+ * of the Abstract Packer.
+ *
+ * It is limited to the core protocol implementation, without support for Java
+ * objects.
+ *
+ * @author monster
+ */
 public abstract class AbstractPacker implements Packer {
 
     /** Deduce from index to optimize storage. */

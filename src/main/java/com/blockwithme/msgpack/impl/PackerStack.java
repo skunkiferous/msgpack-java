@@ -19,12 +19,16 @@ package com.blockwithme.msgpack.impl;
 
 import com.blockwithme.msgpack.MessageTypeException;
 
+/**
+ * The Packer stack keeps track of what is currently being packed, to help
+ * detect inconsistencies.
+ */
 public final class PackerStack {
     private int top;
     private final byte[] types;
     private final int[] counts;
 
-    public static final int MAX_STACK_SIZE = 128;
+    public static final int MAX_STACK_SIZE = 256;
 
     private static final byte TYPE_INVALID = 0;
     private static final byte TYPE_ARRAY = 1;

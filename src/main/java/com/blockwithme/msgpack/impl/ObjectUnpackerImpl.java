@@ -30,7 +30,9 @@ import com.blockwithme.msgpack.templates.Template;
 import com.blockwithme.msgpack.templates.UnpackerContext;
 
 /**
- * The ObjectUnpacker implementation.
+ * The ObjectUnpacker implementation. All the hard work happens in:
+ *
+ * AbstractTemplate.readObject(UnpackerContext, Template);
  *
  * @author monster
  */

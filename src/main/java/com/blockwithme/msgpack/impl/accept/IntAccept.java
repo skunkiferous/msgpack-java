@@ -19,6 +19,11 @@ package com.blockwithme.msgpack.impl.accept;
 
 import com.blockwithme.msgpack.MessageTypeException;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class IntAccept extends Accept {
     public int value;
 

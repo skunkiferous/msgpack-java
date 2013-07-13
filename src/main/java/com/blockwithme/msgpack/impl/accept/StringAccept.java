@@ -26,6 +26,11 @@ import java.nio.charset.CodingErrorAction;
 
 import com.blockwithme.msgpack.MessageTypeException;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class StringAccept extends Accept {
     public String value;
     private final CharsetDecoder decoder;

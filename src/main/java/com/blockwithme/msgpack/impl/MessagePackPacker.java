@@ -27,6 +27,15 @@ import java.nio.ByteBuffer;
 
 import com.blockwithme.msgpack.Packer;
 
+/**
+ * The MessagePack Packer reuses the code form the original Java implementation
+ * of the MessagePack Packer.
+ *
+ * It is limited to the core protocol implementation, without support for Java
+ * objects.
+ *
+ * @author monster
+ */
 public class MessagePackPacker extends AbstractPacker {
     protected final DataOutput out;
 

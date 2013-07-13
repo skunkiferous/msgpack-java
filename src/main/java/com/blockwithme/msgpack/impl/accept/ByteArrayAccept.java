@@ -20,6 +20,11 @@ package com.blockwithme.msgpack.impl.accept;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public final class ByteArrayAccept extends Accept {
     public byte[] value;
 

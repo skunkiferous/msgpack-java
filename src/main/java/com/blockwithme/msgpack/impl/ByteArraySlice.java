@@ -16,8 +16,10 @@
 package com.blockwithme.msgpack.impl;
 
 /**
- * @author monster
+ * Small wrapper object, needed to pass a byte[] slice to a Template as a
+ * single object.
  *
+ * @author monster
  */
 public class ByteArraySlice {
 
@@ -25,9 +27,7 @@ public class ByteArraySlice {
     public final int off;
     public final int len;
 
-    /**
-     *
-     */
+    /** Creates a byte[] slice */
     public ByteArraySlice(final byte[] o, final int off, final int len) {
         this.o = o;
         this.off = off;

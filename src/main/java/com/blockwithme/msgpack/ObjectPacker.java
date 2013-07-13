@@ -26,13 +26,22 @@ import com.blockwithme.msgpack.templates.Template;
 /**
  * ObjectPacker can pack any object with a registered template.
  *
- * When writing non-object values, go to packer() directly.
+ * It does NOT extends Packer by design. To serialize primitive value, go
+ * directly to the underlying Packer, with the packer() method.
+ *
+ * Please realize the difference between the write(int[]) of Packer and our
+ * writeObject(int[]); ours stores additional information to allow for generic object
+ * serialization (the type), therefore the two are not compatible. Also, all
+ * the methods here take into consideration that an object might be serialized
+ * multiple times, and so writing the same int[] with an ObjectPacker will
+ * result in a single copy on the stream, while it would result in multiple
+ * copies if done using Unpacker.
  *
  * @author monster
  */
 public interface ObjectPacker {
 
-    /** Returns the underlying packer, if any, otherwise self. */
+    /** Returns the underlying packer. */
     Packer packer();
 
     /** Writes a Boolean. */
@@ -95,7 +104,7 @@ public interface ObjectPacker {
     /** Writes a String. */
     ObjectPacker writeObject(final String o) throws IOException;
 
-    /** Writes a byte[]. */
+    /** Writes a slice of a byte[]. */
     ObjectPacker writeObject(final byte[] o, final int off, final int len)
             throws IOException;
 
@@ -106,10 +115,14 @@ public interface ObjectPacker {
      * Writes an Object out. Template is determined based on object type.
      * Pass along a template for faster results.
      */
-    <E> ObjectPacker writeObject(final E o) throws IOException;
+    ObjectPacker writeObject(final Object o) throws IOException;
 
-    /** Writes an Object out. Object must be compatible with non-null template. */
-    <E> ObjectPacker writeObject(final E o, final Template<E> template)
+    /**
+     * Writes an Object out. Object must be compatible with non-null template.
+     * Note that we cannot link the Object type with the template type, since
+     * we could use the template to also write an *array* of the object type.
+     */
+    ObjectPacker writeObject(final Object o, final Template<?> template)
             throws IOException;
 
     /** Writes a Class out. */

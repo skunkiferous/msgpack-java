@@ -25,9 +25,16 @@ import com.blockwithme.msgpack.templates.Template;
 
 /**
  * ObjectUnpacker can unpack any object with a registered template.
- * It does NOT extends Unpacker by design. It has the same interface,
- * but by not extending Unpacker, we can eliminate the need for a virtual
- * call.
+ * It does NOT extends Unpacker by design. To serialize primitive value, go
+ * directly to the underlying Unpacker, with the unpacker() method.
+ *
+ * Please realize the difference between the int[] readIntArray() of Unpacker
+ * and ours; ours stores additional information to allow for generic object
+ * serialization (the type), therefore the two are not compatible. Also, all
+ * the methods here take into consideration that an object might be serialized
+ * multiple times, and so writing the same int[] with an ObjectPacker will
+ * result in a single copy on the stream, while it would result in multiple
+ * copies if done using Unpacker.
  *
  * @author monster
  */
@@ -40,10 +47,10 @@ public interface ObjectUnpacker {
     Object readObject() throws IOException;
 
     /**
-     * Reads any Object. Fails if Object type does not match template type.
-     * Since templates are used to read not only objects, but also array, we
-     * cannot assume that for a Template<T>, the return type will be T; it
-     * could also be T[] ...
+     * Reads any Object. Fails if the template is not null, and the Object type
+     * does not match template type. Since templates are used to read not only
+     * objects, but also array, we cannot assume that for a Template<T>, the
+     * return type will be T; it could also be T[] ...
      */
     Object readObject(final Template<?> template) throws IOException;
 

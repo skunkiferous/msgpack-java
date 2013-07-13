@@ -28,10 +28,11 @@ import com.blockwithme.msgpack.templates.AbstractTemplate;
 import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
-import com.blockwithme.util.ObjectTracker;
 
 /**
- * ObjectPacker implementation.
+ * ObjectPacker implementation. All the hard work is done in:
+ *
+ * AbstractTemplate.writeObject(PackerContext, Object, Template);
  *
  * @author monster
  */
@@ -43,10 +44,9 @@ public class ObjectPackerImpl implements ObjectPacker {
     /** The context */
     protected final PackerContext context;
 
-    /** The ObjectTracker */
-    private final ObjectTracker tracker = new ObjectTracker();
-
     /**
+     * Creates an ObjectPackerImpl
+     *
      * @param packer
      */
     public ObjectPackerImpl(final Packer packer, final PackerContext context) {
@@ -65,51 +65,11 @@ public class ObjectPackerImpl implements ObjectPacker {
     }
 
     /** Writes an Object out. Object must be compatible with template. */
-    @SuppressWarnings("unchecked")
     @Override
-    public <E> ObjectPacker writeObject(final E o, Template<E> template)
+    public ObjectPacker writeObject(final Object o,
+            @SuppressWarnings("rawtypes") final Template template)
             throws IOException {
-        if (o == null) {
-            if (context.required) {
-                throw new IOException("Attempted to write null when required");
-            }
-            packer.writeNil();
-            return this;
-        }
-        int depth = -1;
-        if (template == null) {
-            Class<?> c = o.getClass();
-            depth = 0;
-            Class<?> cc;
-            while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
-                depth++;
-                c = cc;
-            }
-            template = context.getTemplate((Class<E>) c);
-        }
-        final int pos = tracker.track(o, template.isMergeable());
-        if (pos == -1) {
-            // New Object!
-            if (depth == -1) {
-                depth = AbstractTemplate.getArrayDepth(o.getClass());
-            }
-            if (depth == 0) {
-                template.writeNonArrayObject(context, o);
-            } else if (depth == 1) {
-                template.write1DArray(context, (E[]) o, true);
-            } else if (depth == 2) {
-                template.write2DArray(context, (E[][]) o, true);
-            } else if (depth == 3) {
-                template.write3DArray(context, (E[][][]) o, true);
-            } else {
-                throw new IOException(
-                        "Maximum non-primitive (+1 for primitives) array dimention is 3, but got "
-                                + depth);
-            }
-            return this;
-        }
-        // Previous object
-        packer.writeIndex(pos);
+        AbstractTemplate.writeObject(context, o, template);
         return this;
     }
 
@@ -118,7 +78,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      * Pass along a template for faster results.
      */
     @Override
-    public <E> ObjectPacker writeObject(final E o) throws IOException {
+    public ObjectPacker writeObject(final Object o) throws IOException {
         return writeObject(o, null);
     }
 

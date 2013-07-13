@@ -22,6 +22,9 @@ import java.util.Objects;
 /**
  * Represents the context information for this serialization.
  *
+ * It is used mostly, to allow third-party extensions, that would give context
+ * information required by custom templates.
+ *
  * @author monster
  */
 public class Context {
@@ -32,8 +35,13 @@ public class Context {
     /** Maps Class to Template. */
     private final Map<Class<?>, Template<?>> classToTemplate = new HashMap<Class<?>, Template<?>>();
 
-    /** Constructor takes an array of class names. */
+    /**
+     * All the templates, each at the right position.
+     *
+     * @param idToTemplate
+     */
     public Context(final Template<?>[] idToTemplate) {
+        // Validate input
         this.idToTemplate = Objects.requireNonNull(idToTemplate);
         for (int i = 0; i < idToTemplate.length; i++) {
             final Template<?> template = idToTemplate[i];
@@ -90,6 +98,6 @@ public class Context {
         return t;
     }
 
-    /** Is this a required field */
+    /** Is this a required field? (Currently unused) */
     public boolean required;
 }

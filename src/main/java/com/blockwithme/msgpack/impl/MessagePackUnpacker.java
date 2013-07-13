@@ -34,6 +34,15 @@ import com.blockwithme.msgpack.impl.accept.MapAccept;
 import com.blockwithme.msgpack.impl.accept.SkipAccept;
 import com.blockwithme.msgpack.impl.accept.StringAccept;
 
+/**
+ * The MessagePack Unpacker reuses the code form the original Java implementation
+ * of the MessagePack Unpacker.
+ *
+ * It is limited to the core protocol implementation, without support for Java
+ * objects.
+ *
+ * @author monster
+ */
 public class MessagePackUnpacker extends AbstractUnpacker {
     private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
 

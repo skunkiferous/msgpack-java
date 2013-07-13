@@ -41,7 +41,14 @@ public interface Template<T> {
     /** Returns true, if the template would support reading/writing objects of this type. */
     boolean accept(final Object o);
 
-    /** Returns true if the type is final, or a primitive array. */
+    /**
+     * Returns true if the type is final, or a primitive array.
+     *
+     * We are not interested in actually final classes, but rather in
+     * "effectively" final classes. A class is "effectively" final, when
+     * no other class extends it. This applies to primitive arrays too.
+     * but realize that inheritance exists among Object arrays.
+     */
     boolean isFinalOrPrimitiveArray();
 
     /**

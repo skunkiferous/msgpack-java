@@ -17,6 +17,7 @@
 //
 package com.blockwithme.msgpack;
 
+/** All the supported data-type of the core Message-Pack protocol. */
 public enum ValueType {
     NIL, BOOLEAN, INTEGER, FLOAT, ARRAY, MAP, RAW;
 }

@@ -25,6 +25,15 @@ import java.util.Date;
 
 import com.blockwithme.msgpack.Unpacker;
 
+/**
+ * The Abstract Unpacker reuses the code form the original Java implementation
+ * of the Abstract Unpacker.
+ *
+ * It is limited to the core protocol implementation, without support for Java
+ * objects.
+ *
+ * @author monster
+ */
 public abstract class AbstractUnpacker implements Unpacker {
     protected int rawSizeLimit = 134217728;
 

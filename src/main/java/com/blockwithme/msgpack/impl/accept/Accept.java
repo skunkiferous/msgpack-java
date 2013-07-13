@@ -22,6 +22,11 @@ import java.nio.ByteBuffer;
 
 import com.blockwithme.msgpack.MessageTypeException;
 
+/**
+ * Part of the original low-level Message-Pack Java implementation.
+ *
+ * @author monster
+ */
 public abstract class Accept {
     public void acceptBoolean(final boolean v) throws IOException {
         throw new MessageTypeException("Unexpected boolean value");

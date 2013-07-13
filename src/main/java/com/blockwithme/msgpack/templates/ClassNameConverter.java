@@ -16,7 +16,7 @@
 package com.blockwithme.msgpack.templates;
 
 /**
- * Convert A Class to it's name and back.
+ * Convert a Class to it's name and back.
  *
  * This type is required, to deal with OSGi deployments.
  *
@@ -29,6 +29,10 @@ public interface ClassNameConverter {
     /** Returns the Class for a name, which cannot be null. */
     Class<?> getClass(final String name);
 
-    /** Returns true if the type is (effectively) final. */
+    /**
+     * Returns true if the type is (effectively) final.
+     *
+     * A class is effectively final if no other class being used extends it.
+     */
     boolean isFinal(final Class<?> cls);
 }

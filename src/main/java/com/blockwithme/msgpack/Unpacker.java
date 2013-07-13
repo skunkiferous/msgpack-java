@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 
 /**
- * Standard deserializer.
+ * Standard deserializer, implementing the core Message-Pack protocol.
  */
 public interface Unpacker extends Closeable {
 
@@ -92,6 +92,9 @@ public interface Unpacker extends Closeable {
     /** Reads a ByteBuffer. */
     ByteBuffer readByteBuffer() throws IOException;
 
+    /** Reads an index written with Packer.writeIndex(int). */
+    int readIndex() throws IOException;
+
     /** Returns the type of the next value to be read. */
     ValueType getNextType() throws IOException;
 
@@ -124,9 +127,6 @@ public interface Unpacker extends Closeable {
 
     /** Reads a map end. */
     void readMapEnd() throws IOException;
-
-    /** Reads an index written with Packer.writeIndex(int). */
-    int readIndex() throws IOException;
 
     /** Reads a nil/null. */
     void readNil() throws IOException;

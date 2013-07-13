@@ -17,6 +17,10 @@
 //
 package com.blockwithme.msgpack;
 
+/**
+ * Denotes certain MessagePack Exceptions, generally related to inconsistent
+ * API usage or stream content.
+ */
 @SuppressWarnings("serial")
 public class MessageTypeException extends RuntimeException {
     public MessageTypeException() {
