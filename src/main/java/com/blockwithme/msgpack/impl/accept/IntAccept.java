@@ -17,7 +17,7 @@
 //
 package com.blockwithme.msgpack.impl.accept;
 
-import org.msgpack.MessageTypeException;
+import com.blockwithme.msgpack.MessageTypeException;
 
 public final class IntAccept extends Accept {
     public int value;

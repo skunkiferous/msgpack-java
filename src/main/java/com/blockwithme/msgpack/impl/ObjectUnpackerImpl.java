@@ -19,13 +19,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
 import com.blockwithme.msgpack.ObjectUnpacker;
 import com.blockwithme.msgpack.Unpacker;
-import com.blockwithme.msgpack.ValueType;
+import com.blockwithme.msgpack.templates.AbstractTemplate;
 import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.Template;
 import com.blockwithme.msgpack.templates.UnpackerContext;
@@ -36,9 +35,6 @@ import com.blockwithme.msgpack.templates.UnpackerContext;
  * @author monster
  */
 public class ObjectUnpackerImpl implements ObjectUnpacker {
-
-    /** Tracks the previously returned objects. */
-    private final ArrayList<Object> previous = new ArrayList<Object>(256);
 
     /** The real Unpacker */
     protected final Unpacker unpacker;
@@ -68,64 +64,64 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      * @see com.blockwithme.msgpack.Unpacker#readBoolean()
      */
     @Override
-    public boolean readBoolean() throws IOException {
-        return unpacker.readBoolean();
+    public Boolean readBoolean() throws IOException {
+        return (Boolean) readObject(BasicTemplates.BOOLEAN);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readByte()
      */
     @Override
-    public byte readByte() throws IOException {
-        return unpacker.readByte();
+    public Byte readByte() throws IOException {
+        return (Byte) readObject(BasicTemplates.BYTE);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readShort()
      */
     @Override
-    public short readShort() throws IOException {
-        return unpacker.readShort();
+    public Short readShort() throws IOException {
+        return (Short) readObject(BasicTemplates.SHORT);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readChar()
      */
     @Override
-    public char readChar() throws IOException {
-        return unpacker.readChar();
+    public Character readChar() throws IOException {
+        return (Character) readObject(BasicTemplates.CHARACTER);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readInt()
      */
     @Override
-    public int readInt() throws IOException {
-        return unpacker.readInt();
+    public Integer readInt() throws IOException {
+        return (Integer) readObject(BasicTemplates.INTEGER);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readLong()
      */
     @Override
-    public long readLong() throws IOException {
-        return unpacker.readLong();
+    public Long readLong() throws IOException {
+        return (Long) readObject(BasicTemplates.LONG);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readFloat()
      */
     @Override
-    public float readFloat() throws IOException {
-        return unpacker.readFloat();
+    public Float readFloat() throws IOException {
+        return (Float) readObject(BasicTemplates.FLOAT);
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Unpacker#readDouble()
      */
     @Override
-    public double readDouble() throws IOException {
-        return unpacker.readDouble();
+    public Double readDouble() throws IOException {
+        return (Double) readObject(BasicTemplates.DOUBLE);
     }
 
     /* (non-Javadoc)
@@ -133,7 +129,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public BigInteger readBigInteger() throws IOException {
-        return readObject(BasicTemplates.BIG_INTEGER);
+        return (BigInteger) readObject(BasicTemplates.BIG_INTEGER);
     }
 
     /* (non-Javadoc)
@@ -141,7 +137,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public BigDecimal readBigDecimal() throws IOException {
-        return readObject(BasicTemplates.BIG_DECIMAL);
+        return (BigDecimal) readObject(BasicTemplates.BIG_DECIMAL);
     }
 
     /* (non-Javadoc)
@@ -149,7 +145,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public boolean[] readBooleanArray() throws IOException {
-        return readObject(BasicTemplates.BOOLEAN_ARRAY);
+        return (boolean[]) readObject(BasicTemplates.BOOLEAN_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -157,7 +153,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public byte[] readByteArray() throws IOException {
-        return readObject(BasicTemplates.BYTE_ARRAY);
+        return (byte[]) readObject(BasicTemplates.BYTE_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -165,7 +161,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public short[] readShortArray() throws IOException {
-        return readObject(BasicTemplates.SHORT_ARRAY);
+        return (short[]) readObject(BasicTemplates.SHORT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -173,7 +169,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public char[] readCharArray() throws IOException {
-        return readObject(BasicTemplates.CHAR_ARRAY);
+        return (char[]) readObject(BasicTemplates.CHAR_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -181,7 +177,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public int[] readIntArray() throws IOException {
-        return readObject(BasicTemplates.INT_ARRAY);
+        return (int[]) readObject(BasicTemplates.INT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -189,7 +185,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public long[] readLongArray() throws IOException {
-        return readObject(BasicTemplates.LONG_ARRAY);
+        return (long[]) readObject(BasicTemplates.LONG_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -197,7 +193,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public float[] readFloatArray() throws IOException {
-        return readObject(BasicTemplates.FLOAT_ARRAY);
+        return (float[]) readObject(BasicTemplates.FLOAT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -205,71 +201,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public double[] readDoubleArray() throws IOException {
-        return readObject(BasicTemplates.DOUBLE_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readBooleanArrayArray()
-     */
-    @Override
-    public boolean[][] readBooleanArrayArray() throws IOException {
-        return readObject(BasicTemplates.BOOLEAN_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readByteArrayArray()
-     */
-    @Override
-    public byte[][] readByteArrayArray() throws IOException {
-        return readObject(BasicTemplates.BYTE_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readShortArrayArray()
-     */
-    @Override
-    public short[][] readShortArrayArray() throws IOException {
-        return readObject(BasicTemplates.SHORT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readCharArrayArray()
-     */
-    @Override
-    public char[][] readCharArrayArray() throws IOException {
-        return readObject(BasicTemplates.CHAR_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readIntArrayArray()
-     */
-    @Override
-    public int[][] readIntArrayArray() throws IOException {
-        return readObject(BasicTemplates.INT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readLongArrayArray()
-     */
-    @Override
-    public long[][] readLongArrayArray() throws IOException {
-        return readObject(BasicTemplates.LONG_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readFloatArrayArray()
-     */
-    @Override
-    public float[][] readFloatArrayArray() throws IOException {
-        return readObject(BasicTemplates.FLOAT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readDoubleArrayArray()
-     */
-    @Override
-    public double[][] readDoubleArrayArray() throws IOException {
-        return readObject(BasicTemplates.DOUBLE_ARRAY_ARRAY);
+        return (double[]) readObject(BasicTemplates.DOUBLE_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -277,7 +209,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public String readString() throws IOException {
-        return readObject(BasicTemplates.STRING);
+        return (String) readObject(BasicTemplates.STRING);
     }
 
     /* (non-Javadoc)
@@ -285,7 +217,7 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public ByteBuffer readByteBuffer() throws IOException {
-        return readObject(BasicTemplates.BYTE_BUFFER);
+        return (ByteBuffer) readObject(BasicTemplates.BYTE_BUFFER);
     }
 
     /* (non-Javadoc)
@@ -293,215 +225,23 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
      */
     @Override
     public Date readDate() throws IOException {
-        return readObject(BasicTemplates.DATE);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectUnpacker#readEnum()
-     */
-    @Override
-    public Enum<?> readEnum() throws IOException {
-        return readObject(BasicTemplates.ENUM);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#getNextType()
-     */
-    @Override
-    public ValueType getNextType() throws IOException {
-        return unpacker.getNextType();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#setRawSizeLimit(int)
-     */
-    @Override
-    public void setRawSizeLimit(final int size) {
-        unpacker.setRawSizeLimit(size);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#setArraySizeLimit(int)
-     */
-    @Override
-    public void setArraySizeLimit(final int size) {
-        unpacker.setArraySizeLimit(size);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#setMapSizeLimit(int)
-     */
-    @Override
-    public void setMapSizeLimit(final int size) {
-        unpacker.setMapSizeLimit(size);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#skip()
-     */
-    @Override
-    public void skip() throws IOException {
-        unpacker.skip();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readArrayBegin()
-     */
-    @Override
-    public int readArrayBegin() throws IOException {
-        return unpacker.readArrayBegin();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readArrayEnd(boolean)
-     */
-    @Override
-    public void readArrayEnd(final boolean check) throws IOException {
-        unpacker.readArrayEnd(check);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readArrayEnd()
-     */
-    @Override
-    public void readArrayEnd() throws IOException {
-        unpacker.readArrayEnd();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readMapBegin()
-     */
-    @Override
-    public int readMapBegin() throws IOException {
-        return unpacker.readMapBegin();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readMapEnd(boolean)
-     */
-    @Override
-    public void readMapEnd(final boolean check) throws IOException {
-        unpacker.readMapEnd(check);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readMapEnd()
-     */
-    @Override
-    public void readMapEnd() throws IOException {
-        unpacker.readMapEnd();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readNil()
-     */
-    @Override
-    public void readNil() throws IOException {
-        unpacker.readNil();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#trySkipNil()
-     */
-    @Override
-    public boolean trySkipNil() throws IOException {
-        return unpacker.trySkipNil();
-    }
-
-    /* (non-Javadoc)
-     * @see java.io.Closeable#close()
-     */
-    @Override
-    public void close() throws IOException {
-        unpacker.close();
-    }
-
-    /** Reads an index written with Packer.writeIndex(int). */
-    @Override
-    public int readIndex() throws IOException {
-        return unpacker.readIndex();
+        return (Date) readObject(BasicTemplates.DATE);
     }
 
     @Override
     public Class<?> readClass() throws IOException {
-        return readObject(BasicTemplates.CLASS);
+        return (Class<?>) readObject(BasicTemplates.CLASS);
     }
 
     /** Reads any Object. */
     @Override
     public Object readObject() throws IOException {
-        final int id = unpacker.readInt();
-        if (id == BasicTemplates.NULL_ID) {
-            return null;
-        }
-        if (id > 0) {
-            // New object; id is object type/template ID
-            return readNewNonNullObject(context.getTemplate(id));
-        }
-        // id is "previous object ID"
-        final Object result = previous.get(-id);
-        if (result == null) {
-            throw new IllegalStateException("Object with ID " + id
-                    + " not (fully?) read yet");
-        }
-        return result;
+        return readObject(null);
     }
 
     /** Reads any Object. Fails if Object type does not match template type. */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T readObject(final Template<T> template) throws IOException {
-        // Intentional NPE
-        final int tid = template.getID();
-        if (template != context.getTemplate(tid)) {
-            throw new IllegalArgumentException("Unknown template: " + template);
-        }
-        final int id = unpacker.readInt();
-        if (id == BasicTemplates.NULL_ID) {
-            return null;
-        }
-        if (id > 0) {
-            if (tid != id) {
-                throw new IllegalArgumentException("Expected: " + template
-                        + " buit was " + context.getTemplate(id));
-            }
-            // New object
-            return readNewNonNullObject(template);
-        }
-        // id is "previous object ID"
-        final Object result = previous.get(-id);
-        if (result == null) {
-            throw new IllegalStateException("Object with ID " + id
-                    + " not (fully?) read yet");
-        }
-        return (T) result;
-    }
-
-    /**
-     * Reads any Object.
-     *
-     * Object must be compatible with non-null template, but it is not checked.
-     * Object must not be null, but it is not checked.
-     * Object must not be reused anywhere else, but it is not checked.
-     * No ID is read.
-     *
-     * Fastest, but least safe.
-     */
-    @Override
-    public <T> T readUnsharedUncheckedNonNullNoID(final Template<T> template)
-            throws IOException {
-        return template.read(context);
-    }
-
-    /** Reads any Object. We assume the template is valid. */
-    protected <T> T readNewNonNullObject(final Template<T> template)
-            throws IOException {
-        final int objID = previous.size() + 1;
-        final T result = template.read(context);
-        while (previous.size() <= objID) {
-            previous.add(null);
-        }
-        previous.set(objID, result);
-        return result;
+    public Object readObject(final Template<?> template) throws IOException {
+        return AbstractTemplate.readObject(context, template);
     }
 }

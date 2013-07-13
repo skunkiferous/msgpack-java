@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import com.blockwithme.msgpack.Unpacker;
 
@@ -30,6 +31,15 @@ public abstract class AbstractUnpacker implements Unpacker {
     protected int arraySizeLimit = 4194304;
 
     protected int mapSizeLimit = 2097152;
+
+    /** Reads a Date. */
+    @Override
+    public Date readDate() throws IOException {
+        if (trySkipNil()) {
+            return null;
+        }
+        return new Date(readLong());
+    }
 
     @Override
     public ByteBuffer readByteBuffer() throws IOException {
@@ -171,145 +181,9 @@ public abstract class AbstractUnpacker implements Unpacker {
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readBooleanArrayArray()
-     */
-    @Override
-    public boolean[][] readBooleanArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final boolean[][] result = new boolean[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readBooleanArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readByteArrayArray()
-     */
-    @Override
-    public byte[][] readByteArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final byte[][] result = new byte[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readByteArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readShortArrayArray()
-     */
-    @Override
-    public short[][] readShortArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final short[][] result = new short[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readShortArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readCharArrayArray()
-     */
-    @Override
-    public char[][] readCharArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final char[][] result = new char[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readCharArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readIntArrayArray()
-     */
-    @Override
-    public int[][] readIntArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final int[][] result = new int[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readIntArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readLongArrayArray()
-     */
-    @Override
-    public long[][] readLongArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final long[][] result = new long[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readLongArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readFloatArrayArray()
-     */
-    @Override
-    public float[][] readFloatArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final float[][] result = new float[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readFloatArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Unpacker#readDoubleArrayArray()
-     */
-    @Override
-    public double[][] readDoubleArrayArray() throws IOException {
-        if (trySkipNil()) {
-            return null;
-        }
-        final int n = readArrayBegin();
-        final double[][] result = new double[n][];
-        for (int i = 0; i < n; i++) {
-            result[i] = readDoubleArray();
-        }
-        readArrayEnd();
-        return result;
-    }
-
     @Override
     public BigDecimal readBigDecimal() throws IOException {
-        final BigInteger unscaledVal = readBigInteger();
+        final BigInteger unscaledVal = readBigInteger(false);
         if (unscaledVal == null) {
             return null;
         }
@@ -322,6 +196,9 @@ public abstract class AbstractUnpacker implements Unpacker {
     public int readIndex() throws IOException {
         return readInt() + AbstractPacker.INDEX_OFFSET;
     }
+
+    protected abstract BigInteger readBigInteger(final boolean countAaValue)
+            throws IOException;
 
     protected abstract boolean tryReadNil() throws IOException;
 }

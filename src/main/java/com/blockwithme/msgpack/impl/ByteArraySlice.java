@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.msgpack.templates;
+package com.blockwithme.msgpack.impl;
 
 /**
- * Convert A Class to it's name and back.
- *
- * This type is required, to deal with OSGi deployments.
- *
  * @author monster
+ *
  */
-public interface ClassNameConverter {
-    /** Returns the Name of a Class, which cannot be null. */
-    String getName(final Class<?> cls);
+public class ByteArraySlice {
 
-    /** Returns the Class for a name, which cannot be null. */
-    Class<?> getClass(final String name);
+    public final byte[] o;
+    public final int off;
+    public final int len;
 
-    /** Returns true if the type is (effectively) final. */
-    boolean isFinal(final Class<?> cls);
+    /**
+     *
+     */
+    public ByteArraySlice(final byte[] o, final int off, final int len) {
+        this.o = o;
+        this.off = off;
+        this.len = len;
+    }
 }

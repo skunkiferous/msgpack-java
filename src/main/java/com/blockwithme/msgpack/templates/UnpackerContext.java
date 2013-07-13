@@ -15,6 +15,8 @@
  */
 package com.blockwithme.msgpack.templates;
 
+import java.util.ArrayList;
+
 import com.blockwithme.msgpack.ObjectUnpacker;
 import com.blockwithme.msgpack.Unpacker;
 
@@ -30,6 +32,9 @@ public class UnpackerContext extends Context {
     public UnpackerContext(final Template<?>[] idToTemplate) {
         super(idToTemplate);
     }
+
+    /** Tracks the previously returned objects. */
+    public final ArrayList<Object> previous = new ArrayList<Object>(256);
 
     /** The Unpacker. */
     public Unpacker unpacker;

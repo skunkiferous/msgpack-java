@@ -16,20 +16,22 @@
 package com.blockwithme.msgpack.templates;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.ObjectUnpacker;
 import com.blockwithme.msgpack.Packer;
 import com.blockwithme.msgpack.Unpacker;
+import com.blockwithme.msgpack.impl.ByteArraySlice;
 
 /**
  * This class contains all the basic templates, which only need to delegate to
@@ -55,12 +57,143 @@ public class BasicTemplates {
         /**
          * @param id
          * @param type
+         * @param isListType
+         * @param isMergeable
          */
-        protected MyAbstractTemplate(final int id, final Class<T> type) {
-            super(id, type);
-            ALL_LIST.add(this);
+        protected MyAbstractTemplate(final int id, final Class<T> type,
+                final boolean isListType, final boolean isMergeable) {
+            this(id, type, isListType, isMergeable, -1);
+        }
+
+        /**
+         * @param id
+         * @param type
+         * @param isListType
+         * @param isMergeable
+         * @param fixedSize
+         */
+        protected MyAbstractTemplate(final int id, final Class<T> type,
+                final boolean isListType, final boolean isMergeable,
+                final int fixedSize) {
+            super(id, type, isListType, isMergeable, fixedSize);
+            while (ALL_LIST.size() <= id) {
+                ALL_LIST.add(null);
+            }
+            ALL_LIST.set(id, this);
         }
     }
+
+    /**
+     * AbstractTemplate for primitive arrays.
+     */
+    private static abstract class MyPrimitiveArrayAbstractTemplate<T> extends
+            MyAbstractTemplate<T> {
+
+        /**
+         * @param id
+         * @param type
+         */
+        protected MyPrimitiveArrayAbstractTemplate(final int id,
+                final Class<T> type) {
+            super(id, type, true, false);
+        }
+    }
+
+    /** The Abstract Collection template. */
+    @SuppressWarnings("rawtypes")
+    private static abstract class AbstractCollectionTemplate<C extends Collection<?>>
+            extends MyAbstractTemplate<C> {
+
+        /**
+         * @param id
+         * @param type
+         */
+        protected AbstractCollectionTemplate(final int id, final Class<C> type) {
+            super(id, type, true, false);
+        }
+
+        @Override
+        public final void writeData(final PackerContext context,
+                final int size, final C value) throws IOException {
+            final ObjectPacker p = context.objectPacker;
+            for (final Object o : value) {
+                p.writeObject(o);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final C readData(final UnpackerContext context,
+                final C preCreated, final int size) throws IOException {
+            final ObjectUnpacker ou = context.objectUnpacker;
+            final Collection c = preCreated;
+            for (int i = 0; i < size; i++) {
+                c.add(ou.readObject());
+            }
+            return preCreated;
+        }
+
+        @Override
+        public final int getSpaceRequired(final PackerContext context, final C v) {
+            return v.size();
+        }
+
+        @Override
+        public abstract C preCreate(final int size);
+    };
+
+    /** The Abstract Map template. */
+    @SuppressWarnings("rawtypes")
+    private static abstract class AbstractMapTemplate<M extends Map<?, ?>>
+            extends MyAbstractTemplate<M> {
+
+        /**
+         * @param id
+         * @param type
+         */
+        protected AbstractMapTemplate(final int id, final Class<M> type) {
+            super(id, type, false, false);
+        }
+
+        @Override
+        public final void writeData(final PackerContext context,
+                final int size, final M value) throws IOException {
+            final ObjectPacker p = context.objectPacker;
+            for (final Map.Entry o : value.entrySet()) {
+                p.writeObject(o.getKey());
+                p.writeObject(o.getValue());
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final M readData(final UnpackerContext context,
+                final M preCreated, final int size) throws IOException {
+            readHeaderValue(context, preCreated, size);
+            final ObjectUnpacker ou = context.objectUnpacker;
+            final Map c = preCreated;
+            for (int i = 0; i < size; i++) {
+                final Object key = ou.readObject();
+                final Object value = ou.readObject();
+                c.put(key, value);
+            }
+            return preCreated;
+        }
+
+        @Override
+        public final int getSpaceRequired(final PackerContext context, final M v) {
+            return v.size();
+        }
+
+        /** Skips the "unused header value" by default. */
+        protected void readHeaderValue(final UnpackerContext context,
+                final M preCreated, final int size) throws IOException {
+            context.unpacker.skip();
+        }
+
+        @Override
+        public abstract M preCreate(final int size);
+    };
 
     /** Never instantiated. */
     private BasicTemplates() {
@@ -73,211 +206,83 @@ public class BasicTemplates {
     /** All templates. */
     private static Template<?>[] ALL;
 
-    /** The ClassNameConverter */
-    private static volatile ClassNameConverter CLASS_NAME_CONVERTER = new DefaultClassNameConverter();
-
-    /** Sets the ClassNameConverter. */
-    public static void setClassNameConverter(final ClassNameConverter cnc) {
-        CLASS_NAME_CONVERTER = Objects.requireNonNull(cnc);
-    }
-
-    /** The Nil/Null ID. */
-    public static final int NULL_ID = 0;
-
-    /** The (special) Object array template ID. */
-    public static final int OBJECT_ARRAY_ID = 1;
-
-    /** The (special) Enum template ID. */
-    public static final int ENUM_ID = 2;
-
     /** The Object template ID. */
-    public static final int OBJECT_ID = 3;
-
-    /** The Class template ID. */
-    public static final int CLASS_ID = 4;
+    public static final int OBJECT_ID = 0;
 
     /** The Boolean Wrapper template ID. */
-    public static final int BOOLEAN_ID = 5;
+    public static final int BOOLEAN_ID = 1;
 
     /** The Byte Wrapper template ID. */
-    public static final int BYTE_ID = 6;
+    public static final int BYTE_ID = 2;
 
     /** The Short Wrapper template ID. */
-    public static final int SHORT_ID = 7;
+    public static final int SHORT_ID = 3;
 
     /** The Character Wrapper template ID. */
-    public static final int CHARACTER_ID = 8;
+    public static final int CHARACTER_ID = 4;
 
     /** The Integer Wrapper template ID. */
-    public static final int INTEGER_ID = 9;
+    public static final int INTEGER_ID = 5;
 
     /** The Long Wrapper template ID. */
-    public static final int LONG_ID = 10;
+    public static final int LONG_ID = 6;
 
     /** The Float Wrapper template ID. */
-    public static final int FLOAT_ID = 11;
+    public static final int FLOAT_ID = 7;
 
     /** The Double Wrapper template ID. */
-    public static final int DOUBLE_ID = 12;
+    public static final int DOUBLE_ID = 8;
 
     /** The BigInteger template ID. */
-    public static final int BIG_INTEGER_ID = 13;
+    public static final int BIG_INTEGER_ID = 9;
 
     /** The BigDecimal template ID. */
-    public static final int BIG_DECIMAL_ID = 14;
+    public static final int BIG_DECIMAL_ID = 10;
 
     /** The String template ID. */
-    public static final int STRING_ID = 15;
+    public static final int STRING_ID = 11;
 
-    /** The ByteBuffer template ID. */
-    public static final int BYTE_BUFFER_ID = 16;
+    /** The Class template ID. */
+    public static final int CLASS_ID = 12;
 
     /** The Date template ID. */
-    public static final int DATE_ID = 17;
+    public static final int DATE_ID = 13;
 
     /** The Boolean[][] ID. */
-    public static final int BOOLEAN_ARRAY_ID = 18;
+    public static final int BOOLEAN_ARRAY_ID = 14;
 
     /** The Byte array template ID. */
-    public static final int BYTE_ARRAY_ID = 19;
+    public static final int BYTE_ARRAY_ID = 15;
 
     /** The Short array template ID. */
-    public static final int SHORT_ARRAY_ID = 20;
+    public static final int SHORT_ARRAY_ID = 16;
 
     /** The Character array template ID. */
-    public static final int CHAR_ARRAY_ID = 21;
+    public static final int CHAR_ARRAY_ID = 17;
 
     /** The Integer array template ID. */
-    public static final int INT_ARRAY_ID = 22;
+    public static final int INT_ARRAY_ID = 18;
 
     /** The Long array template ID. */
-    public static final int LONG_ARRAY_ID = 23;
+    public static final int LONG_ARRAY_ID = 19;
 
     /** The Float array template ID. */
-    public static final int FLOAT_ARRAY_ID = 24;
+    public static final int FLOAT_ARRAY_ID = 20;
 
     /** The Double array template ID. */
-    public static final int DOUBLE_ARRAY_ID = 25;
+    public static final int DOUBLE_ARRAY_ID = 21;
 
-    /** The Boolean array array template ID. */
-    public static final int BOOLEAN_ARRAY_ARRAY_ID = 26;
+    /** The ByteBuffer template ID. */
+    public static final int BYTE_BUFFER_ID = 22;
 
-    /** The Byte array array template ID. */
-    public static final int BYTE_ARRAY_ARRAY_ID = 27;
+    /** The java.util.ArrayList template ID. */
+    public static final int JAVA_UTIL_ARRAY_LIST_ID = 23;
 
-    /** The Short array array template ID. */
-    public static final int SHORT_ARRAY_ARRAY_ID = 28;
+    /** The java.util.HashSet template ID. */
+    public static final int JAVA_UTIL_HASH_SET_ID = 24;
 
-    /** The Character array array template ID. */
-    public static final int CHAR_ARRAY_ARRAY_ID = 29;
-
-    /** The Integer array array template ID. */
-    public static final int INT_ARRAY_ARRAY_ID = 30;
-
-    /** The Long array array template ID. */
-    public static final int LONG_ARRAY_ARRAY_ID = 31;
-
-    /** The Float array array template ID. */
-    public static final int FLOAT_ARRAY_ARRAY_ID = 32;
-
-    /** The Double array array template ID. */
-    public static final int DOUBLE_ARRAY_ARRAY_ID = 33;
-
-    /**
-     * The Object array template.
-     *
-     * The Object array template is special, because it can be use for any
-     * Object[], like String[] for example.
-     */
-    public static final Template<Object[]> OBJECT_ARRAY = new MyAbstractTemplate<Object[]>(
-            OBJECT_ARRAY_ID, Object[].class) {
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        @Override
-        protected void write2(final PackerContext context, final Object[] value)
-                throws IOException {
-            final ObjectPacker op = context.objectPacker;
-            final Packer p = context.packer;
-            final Class<?> type = value.getClass().getComponentType();
-            op.write(type);
-            // CANNOT USE writeArrayBegin()/writeArrayEnd() because op.write(a, typeTemp); could do multiple writes
-            if (Modifier.isFinal(type.getModifiers())) {
-                p.write(true);
-//                p.writeArrayBegin(value.length);
-                p.writeIndex(value.length);
-                final Template typeTemp = context.getTemplate(type);
-                for (final Object a : value) {
-                    op.write(a, typeTemp);
-                }
-            } else {
-                p.write(false);
-//                p.writeArrayBegin(value.length);
-                p.writeIndex(value.length);
-                for (final Object a : value) {
-                    op.write(a);
-                }
-            }
-//            p.writeArrayEnd();
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Object[] read(final UnpackerContext context) throws IOException {
-            final ObjectUnpacker ou = context.objectUnpacker;
-            final Unpacker u = context.unpacker;
-            final Class<?> type = ou.readClass();
-            final boolean isFinal = u.readBoolean();
-            final int length = u.readIndex();//u.readArrayBegin();
-            System.out.println("BasicTemplates.OBJECT_ARRAY.read(): type="
-                    + type + " isFinal=" + isFinal + " length=" + length);
-            final Object[] array = (Object[]) Array.newInstance(type, length);
-            if (isFinal) {
-                @SuppressWarnings("rawtypes")
-                final Template typeTemp = context.getTemplate(type);
-                for (int i = 0; i < length; i++) {
-                    System.out.println("BasicTemplates.OBJECT_ARRAY.read(): i="
-                            + i);
-                    array[i] = ou.readObject(typeTemp);
-                    System.out
-                            .println("BasicTemplates.OBJECT_ARRAY.read(): array["
-                                    + i + "]=" + array[i]);
-                }
-            } else {
-                for (int i = 0; i < length; i++) {
-                    System.out.println("BasicTemplates.OBJECT_ARRAY.read(): i="
-                            + i);
-                    array[i] = ou.readObject();
-                    System.out
-                            .println("BasicTemplates.OBJECT_ARRAY.read(): array["
-                                    + i + "]=" + array[i]);
-                }
-            }
-//            u.readArrayEnd(true);
-            return array;
-        }
-    };
-
-    /**
-     * The Enum template.
-     *
-     * The Enum template is special, because it serves for all Enums.
-     */
-    @SuppressWarnings("rawtypes")
-    public static final Template<Enum> ENUM = new MyAbstractTemplate<Enum>(
-            ENUM_ID, Enum.class) {
-        @Override
-        protected void write2(final PackerContext context, final Enum value)
-                throws IOException {
-            context.objectPacker.write(value.getDeclaringClass());
-            context.packer.writeIndex(value.ordinal());
-        }
-
-        @Override
-        public Enum<?> read(final UnpackerContext context) throws IOException {
-            final Class<?> declaringClass = context.objectUnpacker.readClass();
-            final int ordinal = context.unpacker.readIndex();
-            return (Enum<?>) declaringClass.getEnumConstants()[ordinal];
-        }
-    };
+    /** The java.util.HashMap template ID. */
+    public static final int JAVA_UTIL_HASH_MAP_ID = 25;
 
     /**
      * The Object template.
@@ -286,15 +291,21 @@ public class BasicTemplates {
      * not the "anything and everything" template!!!
      */
     public static final Template<Object> OBJECT = new MyAbstractTemplate<Object>(
-            OBJECT_ID, Object.class) {
+            OBJECT_ID, Object.class, true, false) {
         @Override
-        protected void write2(final PackerContext context, final Object value)
-                throws IOException {
+        public int getSpaceRequired(final PackerContext context, final Object v) {
+            return 0;
+        }
+
+        @Override
+        public void writeData(final PackerContext context, final int size,
+                final Object v) throws IOException {
             // Objects have no data, therefore, there is nothing to write!
         }
 
         @Override
-        public Object read(final UnpackerContext context) throws IOException {
+        public Object readData(final UnpackerContext context,
+                final Object preCreated, final int size) throws IOException {
             // Objects have no data, therefore, there is nothing to read!
             return new Object();
         }
@@ -303,484 +314,539 @@ public class BasicTemplates {
     /** The Class template. */
     @SuppressWarnings("rawtypes")
     public static final Template<Class> CLASS = new MyAbstractTemplate<Class>(
-            CLASS_ID, Class.class) {
+            CLASS_ID, Class.class, true, true) {
+
         @SuppressWarnings("unchecked")
         @Override
-        protected void write2(final PackerContext context, final Class value)
-                throws IOException {
+        public int getSpaceRequired(final PackerContext context, final Class v) {
+            return (context.findTemplate(v) == null) ? 3 : 1;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void writeData(final PackerContext context, final int size,
+                final Class value) throws IOException {
             final Template<?> t = context.findTemplate(value);
             if (t == null) {
                 // Not a serialisable class!
-                context.packer.writeIndex(0);
+                context.packer.writeNil();
                 // We split package and name, so that we hope for reuse of
                 // package name, and therefore space saving.
-                final String fqname = CLASS_NAME_CONVERTER.getName(value);
+                final String fqname = AbstractTemplate.getClassNameConverter()
+                        .getName(value);
                 final int index = fqname.lastIndexOf('.');
                 if (index > 0) {
-                    context.objectPacker.write(fqname.substring(0, index));
-                    context.objectPacker.write(fqname.substring(index + 1));
+                    context.objectPacker
+                            .writeObject(fqname.substring(0, index));
+                    context.objectPacker.writeObject(fqname
+                            .substring(index + 1));
                 } else {
                     // Primitive type?!?
-                    context.objectPacker.write("");
-                    context.objectPacker.write(fqname);
+                    context.objectPacker.writeObject("");
+                    context.objectPacker.writeObject(fqname);
                 }
             } else {
-                context.packer.writeIndex(t.getID());
+                final int depth = AbstractTemplate.getArrayDepth(value);
+                context.packer.writeIndex(t.getID() * 4 + depth);
             }
         }
 
         @Override
-        public Class<?> read(final UnpackerContext context) throws IOException {
-            final int id = context.unpacker.readIndex();
-            if (id == 0) {
+        public Class<?> readData(final UnpackerContext context,
+                final Class preCreated, final int size) throws IOException {
+            if (context.unpacker.trySkipNil()) {
                 final String pkg = context.objectUnpacker.readString();
                 final String cls = context.objectUnpacker.readString();
                 if (pkg.isEmpty()) {
-                    return CLASS_NAME_CONVERTER.getClass(cls);
+                    return AbstractTemplate.getClassNameConverter().getClass(
+                            cls);
                 }
-                return CLASS_NAME_CONVERTER.getClass(pkg + '.' + cls);
+                return AbstractTemplate.getClassNameConverter().getClass(
+                        pkg + '.' + cls);
             }
-            return context.getTemplate(id).getType();
+            final int id = context.unpacker.readIndex();
+            return context.getTemplate(id / 4).getType();
         }
     };
 
     /** The Boolean Wrapper template. */
     public static final Template<Boolean> BOOLEAN = new MyAbstractTemplate<Boolean>(
-            BOOLEAN_ID, Boolean.class) {
+            BOOLEAN_ID, Boolean.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Boolean value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Boolean value) throws IOException {
             context.packer.write(value.booleanValue());
         }
 
         @Override
-        public Boolean read(final UnpackerContext context) throws IOException {
+        public Boolean readData(final UnpackerContext context,
+                final Boolean preCreated, final int size) throws IOException {
             return context.unpacker.readBoolean();
         }
     };
 
     /** The Byte Wrapper template. */
     public static final Template<Byte> BYTE = new MyAbstractTemplate<Byte>(
-            BYTE_ID, Byte.class) {
+            BYTE_ID, Byte.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Byte value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Byte value) throws IOException {
             context.packer.write(value.byteValue());
         }
 
         @Override
-        public Byte read(final UnpackerContext context) throws IOException {
+        public Byte readData(final UnpackerContext context,
+                final Byte preCreated, final int size) throws IOException {
             return context.unpacker.readByte();
         }
     };
 
     /** The Short Wrapper template. */
     public static final Template<Short> SHORT = new MyAbstractTemplate<Short>(
-            SHORT_ID, Short.class) {
+            SHORT_ID, Short.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Short value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Short value) throws IOException {
             context.packer.write(value.shortValue());
         }
 
         @Override
-        public Short read(final UnpackerContext context) throws IOException {
+        public Short readData(final UnpackerContext context,
+                final Short preCreated, final int size) throws IOException {
             return context.unpacker.readShort();
         }
     };
 
     /** The Character Wrapper template. */
     public static final Template<Character> CHARACTER = new MyAbstractTemplate<Character>(
-            CHARACTER_ID, Character.class) {
+            CHARACTER_ID, Character.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Character value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Character value) throws IOException {
             context.packer.write(value.charValue());
         }
 
         @Override
-        public Character read(final UnpackerContext context) throws IOException {
+        public Character readData(final UnpackerContext context,
+                final Character preCreated, final int size) throws IOException {
             return context.unpacker.readChar();
         }
     };
 
     /** The Integer Wrapper template. */
     public static final Template<Integer> INTEGER = new MyAbstractTemplate<Integer>(
-            INTEGER_ID, Integer.class) {
+            INTEGER_ID, Integer.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Integer value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Integer value) throws IOException {
             context.packer.write(value.intValue());
         }
 
         @Override
-        public Integer read(final UnpackerContext context) throws IOException {
+        public Integer readData(final UnpackerContext context,
+                final Integer preCreated, final int size) throws IOException {
             return context.unpacker.readInt();
         }
     };
 
     /** The Long Wrapper template. */
     public static final Template<Long> LONG = new MyAbstractTemplate<Long>(
-            LONG_ID, Long.class) {
+            LONG_ID, Long.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Long value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Long value) throws IOException {
             context.packer.write(value.longValue());
         }
 
         @Override
-        public Long read(final UnpackerContext context) throws IOException {
+        public Long readData(final UnpackerContext context,
+                final Long preCreated, final int size) throws IOException {
             return context.unpacker.readLong();
         }
     };
 
     /** The Float Wrapper template. */
     public static final Template<Float> FLOAT = new MyAbstractTemplate<Float>(
-            FLOAT_ID, Float.class) {
+            FLOAT_ID, Float.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Float value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Float value) throws IOException {
             context.packer.write(value.floatValue());
         }
 
         @Override
-        public Float read(final UnpackerContext context) throws IOException {
+        public Float readData(final UnpackerContext context,
+                final Float preCreated, final int size) throws IOException {
             return context.unpacker.readFloat();
         }
     };
 
     /** The Double Wrapper template. */
     public static final Template<Double> DOUBLE = new MyAbstractTemplate<Double>(
-            DOUBLE_ID, Double.class) {
+            DOUBLE_ID, Double.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Double value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Double value) throws IOException {
             context.packer.write(value.doubleValue());
         }
 
         @Override
-        public Double read(final UnpackerContext context) throws IOException {
+        public Double readData(final UnpackerContext context,
+                final Double preCreated, final int size) throws IOException {
             return context.unpacker.readDouble();
         }
     };
 
     /** The BigInteger template. */
     public static final Template<BigInteger> BIG_INTEGER = new MyAbstractTemplate<BigInteger>(
-            BIG_INTEGER_ID, BigInteger.class) {
+            BIG_INTEGER_ID, BigInteger.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context,
+        public void writeData(final PackerContext context, final int size,
                 final BigInteger value) throws IOException {
             context.packer.write(value);
         }
 
         @Override
-        public BigInteger read(final UnpackerContext context)
-                throws IOException {
+        public BigInteger readData(final UnpackerContext context,
+                final BigInteger preCreated, final int size) throws IOException {
             return context.unpacker.readBigInteger();
         }
     };
 
     /** The BigDecimal template. */
     public static final Template<BigDecimal> BIG_DECIMAL = new MyAbstractTemplate<BigDecimal>(
-            BIG_DECIMAL_ID, BigDecimal.class) {
+            BIG_DECIMAL_ID, BigDecimal.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context,
+        public void writeData(final PackerContext context, final int size,
                 final BigDecimal value) throws IOException {
             context.packer.write(value);
         }
 
         @Override
-        public BigDecimal read(final UnpackerContext context)
-                throws IOException {
+        public BigDecimal readData(final UnpackerContext context,
+                final BigDecimal preCreated, final int size) throws IOException {
             return context.unpacker.readBigDecimal();
         }
     };
 
     /** The String template. */
     public static final Template<String> STRING = new MyAbstractTemplate<String>(
-            STRING_ID, String.class) {
+            STRING_ID, String.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final String value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final String value) throws IOException {
             context.packer.write(value);
         }
 
         @Override
-        public String read(final UnpackerContext context) throws IOException {
+        public String readData(final UnpackerContext context,
+                final String preCreated, final int size) throws IOException {
             return context.unpacker.readString();
         }
     };
 
     /** The ByteBuffer template. */
     public static final Template<ByteBuffer> BYTE_BUFFER = new MyAbstractTemplate<ByteBuffer>(
-            BYTE_BUFFER_ID, ByteBuffer.class) {
+            BYTE_BUFFER_ID, ByteBuffer.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context,
+        public void writeData(final PackerContext context, final int size,
                 final ByteBuffer value) throws IOException {
             context.packer.write(value);
         }
 
         @Override
-        public ByteBuffer read(final UnpackerContext context)
-                throws IOException {
+        public ByteBuffer readData(final UnpackerContext context,
+                final ByteBuffer preCreated, final int size) throws IOException {
             return context.unpacker.readByteBuffer();
         }
     };
 
     /** The Date template. */
     public static final Template<Date> DATE = new MyAbstractTemplate<Date>(
-            DATE_ID, Date.class) {
+            DATE_ID, Date.class, true, true, 1) {
         @Override
-        protected void write2(final PackerContext context, final Date value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final Date value) throws IOException {
             context.packer.write(value.getTime());
         }
 
         @Override
-        public Date read(final UnpackerContext context) throws IOException {
+        public Date readData(final UnpackerContext context,
+                final Date preCreated, final int size) throws IOException {
             return new Date(context.unpacker.readLong());
         }
     };
 
     /** The Boolean array template. */
-    public static final Template<boolean[]> BOOLEAN_ARRAY = new MyAbstractTemplate<boolean[]>(
+    public static final Template<boolean[]> BOOLEAN_ARRAY = new MyPrimitiveArrayAbstractTemplate<boolean[]>(
             BOOLEAN_ARRAY_ID, boolean[].class) {
         @Override
-        protected void write2(final PackerContext context, final boolean[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final boolean[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final boolean a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public boolean[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readBooleanArray();
+        public boolean[] readData(final UnpackerContext context,
+                final boolean[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final boolean[] result = new boolean[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readBoolean();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context,
+                final boolean[] v) {
+            return v.length;
         }
     };
 
     /** The Byte array template. */
     public static final Template<byte[]> BYTE_ARRAY = new MyAbstractTemplate<byte[]>(
-            BYTE_ARRAY_ID, byte[].class) {
+            BYTE_ARRAY_ID, byte[].class, true, false, 1) {
         @Override
-        protected void write2(final PackerContext context, final byte[] value)
-                throws IOException {
+        public void writeData(final PackerContext context, final int size,
+                final byte[] value) throws IOException {
             context.packer.write(value);
         }
 
         @Override
-        public byte[] read(final UnpackerContext context) throws IOException {
+        public byte[] readData(final UnpackerContext context,
+                final byte[] preCreated, final int size) throws IOException {
             return context.unpacker.readByteArray();
         }
     };
 
     /** The Short array template. */
-    public static final Template<short[]> SHORT_ARRAY = new MyAbstractTemplate<short[]>(
+    public static final Template<short[]> SHORT_ARRAY = new MyPrimitiveArrayAbstractTemplate<short[]>(
             SHORT_ARRAY_ID, short[].class) {
         @Override
-        protected void write2(final PackerContext context, final short[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final short[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final short a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public short[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readShortArray();
+        public short[] readData(final UnpackerContext context,
+                final short[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final short[] result = new short[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readShort();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context, final short[] v) {
+            return v.length;
         }
     };
 
     /** The Character array template. */
-    public static final Template<char[]> CHAR_ARRAY = new MyAbstractTemplate<char[]>(
+    public static final Template<char[]> CHAR_ARRAY = new MyPrimitiveArrayAbstractTemplate<char[]>(
             CHAR_ARRAY_ID, char[].class) {
         @Override
-        protected void write2(final PackerContext context, final char[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final char[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final char a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public char[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readCharArray();
+        public char[] readData(final UnpackerContext context,
+                final char[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final char[] result = new char[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readChar();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context, final char[] v) {
+            return v.length;
         }
     };
 
     /** The Integer array template. */
-    public static final Template<int[]> INT_ARRAY = new MyAbstractTemplate<int[]>(
+    public static final Template<int[]> INT_ARRAY = new MyPrimitiveArrayAbstractTemplate<int[]>(
             INT_ARRAY_ID, int[].class) {
         @Override
-        protected void write2(final PackerContext context, final int[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final int[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final int a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public int[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readIntArray();
+        public int[] readData(final UnpackerContext context,
+                final int[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final int[] result = new int[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readInt();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context, final int[] v) {
+            return v.length;
         }
     };
 
     /** The Long array template. */
-    public static final Template<long[]> LONG_ARRAY = new MyAbstractTemplate<long[]>(
+    public static final Template<long[]> LONG_ARRAY = new MyPrimitiveArrayAbstractTemplate<long[]>(
             LONG_ARRAY_ID, long[].class) {
         @Override
-        protected void write2(final PackerContext context, final long[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final long[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final long a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public long[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readLongArray();
+        public long[] readData(final UnpackerContext context,
+                final long[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final long[] result = new long[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readLong();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context, final long[] v) {
+            return v.length;
         }
     };
 
     /** The Float array template. */
-    public static final Template<float[]> FLOAT_ARRAY = new MyAbstractTemplate<float[]>(
+    public static final Template<float[]> FLOAT_ARRAY = new MyPrimitiveArrayAbstractTemplate<float[]>(
             FLOAT_ARRAY_ID, float[].class) {
         @Override
-        protected void write2(final PackerContext context, final float[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final float[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final float a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public float[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readFloatArray();
+        public float[] readData(final UnpackerContext context,
+                final float[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final float[] result = new float[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readFloat();
+            }
+            return result;
+        }
+
+        @Override
+        public int getSpaceRequired(final PackerContext context, final float[] v) {
+            return v.length;
         }
     };
 
     /** The Double array template. */
-    public static final Template<double[]> DOUBLE_ARRAY = new MyAbstractTemplate<double[]>(
+    public static final Template<double[]> DOUBLE_ARRAY = new MyPrimitiveArrayAbstractTemplate<double[]>(
             DOUBLE_ARRAY_ID, double[].class) {
         @Override
-        protected void write2(final PackerContext context, final double[] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final double[] value) throws IOException {
+            final Packer p = context.packer;
+            for (final double a : value) {
+                p.write(a);
+            }
         }
 
         @Override
-        public double[] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readDoubleArray();
-        }
-    };
-
-    /** The Boolean array array template. */
-    public static final Template<boolean[][]> BOOLEAN_ARRAY_ARRAY = new MyAbstractTemplate<boolean[][]>(
-            BOOLEAN_ARRAY_ARRAY_ID, boolean[][].class) {
-        @Override
-        protected void write2(final PackerContext context,
-                final boolean[][] value) throws IOException {
-            context.packer.write(value);
+        public double[] readData(final UnpackerContext context,
+                final double[] preCreated, final int size) throws IOException {
+            final Unpacker u = context.unpacker;
+            final double[] result = new double[size];
+            for (int i = 0; i < size; i++) {
+                result[i] = u.readDouble();
+            }
+            return result;
         }
 
         @Override
-        public boolean[][] read(final UnpackerContext context)
-                throws IOException {
-            return context.unpacker.readBooleanArrayArray();
-        }
-    };
-
-    /** The Byte array array template. */
-    public static final Template<byte[][]> BYTE_ARRAY_ARRAY = new MyAbstractTemplate<byte[][]>(
-            BYTE_ARRAY_ARRAY_ID, byte[][].class) {
-        @Override
-        protected void write2(final PackerContext context, final byte[][] value)
-                throws IOException {
-            context.packer.write(value);
-        }
-
-        @Override
-        public byte[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readByteArrayArray();
+        public int getSpaceRequired(final PackerContext context,
+                final double[] v) {
+            return v.length;
         }
     };
 
-    /** The Short array array template. */
-    public static final Template<short[][]> SHORT_ARRAY_ARRAY = new MyAbstractTemplate<short[][]>(
-            SHORT_ARRAY_ARRAY_ID, short[][].class) {
+    /** The Byte array slice template. */
+    public static final Template<ByteArraySlice> BYTE_ARRAY_SLICE = new MyAbstractTemplate<ByteArraySlice>(
+            BYTE_ARRAY_ID, ByteArraySlice.class, true, false, 1) {
         @Override
-        protected void write2(final PackerContext context, final short[][] value)
-                throws IOException {
-            context.packer.write(value);
+        public void writeData(final PackerContext context, final int size,
+                final ByteArraySlice value) throws IOException {
+            context.packer.write(value.o, value.off, value.len);
         }
 
         @Override
-        public short[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readShortArrayArray();
+        public ByteArraySlice readData(final UnpackerContext context,
+                final ByteArraySlice preCreated, final int size)
+                throws IOException {
+            final byte[] bytes = context.unpacker.readByteArray();
+            return (bytes == null) ? null : new ByteArraySlice(bytes, 0,
+                    bytes.length);
         }
     };
 
-    /** The Character array array template. */
-    public static final Template<char[][]> CHAR_ARRAY_ARRAY = new MyAbstractTemplate<char[][]>(
-            CHAR_ARRAY_ARRAY_ID, char[][].class) {
-        @Override
-        protected void write2(final PackerContext context, final char[][] value)
-                throws IOException {
-            context.packer.write(value);
-        }
+    /** The ArrayList template. */
+    @SuppressWarnings("rawtypes")
+    public static final Template<ArrayList> JAVA_UTIL_ARRAY_LIST = new AbstractCollectionTemplate<ArrayList>(
+            JAVA_UTIL_ARRAY_LIST_ID, ArrayList.class) {
 
         @Override
-        public char[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readCharArrayArray();
+        public ArrayList preCreate(final int size) {
+            return new ArrayList(size);
         }
     };
 
-    /** The Integer array array template. */
-    public static final Template<int[][]> INT_ARRAY_ARRAY = new MyAbstractTemplate<int[][]>(
-            INT_ARRAY_ARRAY_ID, int[][].class) {
-        @Override
-        protected void write2(final PackerContext context, final int[][] value)
-                throws IOException {
-            context.packer.write(value);
-        }
+    /** The HashSet template. */
+    @SuppressWarnings("rawtypes")
+    public static final Template<HashSet> JAVA_UTIL_HASH_SET = new AbstractCollectionTemplate<HashSet>(
+            JAVA_UTIL_HASH_SET_ID, HashSet.class) {
 
         @Override
-        public int[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readIntArrayArray();
+        public HashSet preCreate(final int size) {
+            return new HashSet(size);
         }
     };
 
-    /** The Long array array template. */
-    public static final Template<long[][]> LONG_ARRAY_ARRAY = new MyAbstractTemplate<long[][]>(
-            LONG_ARRAY_ARRAY_ID, long[][].class) {
-        @Override
-        protected void write2(final PackerContext context, final long[][] value)
-                throws IOException {
-            context.packer.write(value);
-        }
+    /** The HashMap template. */
+    @SuppressWarnings("rawtypes")
+    public static final Template<HashMap> JAVA_UTIL_HASH_MAP = new AbstractMapTemplate<HashMap>(
+            JAVA_UTIL_HASH_MAP_ID, HashMap.class) {
 
         @Override
-        public long[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readLongArrayArray();
-        }
-    };
-
-    /** The Float array array template. */
-    public static final Template<float[][]> FLOAT_ARRAY_ARRAY = new MyAbstractTemplate<float[][]>(
-            FLOAT_ARRAY_ARRAY_ID, float[][].class) {
-        @Override
-        protected void write2(final PackerContext context, final float[][] value)
-                throws IOException {
-            context.packer.write(value);
-        }
-
-        @Override
-        public float[][] read(final UnpackerContext context) throws IOException {
-            return context.unpacker.readFloatArrayArray();
-        }
-    };
-
-    /** The Double array array template. */
-    public static final Template<double[][]> DOUBLE_ARRAY_ARRAY = new MyAbstractTemplate<double[][]>(
-            DOUBLE_ARRAY_ARRAY_ID, double[][].class) {
-        @Override
-        protected void write2(final PackerContext context,
-                final double[][] value) throws IOException {
-            context.packer.write(value);
-        }
-
-        @Override
-        public double[][] read(final UnpackerContext context)
-                throws IOException {
-            return context.unpacker.readDoubleArrayArray();
+        public HashMap preCreate(final int size) {
+            return new HashMap(size);
         }
     };
 

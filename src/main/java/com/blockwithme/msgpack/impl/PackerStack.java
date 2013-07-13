@@ -17,7 +17,7 @@
 //
 package com.blockwithme.msgpack.impl;
 
-import org.msgpack.MessageTypeException;
+import com.blockwithme.msgpack.MessageTypeException;
 
 public final class PackerStack {
     private int top;
@@ -29,6 +29,7 @@ public final class PackerStack {
     private static final byte TYPE_INVALID = 0;
     private static final byte TYPE_ARRAY = 1;
     private static final byte TYPE_MAP = 2;
+    private static final byte TYPE_RAW = 3;
 
     public PackerStack() {
         this.top = 0;
@@ -49,6 +50,12 @@ public final class PackerStack {
         counts[top] = size * 2;
     }
 
+    public void pushRaw() {
+        top++;
+        types[top] = TYPE_RAW;
+        counts[top] = 1;
+    }
+
     public void checkCount() {
         if (counts[top] > 0) {
             return;
@@ -61,6 +68,10 @@ public final class PackerStack {
         } else if (types[top] == TYPE_MAP) {
             throw new MessageTypeException(
                     "Map is end but writeMapEnd() is not called");
+
+        } else if (types[top] == TYPE_RAW) {
+            throw new MessageTypeException(
+                    "Raw is end but writeRawEnd() is not called");
 
         } else {
             // empty
@@ -90,6 +101,10 @@ public final class PackerStack {
 
     public boolean topIsMap() {
         return types[top] == TYPE_MAP;
+    }
+
+    public boolean topIsRaw() {
+        return types[top] == TYPE_RAW;
     }
 
     public void clear() {

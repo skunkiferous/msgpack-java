@@ -15,18 +15,23 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.packer;
+package com.blockwithme.msgpack;
 
-/**
- * This class is buffer-specific serializer.
- * 
- * @version 0.6.0
- * @see {@link org.msgpack.packer.Packer}
- */
-public interface BufferPacker extends Packer {
-    public int getBufferSize();
+@SuppressWarnings("serial")
+public class MessageTypeException extends RuntimeException {
+    public MessageTypeException() {
+        super();
+    }
 
-    public byte[] toByteArray();
+    public MessageTypeException(final String message) {
+        super(message);
+    }
 
-    public void clear();
+    public MessageTypeException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public MessageTypeException(final Throwable cause) {
+        super(cause);
+    }
 }

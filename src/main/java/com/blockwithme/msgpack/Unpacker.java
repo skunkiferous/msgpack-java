@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 /**
  * Standard deserializer.
@@ -52,6 +53,18 @@ public interface Unpacker extends Closeable {
     /** Reads a double. */
     double readDouble() throws IOException;
 
+    /** Reads a String. */
+    String readString() throws IOException;
+
+    /** Reads a BigInteger. */
+    BigInteger readBigInteger() throws IOException;
+
+    /** Reads a BigDecimal. */
+    BigDecimal readBigDecimal() throws IOException;
+
+    /** Reads a Date. */
+    Date readDate() throws IOException;
+
     /** Reads a boolean array. */
     boolean[] readBooleanArray() throws IOException;
 
@@ -75,39 +88,6 @@ public interface Unpacker extends Closeable {
 
     /** Reads a double array. */
     double[] readDoubleArray() throws IOException;
-
-    /** Reads a boolean array array. */
-    boolean[][] readBooleanArrayArray() throws IOException;
-
-    /** Reads a byte array array. */
-    byte[][] readByteArrayArray() throws IOException;
-
-    /** Reads a short array array. */
-    short[][] readShortArrayArray() throws IOException;
-
-    /** Reads a char array array. */
-    char[][] readCharArrayArray() throws IOException;
-
-    /** Reads a int array array. */
-    int[][] readIntArrayArray() throws IOException;
-
-    /** Reads a long array array. */
-    long[][] readLongArrayArray() throws IOException;
-
-    /** Reads a float array array. */
-    float[][] readFloatArrayArray() throws IOException;
-
-    /** Reads a double array array. */
-    double[][] readDoubleArrayArray() throws IOException;
-
-    /** Reads a String. */
-    String readString() throws IOException;
-
-    /** Reads a BigInteger. */
-    BigInteger readBigInteger() throws IOException;
-
-    /** Reads a BigDecimal. */
-    BigDecimal readBigDecimal() throws IOException;
 
     /** Reads a ByteBuffer. */
     ByteBuffer readByteBuffer() throws IOException;

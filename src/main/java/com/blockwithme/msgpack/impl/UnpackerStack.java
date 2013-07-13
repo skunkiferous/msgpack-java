@@ -17,7 +17,7 @@
 //
 package com.blockwithme.msgpack.impl;
 
-import org.msgpack.MessageTypeException;
+import com.blockwithme.msgpack.MessageTypeException;
 
 public final class UnpackerStack {
     private int top;
@@ -70,6 +70,10 @@ public final class UnpackerStack {
 
     public void reduceCount() {
         counts[top]--;
+    }
+
+    public void raiseCount() {
+        counts[top]++;
     }
 
     public void pop() {

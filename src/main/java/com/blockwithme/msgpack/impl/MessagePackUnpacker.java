@@ -431,6 +431,17 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
+    protected BigInteger readBigInteger(final boolean countAsValue)
+            throws IOException {
+        readOne(bigIntegerAccept);
+        final BigInteger result = bigIntegerAccept.value;
+        if ((result != null) && !countAsValue) {
+            stack.raiseCount();
+        }
+        return result;
+    }
+
+    @Override
     public float readFloat() throws IOException {
         readOne(doubleAccept);
         return (float) doubleAccept.value;

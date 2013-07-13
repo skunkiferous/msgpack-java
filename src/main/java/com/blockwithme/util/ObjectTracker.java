@@ -19,10 +19,9 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 /**
- * ObjectTracker keep track of object, using identity, to make sure that
- * multiple occurrences are detected.
- *
- * One exception are Strings, which are stored by value/equality.
+ * ObjectTracker keep track of object, to make sure that multiple occurrences
+ * are detected. Depending on the value of the isImmutable flag, we will use
+ * either Object equality, if true, or Object identity, if false.
  *
  * TODO I expect the performance is bad. We want something faster.
  *
@@ -30,41 +29,40 @@ import java.util.IdentityHashMap;
  */
 public class ObjectTracker {
     /** Stores the non-String objects. */
-    private final IdentityHashMap<Object, Integer> map = new IdentityHashMap<Object, Integer>();
+    private final IdentityHashMap<Object, Integer> normal = new IdentityHashMap<Object, Integer>();
 
     /** Stores the String objects. */
-    private final HashMap<String, Integer> strings = new HashMap<String, Integer>();
+    private final HashMap<Object, Integer> immutable = new HashMap<Object, Integer>();
 
-    /** Tracks an object. Returns 0 if new or null, otherwise the insertion position. */
-    public int track(final Object o) {
+    /** Tracks an object. Returns -1 if new or null, otherwise the insertion position. */
+    public int track(final Object o, final boolean isImmutable) {
         if (o == null) {
-            return 0;
+            return -1;
         }
-        if (o instanceof String) {
-            final String s = (String) o;
-            final Integer pos = strings.get(s);
+        if (isImmutable) {
+            final Integer pos = immutable.get(o);
             if (pos == null) {
-                strings.put(s, lastPosition());
-                return 0;
+                immutable.put(o, position());
+                return -1;
             }
             return pos;
         }
-        final Integer pos = map.get(o);
+        final Integer pos = normal.get(o);
         if (pos == null) {
-            map.put(o, lastPosition());
-            return 0;
+            normal.put(o, position());
+            return -1;
         }
         return pos;
     }
 
     /** Clears the tracker. */
     public void clear() {
-        map.clear();
-        strings.clear();
+        normal.clear();
+        immutable.clear();
     }
 
     /** Return the position of the last new object. Positions start at 1. */
-    public int lastPosition() {
-        return map.size() + strings.size() + 1;
+    public int position() {
+        return normal.size() + immutable.size();
     }
 }

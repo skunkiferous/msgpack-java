@@ -37,17 +37,18 @@ public class Context {
         this.idToTemplate = Objects.requireNonNull(idToTemplate);
         for (int i = 0; i < idToTemplate.length; i++) {
             final Template<?> template = idToTemplate[i];
-            Objects.requireNonNull(template, "idToTemplate[" + i + "]");
-            Objects.requireNonNull(template.getType(), "idToTemplate[" + i
-                    + "].getType()");
-            if (template.getID() != i + 1) {
-                throw new IllegalStateException(template + " at index " + i
-                        + " should have ID " + (i + 1) + " but has ID "
-                        + template.getID());
-            }
-            if (classToTemplate.put(template.getType(), template) != null) {
-                throw new IllegalArgumentException("Multiple templates for "
-                        + template.getType());
+            if (template != null) {
+                Objects.requireNonNull(template.getType(), "idToTemplate[" + i
+                        + "].getType()");
+                if (template.getID() != i) {
+                    throw new IllegalStateException(template + " at index " + i
+                            + " should have ID " + i + " but has ID "
+                            + template.getID());
+                }
+                if (classToTemplate.put(template.getType(), template) != null) {
+                    throw new IllegalArgumentException(
+                            "Multiple templates for " + template.getType());
+                }
             }
         }
     }
@@ -55,11 +56,14 @@ public class Context {
     /** Returns the Template<?> for an ID, or fails. */
     public Template<?> getTemplate(final int id) {
         try {
-            return idToTemplate[id - 1];
+            final Template<?> result = idToTemplate[id];
+            if (result != null) {
+                return result;
+            }
         } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Template not found for id: "
-                    + id);
+            // NOP
         }
+        throw new IllegalArgumentException("Template not found for id: " + id);
     }
 
     /** Returns the ID for a Class, or null if not found. */
@@ -68,15 +72,13 @@ public class Context {
         if (cls == null) {
             throw new IllegalArgumentException("Class cannot be null");
         }
-        // Object array is a special case, as it matches any object array
-        if (cls.isArray() && !cls.getComponentType().isPrimitive()) {
-            return (Template<E>) BasicTemplates.OBJECT_ARRAY;
+        // Object array is a special case
+        Class<?> c = cls;
+        Class<?> cc;
+        while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
+            c = cc;
         }
-        // Enums are also a special case.
-        if (cls.isEnum()) {
-            return (Template<E>) BasicTemplates.ENUM;
-        }
-        return (Template<E>) classToTemplate.get(cls);
+        return (Template<E>) classToTemplate.get(c);
     }
 
     /** Returns the ID for a Class. */

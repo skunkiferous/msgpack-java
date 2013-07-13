@@ -15,6 +15,8 @@
  */
 package com.blockwithme.msgpack.templates;
 
+import java.lang.reflect.Modifier;
+
 /**
  * Default non-OSGi implementation of ClassNameConverter.
  *
@@ -42,4 +44,12 @@ public class DefaultClassNameConverter implements ClassNameConverter {
         }
     }
 
+    /** Returns true if the type is (effectively) final. */
+    @Override
+    public boolean isFinal(final Class<?> cls) {
+        // In a graph, a class is final if not overriden, even without a
+        // final modifier!
+        return Modifier.isFinal(cls.getModifiers())
+                || (cls.isArray() && cls.getComponentType().isPrimitive());
+    }
 }

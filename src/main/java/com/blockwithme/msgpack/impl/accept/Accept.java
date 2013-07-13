@@ -20,7 +20,7 @@ package com.blockwithme.msgpack.impl.accept;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.msgpack.MessageTypeException;
+import com.blockwithme.msgpack.MessageTypeException;
 
 public abstract class Accept {
     public void acceptBoolean(final boolean v) throws IOException {

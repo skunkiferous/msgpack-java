@@ -24,7 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
-import org.msgpack.MessageTypeException;
+import com.blockwithme.msgpack.MessageTypeException;
 
 public final class StringAccept extends Accept {
     public String value;

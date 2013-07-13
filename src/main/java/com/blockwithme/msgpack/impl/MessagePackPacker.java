@@ -30,6 +30,8 @@ import com.blockwithme.msgpack.Packer;
 public class MessagePackPacker extends AbstractPacker {
     protected final DataOutput out;
 
+    private int rawToWrite;
+
     private final PackerStack stack = new PackerStack();
 
     public MessagePackPacker(final DataOutput out) {
@@ -201,15 +203,20 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeBigInteger(final BigInteger d) throws IOException {
+    protected void writeBigInteger(final BigInteger d,
+            final boolean countAaValue) throws IOException {
         if (d.bitLength() <= 63) {
             writeLong(d.longValue());
-            stack.reduceCount();
+            if (countAaValue) {
+                stack.reduceCount();
+            }
         } else if (d.bitLength() == 64 && d.signum() == 1) {
             // unsigned 64
             out.writeByte((byte) 0xcf);
             out.writeLong(d.longValue());
-            stack.reduceCount();
+            if (countAaValue) {
+                stack.reduceCount();
+            }
         } else {
             throw new IOException(
                     "MessagePack can't serialize BigInteger larger than (2^64)-1");
@@ -245,46 +252,58 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     protected void writeByteArray(final byte[] b, final int off, final int len)
             throws IOException {
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
-        } else if (len < 65536) {
-            out.writeByte((byte) 0xda);
-            out.writeShort((short) len);
-        } else {
-            out.writeByte((byte) 0xdb);
-            out.writeInt(len);
-        }
+        writeRawBegin(len);
         out.write(b, off, len);
-        stack.reduceCount();
+        rawToWrite -= len;
+        writeRawEnd();
     }
 
+    /** Writes a byte array, between a writeRawBegin() and writeRawEnd(). */
     @Override
-    protected void writeByteBuffer(final ByteBuffer bb) throws IOException {
+    public Packer writePartial(final byte[] b) throws IOException {
+        return writePartial(b, 0, b.length);
+    }
+
+    /** Writes a byte[], between a writeRawBegin() and writeRawEnd(). */
+    @Override
+    public Packer writePartial(final byte[] b, final int off, final int len)
+            throws IOException {
+        out.write(b, off, len);
+        rawToWrite -= len;
+        return this;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Packer#writePartial(java.nio.ByteBuffer)
+     */
+    @Override
+    public Packer writePartial(final ByteBuffer bb) throws IOException {
         final int len = bb.remaining();
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
-        } else if (len < 65536) {
-            out.writeByte((byte) 0xda);
-            out.writeShort((short) len);
-        } else {
-            out.writeByte((byte) 0xdb);
-            out.writeInt(len);
-        }
         final int pos = bb.position();
         try {
             if (bb.hasArray()) {
                 final byte[] array = bb.array();
                 final int offset = bb.arrayOffset();
                 out.write(array, offset, len);
+                rawToWrite -= len;
             } else {
                 final byte[] buf = new byte[len];
                 bb.get(buf);
                 out.write(buf);
+                rawToWrite -= len;
             }
         } finally {
             bb.position(pos);
         }
-        stack.reduceCount();
+        return this;
+    }
+
+    @Override
+    protected void writeByteBuffer(final ByteBuffer bb) throws IOException {
+        final int len = bb.remaining();
+        writeRawBegin(len);
+        writePartial(bb);
+        writeRawEnd();
     }
 
     @Override
@@ -297,7 +316,6 @@ public class MessagePackPacker extends AbstractPacker {
             throw new IOException(ex);
         }
         writeByteArray(b, 0, b.length);
-        stack.reduceCount();
     }
 
     @Override
@@ -382,6 +400,47 @@ public class MessagePackPacker extends AbstractPacker {
             for (int i = 0; i < remain; i++) {
                 writeNil();
             }
+        }
+        stack.pop();
+        return this;
+    }
+
+    /** Writes an raw begin. */
+    @Override
+    public Packer writeRawBegin(final int len) throws IOException {
+        if (rawToWrite > 0) {
+            throw new IOException("Last raw write not terminated!");
+        }
+        if (len < 32) {
+            out.writeByte((byte) (0xa0 | len));
+        } else if (len < 65536) {
+            out.writeByte((byte) 0xda);
+            out.writeShort((short) len);
+        } else {
+            out.writeByte((byte) 0xdb);
+            out.writeInt(len);
+        }
+        rawToWrite = len;
+        stack.reduceCount();
+        stack.pushRaw();
+        return this;
+    }
+
+    /** Writes an raw end. */
+    @Override
+    public Packer writeRawEnd() throws IOException {
+        // We moved the single raw reduceCOunt() here.
+        stack.reduceCount();
+        if (!stack.topIsRaw()) {
+            throw new IOException(
+                    "writeRawEnd() is called but writeRawBegin() is not called");
+        }
+
+        if (rawToWrite > 0) {
+            throw new IOException("Last raw write not terminated!");
+        }
+        if (rawToWrite < 0) {
+            throw new IOException("Last raw write too big!");
         }
         stack.pop();
         return this;

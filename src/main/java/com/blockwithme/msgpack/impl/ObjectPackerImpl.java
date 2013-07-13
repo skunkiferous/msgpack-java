@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.Packer;
+import com.blockwithme.msgpack.templates.AbstractTemplate;
 import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
@@ -63,495 +64,247 @@ public class ObjectPackerImpl implements ObjectPacker {
         return packer;
     }
 
+    /** Writes an Object out. Object must be compatible with template. */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <E> ObjectPacker writeObject(final E o, Template<E> template)
+            throws IOException {
+        if (o == null) {
+            if (context.required) {
+                throw new IOException("Attempted to write null when required");
+            }
+            packer.writeNil();
+            return this;
+        }
+        int depth = -1;
+        if (template == null) {
+            Class<?> c = o.getClass();
+            depth = 0;
+            Class<?> cc;
+            while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
+                depth++;
+                c = cc;
+            }
+            template = context.getTemplate((Class<E>) c);
+        }
+        final int pos = tracker.track(o, template.isMergeable());
+        if (pos == -1) {
+            // New Object!
+            if (depth == -1) {
+                depth = AbstractTemplate.getArrayDepth(o.getClass());
+            }
+            if (depth == 0) {
+                template.writeNonArrayObject(context, o);
+            } else if (depth == 1) {
+                template.write1DArray(context, (E[]) o, true);
+            } else if (depth == 2) {
+                template.write2DArray(context, (E[][]) o, true);
+            } else if (depth == 3) {
+                template.write3DArray(context, (E[][][]) o, true);
+            } else {
+                throw new IOException(
+                        "Maximum non-primitive (+1 for primitives) array dimention is 3, but got "
+                                + depth);
+            }
+            return this;
+        }
+        // Previous object
+        packer.writeIndex(pos);
+        return this;
+    }
+
     /**
      * Writes an Object out. Template is determined based on object type.
      * Pass along a template for faster results.
      */
     @Override
-    public <E> ObjectPacker write(final E o) throws IOException {
-        if (o == null) {
-            if (context.required) {
-                throw new IOException("Attempted to write null when required");
-            }
-            packer.write(BasicTemplates.NULL_ID);
-            return this;
-        }
-        final int pos = tracker.track(o);
-        if (pos == 0) {
-            // New Object!
-            @SuppressWarnings("unchecked")
-            final Class<E> cls = (Class<E>) o.getClass();
-            context.getTemplate(cls).write(context, o);
-            return this;
-        }
-        // Previous object
-        packer.writeIndex(-pos);
-        return this;
+    public <E> ObjectPacker writeObject(final E o) throws IOException {
+        return writeObject(o, null);
     }
 
-    /** Writes an Object out. Object must be compatible with template. */
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.OwriteObject(acker#writeObject(java.lang.Class)
+     */
     @Override
-    public <E> ObjectPacker write(final E o, final Template<E> template)
+    public ObjectPacker writeObject(final Class<?> o) throws IOException {
+        return writeObject(o, BasicTemplates.CLASS);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Boolean)
+     */
+    @Override
+    public ObjectPacker writeObject(final Boolean o) throws IOException {
+        return writeObject(o, BasicTemplates.BOOLEAN);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Byte)
+     */
+    @Override
+    public ObjectPacker writeObject(final Byte o) throws IOException {
+        return writeObject(o, BasicTemplates.BYTE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Short)
+     */
+    @Override
+    public ObjectPacker writeObject(final Short o) throws IOException {
+        return writeObject(o, BasicTemplates.SHORT);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Character)
+     */
+    @Override
+    public ObjectPacker writeObject(final Character o) throws IOException {
+        return writeObject(o, BasicTemplates.CHARACTER);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Integer)
+     */
+    @Override
+    public ObjectPacker writeObject(final Integer o) throws IOException {
+        return writeObject(o, BasicTemplates.INTEGER);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Long)
+     */
+    @Override
+    public ObjectPacker writeObject(final Long o) throws IOException {
+        return writeObject(o, BasicTemplates.LONG);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Float)
+     */
+    @Override
+    public ObjectPacker writeObject(final Float o) throws IOException {
+        return writeObject(o, BasicTemplates.FLOAT);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Double)
+     */
+    @Override
+    public ObjectPacker writeObject(final Double o) throws IOException {
+        return writeObject(o, BasicTemplates.DOUBLE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.math.BigInteger)
+     */
+    @Override
+    public ObjectPacker writeObject(final BigInteger o) throws IOException {
+        return writeObject(o, BasicTemplates.BIG_INTEGER);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.math.BigDecimal)
+     */
+    @Override
+    public ObjectPacker writeObject(final BigDecimal o) throws IOException {
+        return writeObject(o, BasicTemplates.BIG_DECIMAL);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.String)
+     */
+    @Override
+    public ObjectPacker writeObject(final String o) throws IOException {
+        return writeObject(o, BasicTemplates.STRING);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(boolean[])
+     */
+    @Override
+    public ObjectPacker writeObject(final boolean[] o) throws IOException {
+        return writeObject(o, BasicTemplates.BOOLEAN_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(byte[])
+     */
+    @Override
+    public ObjectPacker writeObject(final byte[] o) throws IOException {
+        return writeObject(o, BasicTemplates.BYTE_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(short[])
+     */
+    @Override
+    public ObjectPacker writeObject(final short[] o) throws IOException {
+        return writeObject(o, BasicTemplates.SHORT_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(char[])
+     */
+    @Override
+    public ObjectPacker writeObject(final char[] o) throws IOException {
+        return writeObject(o, BasicTemplates.CHAR_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(int[])
+     */
+    @Override
+    public ObjectPacker writeObject(final int[] o) throws IOException {
+        return writeObject(o, BasicTemplates.INT_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(long[])
+     */
+    @Override
+    public ObjectPacker writeObject(final long[] o) throws IOException {
+        return writeObject(o, BasicTemplates.LONG_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(float[])
+     */
+    @Override
+    public ObjectPacker writeObject(final float[] o) throws IOException {
+        return writeObject(o, BasicTemplates.FLOAT_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(double[])
+     */
+    @Override
+    public ObjectPacker writeObject(final double[] o) throws IOException {
+        return writeObject(o, BasicTemplates.DOUBLE_ARRAY);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.util.Date)
+     */
+    @Override
+    public ObjectPacker writeObject(final Date o) throws IOException {
+        return writeObject(o, BasicTemplates.DATE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.nio.ByteBuffer)
+     */
+    @Override
+    public ObjectPacker writeObject(final ByteBuffer o) throws IOException {
+        return writeObject(o, BasicTemplates.BYTE_BUFFER);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(byte[], int, int)
+     */
+    @Override
+    public ObjectPacker writeObject(final byte[] o, final int off, final int len)
             throws IOException {
-        if (o == null) {
-            if (context.required) {
-                throw new IOException("Attempted to write null when required");
-            }
-            packer.write(BasicTemplates.NULL_ID);
-            return this;
-        }
-        final int pos = tracker.track(o);
-        if (pos == 0) {
-            // New Object!
-            template.checkAndWrite(context, o);
-            return this;
-        }
-        // Previous object
-        packer.writeIndex(-pos);
-        return this;
-    }
-
-    /**
-     * Writes an Object out.
-     *
-     * Object must be compatible with non-null template, but it is not checked.
-     * Object must not be null, but it is not checked.
-     * Object must not be reused anywhere else, but it is not checked.
-     * No type ID is written.
-     *
-     * Fastest, but least safe.
-     */
-    @Override
-    public <E> ObjectPacker writeUnsharedUncheckedNonNullNoID(final E o,
-            final Template<E> template) throws IOException {
-        // New Object! Unshared! Non-Null! Of-Correct-Type!
-        template.writeNoID(context, o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Class)
-     */
-    @Override
-    public ObjectPacker write(final Class<?> o) throws IOException {
-        return write(o, BasicTemplates.CLASS);
-    }
-
-    /* (non-Javadoc)
-     * @see java.io.Closeable#close()
-     */
-    @Override
-    public void close() throws IOException {
-        packer.close();
-    }
-
-    /* (non-Javadoc)
-     * @see java.io.Flushable#flush()
-     */
-    @Override
-    public void flush() throws IOException {
-        packer.flush();
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(boolean)
-     */
-    @Override
-    public ObjectPacker write(final boolean o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(byte)
-     */
-    @Override
-    public ObjectPacker write(final byte o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(short)
-     */
-    @Override
-    public ObjectPacker write(final short o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(char)
-     */
-    @Override
-    public ObjectPacker write(final char o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(int)
-     */
-    @Override
-    public ObjectPacker write(final int o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(long)
-     */
-    @Override
-    public ObjectPacker write(final long o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(float)
-     */
-    @Override
-    public ObjectPacker write(final float o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(double)
-     */
-    @Override
-    public ObjectPacker write(final double o) throws IOException {
-        packer.write(o);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(boolean[])
-     */
-    @Override
-    public ObjectPacker write(final boolean[] o) throws IOException {
-        return write(o, BasicTemplates.BOOLEAN_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(byte[])
-     */
-    @Override
-    public ObjectPacker write(final byte[] o) throws IOException {
-        return write(o, BasicTemplates.BYTE_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(short[])
-     */
-    @Override
-    public ObjectPacker write(final short[] o) throws IOException {
-        return write(o, BasicTemplates.SHORT_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(char[])
-     */
-    @Override
-    public ObjectPacker write(final char[] o) throws IOException {
-        return write(o, BasicTemplates.CHAR_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(int[])
-     */
-    @Override
-    public ObjectPacker write(final int[] o) throws IOException {
-        return write(o, BasicTemplates.INT_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(long[])
-     */
-    @Override
-    public ObjectPacker write(final long[] o) throws IOException {
-        return write(o, BasicTemplates.LONG_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(float[])
-     */
-    @Override
-    public ObjectPacker write(final float[] o) throws IOException {
-        return write(o, BasicTemplates.FLOAT_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(double[])
-     */
-    @Override
-    public ObjectPacker write(final double[] o) throws IOException {
-        return write(o, BasicTemplates.DOUBLE_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(boolean[][])
-     */
-    @Override
-    public ObjectPacker write(final boolean[][] o) throws IOException {
-        return write(o, BasicTemplates.BOOLEAN_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(byte[][])
-     */
-    @Override
-    public ObjectPacker write(final byte[][] o) throws IOException {
-        return write(o, BasicTemplates.BYTE_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(short[][])
-     */
-    @Override
-    public ObjectPacker write(final short[][] o) throws IOException {
-        return write(o, BasicTemplates.SHORT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(char[][])
-     */
-    @Override
-    public ObjectPacker write(final char[][] o) throws IOException {
-        return write(o, BasicTemplates.CHAR_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(int[][])
-     */
-    @Override
-    public ObjectPacker write(final int[][] o) throws IOException {
-        return write(o, BasicTemplates.INT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(long[][])
-     */
-    @Override
-    public ObjectPacker write(final long[][] o) throws IOException {
-        return write(o, BasicTemplates.LONG_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(float[][])
-     */
-    @Override
-    public ObjectPacker write(final float[][] o) throws IOException {
-        return write(o, BasicTemplates.FLOAT_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(double[][])
-     */
-    @Override
-    public ObjectPacker write(final double[][] o) throws IOException {
-        return write(o, BasicTemplates.DOUBLE_ARRAY_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Boolean)
-     */
-    @Override
-    public ObjectPacker write(final Boolean o) throws IOException {
-        return write(o, BasicTemplates.BOOLEAN);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Byte)
-     */
-    @Override
-    public ObjectPacker write(final Byte o) throws IOException {
-        return write(o, BasicTemplates.BYTE);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Short)
-     */
-    @Override
-    public ObjectPacker write(final Short o) throws IOException {
-        return write(o, BasicTemplates.SHORT);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Character)
-     */
-    @Override
-    public ObjectPacker write(final Character o) throws IOException {
-        return write(o, BasicTemplates.CHARACTER);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Integer)
-     */
-    @Override
-    public ObjectPacker write(final Integer o) throws IOException {
-        return write(o, BasicTemplates.INTEGER);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Long)
-     */
-    @Override
-    public ObjectPacker write(final Long o) throws IOException {
-        return write(o, BasicTemplates.LONG);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Float)
-     */
-    @Override
-    public ObjectPacker write(final Float o) throws IOException {
-        return write(o, BasicTemplates.FLOAT);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Double)
-     */
-    @Override
-    public ObjectPacker write(final Double o) throws IOException {
-        return write(o, BasicTemplates.DOUBLE);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.math.BigInteger)
-     */
-    @Override
-    public ObjectPacker write(final BigInteger o) throws IOException {
-        return write(o, BasicTemplates.BIG_INTEGER);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.math.BigDecimal)
-     */
-    @Override
-    public ObjectPacker write(final BigDecimal o) throws IOException {
-        return write(o, BasicTemplates.BIG_DECIMAL);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.String)
-     */
-    @Override
-    public ObjectPacker write(final String o) throws IOException {
-        return write(o, BasicTemplates.STRING);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(byte[], int, int)
-     */
-    @Override
-    public ObjectPacker write(final byte[] o, final int off, final int len)
-            throws IOException {
-        packer.write(o, off, len);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.nio.ByteBuffer)
-     */
-    @Override
-    public ObjectPacker write(final ByteBuffer o) throws IOException {
-        return write(o, BasicTemplates.BYTE_BUFFER);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeNil()
-     */
-    @Override
-    public ObjectPacker writeNil() throws IOException {
-        packer.writeNil();
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeArrayBegin(int)
-     */
-    @Override
-    public ObjectPacker writeArrayBegin(final int size) throws IOException {
-        packer.writeArrayBegin(size);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeArrayEnd(boolean)
-     */
-    @Override
-    public ObjectPacker writeArrayEnd(final boolean check) throws IOException {
-        packer.writeArrayEnd(check);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeArrayEnd()
-     */
-    @Override
-    public ObjectPacker writeArrayEnd() throws IOException {
-        packer.writeArrayEnd();
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeMapBegin(int)
-     */
-    @Override
-    public ObjectPacker writeMapBegin(final int size) throws IOException {
-        packer.writeMapBegin(size);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeMapEnd(boolean)
-     */
-    @Override
-    public ObjectPacker writeMapEnd(final boolean check) throws IOException {
-        packer.writeMapEnd(check);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeMapEnd()
-     */
-    @Override
-    public ObjectPacker writeMapEnd() throws IOException {
-        packer.writeMapEnd();
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#writeIndex(int)
-     */
-    @Override
-    public ObjectPacker writeIndex(final int index) throws IOException {
-        packer.writeIndex(index);
-        return this;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Object[])
-     */
-    @Override
-    public ObjectPacker write(final Object[] o) throws IOException {
-        return write(o, BasicTemplates.OBJECT_ARRAY);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.util.Date)
-     */
-    @Override
-    public ObjectPacker write(final Date o) throws IOException {
-        return write(o, BasicTemplates.DATE);
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.ObjectPacker#write(java.lang.Enum)
-     */
-    @Override
-    public ObjectPacker write(final Enum<?> o) throws IOException {
-        return write(o, BasicTemplates.ENUM);
+        return writeObject(new ByteArraySlice(o, off, len),
+                BasicTemplates.BYTE_ARRAY_SLICE);
     }
 }

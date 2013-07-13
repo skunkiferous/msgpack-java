@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 /**
  * Standard serializer in MessagePack for Java. It allows users to serialize
@@ -78,30 +79,6 @@ public interface Packer extends Closeable, Flushable {
     /** Writes a double array. */
     Packer write(final double[] o) throws IOException;
 
-    /** Writes a boolean array array. */
-    Packer write(final boolean[][] o) throws IOException;
-
-    /** Writes a byte array array. */
-    Packer write(final byte[][] o) throws IOException;
-
-    /** Writes a short array array. */
-    Packer write(final short[][] o) throws IOException;
-
-    /** Writes a char array array. */
-    Packer write(final char[][] o) throws IOException;
-
-    /** Writes a int array array. */
-    Packer write(final int[][] o) throws IOException;
-
-    /** Writes a long array array. */
-    Packer write(final long[][] o) throws IOException;
-
-    /** Writes a float array array. */
-    Packer write(final float[][] o) throws IOException;
-
-    /** Writes a double array array. */
-    Packer write(final double[][] o) throws IOException;
-
     /** Writes a Boolean. */
     Packer write(final Boolean o) throws IOException;
 
@@ -134,6 +111,9 @@ public interface Packer extends Closeable, Flushable {
 
     /** Writes a String. */
     Packer write(final String o) throws IOException;
+
+    /** Writes a Date out. */
+    Packer write(final Date o) throws IOException;
 
     /** Writes a byte[]. */
     Packer write(final byte[] o, final int off, final int len)
@@ -169,4 +149,20 @@ public interface Packer extends Closeable, Flushable {
      * -1 also stores as one byte.
      */
     Packer writeIndex(final int index) throws IOException;
+
+    /** Writes an raw begin. */
+    Packer writeRawBegin(final int size) throws IOException;
+
+    /** Writes an raw end. */
+    Packer writeRawEnd() throws IOException;
+
+    /** Writes a byte array. */
+    Packer writePartial(final byte[] o) throws IOException;
+
+    /** Writes a byte[]. */
+    Packer writePartial(final byte[] o, final int off, final int len)
+            throws IOException;
+
+    /** Writes a ByteBuffer. */
+    Packer writePartial(final ByteBuffer o) throws IOException;
 }

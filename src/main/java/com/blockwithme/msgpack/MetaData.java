@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.msgpack.templates;
+package com.blockwithme.msgpack;
+
+import java.util.Map;
 
 /**
- * Convert A Class to it's name and back.
- *
- * This type is required, to deal with OSGi deployments.
+ * Represents optional meta-info associated with an object.
  *
  * @author monster
  */
-public interface ClassNameConverter {
-    /** Returns the Name of a Class, which cannot be null. */
-    String getName(final Class<?> cls);
-
-    /** Returns the Class for a name, which cannot be null. */
-    Class<?> getClass(final String name);
-
-    /** Returns true if the type is (effectively) final. */
-    boolean isFinal(final Class<?> cls);
+@SuppressWarnings("rawtypes")
+public interface MetaData extends Map {
+    // TODO
 }
