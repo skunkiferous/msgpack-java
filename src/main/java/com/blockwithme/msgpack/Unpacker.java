@@ -18,6 +18,7 @@
 package com.blockwithme.msgpack;
 
 import java.io.Closeable;
+import java.io.DataInput;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -26,35 +27,47 @@ import java.util.Date;
 
 /**
  * Standard deserializer, implementing the core Message-Pack protocol.
+ *
+ * It also implements DataInput, for easier migration of code, but it is
+ * unlikely that code using DataInput can be ported without modifications.
  */
-public interface Unpacker extends Closeable {
+public interface Unpacker extends Closeable, DataInput {
 
     /** Reads a boolean. */
+    @Override
     boolean readBoolean() throws IOException;
 
     /** Reads a byte. */
+    @Override
     byte readByte() throws IOException;
 
     /** Reads a short. */
+    @Override
     short readShort() throws IOException;
 
     /** Reads a char. */
+    @Override
     char readChar() throws IOException;
 
     /** Reads an int. */
+    @Override
     int readInt() throws IOException;
 
     /** Reads a long. */
+    @Override
     long readLong() throws IOException;
 
     /** Reads a float. */
+    @Override
     float readFloat() throws IOException;
 
     /** Reads a double. */
+    @Override
     double readDouble() throws IOException;
 
     /** Reads a String. */
-    String readString() throws IOException;
+    @Override
+    String readUTF() throws IOException;
 
     /** Reads a BigInteger. */
     BigInteger readBigInteger() throws IOException;
@@ -133,4 +146,38 @@ public interface Unpacker extends Closeable {
 
     /** Returns true, if a nil/null could be read. */
     boolean trySkipNil() throws IOException;
+
+    // For DataInput compatibility; not recommended for new code.
+
+    /** readByte() & 0xFF */
+    @Override
+    @Deprecated
+    int readUnsignedByte() throws IOException;
+
+    /** readShort() & 0xFFFF */
+    @Override
+    @Deprecated
+    int readUnsignedShort() throws IOException;
+
+    /** Just delegates to readUTF() */
+    @Override
+    @Deprecated
+    String readLine() throws IOException;
+
+    /** Just delegates to readFully(byte[], 0, byte[].length) */
+    @Override
+    @Deprecated
+    void readFully(final byte b[]) throws IOException;
+
+    /** Reads a raw into b. The raw must be exactly of length len. */
+    @Override
+    @Deprecated
+    void readFully(final byte b[], final int off, final int length)
+            throws IOException;
+
+    /** Skips a raw. n is ignored. The raw size is returned. */
+    @Override
+    @Deprecated
+    int skipBytes(final int n) throws IOException;
+
 }

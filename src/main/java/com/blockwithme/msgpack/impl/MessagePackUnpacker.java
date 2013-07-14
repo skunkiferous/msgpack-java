@@ -469,7 +469,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
-    public String readString() throws IOException {
+    public String readUTF() throws IOException {
         readOne(stringAccept);
         return stringAccept.value;
     }

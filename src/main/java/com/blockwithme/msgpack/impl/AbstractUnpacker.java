@@ -200,6 +200,66 @@ public abstract class AbstractUnpacker implements Unpacker {
         return new BigDecimal(unscaledVal, scale);
     }
 
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readUnsignedByte()
+     */
+    @Override
+    @Deprecated
+    public int readUnsignedByte() throws IOException {
+        return readByte() & 0xFF;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readUnsignedShort()
+     */
+    @Override
+    @Deprecated
+    public int readUnsignedShort() throws IOException {
+        return readShort() & 0xFFFF;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readLine()
+     */
+    @Override
+    @Deprecated
+    public String readLine() throws IOException {
+        return readUTF();
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#skipBytes(int)
+     */
+    @Override
+    @Deprecated
+    public int skipBytes(final int n) throws IOException {
+        final byte[] raw = readByteArray();
+        return (raw == null) ? -1 : raw.length;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readFully(byte[])
+     */
+    @Override
+    @Deprecated
+    public void readFully(final byte[] b) throws IOException {
+        readFully(b, 0, b.length);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readFully(byte[], int, int)
+     */
+    @Override
+    @Deprecated
+    public void readFully(final byte[] b, final int off, final int length)
+            throws IOException {
+        final byte[] raw = readByteArray();
+        if ((raw == null) || (raw.length != length)) {
+            throw new IOException("Could not read " + length + " bytes raw");
+        }
+        System.arraycopy(raw, 0, b, off, length);
+    }
+
     /** Reads an index written with Packer.writeIndex(int). */
     @Override
     public int readIndex() throws IOException {

@@ -399,7 +399,7 @@ public class BasicTemplates {
                 return AbstractTemplate.getClassNameConverter().getClass(
                         pkg + '.' + cls);
             }
-            // A serialisatble class
+            // A serialisable class
             final int id = context.unpacker.readIndex();
             return context.getTemplate(id / 4).getType();
         }
@@ -411,7 +411,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Boolean value) throws IOException {
-            context.packer.write(value.booleanValue());
+            context.packer.writeBoolean(value.booleanValue());
         }
 
         @Override
@@ -427,7 +427,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Byte value) throws IOException {
-            context.packer.write(value.byteValue());
+            context.packer.writeByte(value.byteValue());
         }
 
         @Override
@@ -443,7 +443,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Short value) throws IOException {
-            context.packer.write(value.shortValue());
+            context.packer.writeShort(value.shortValue());
         }
 
         @Override
@@ -459,7 +459,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Character value) throws IOException {
-            context.packer.write(value.charValue());
+            context.packer.writeChar(value.charValue());
         }
 
         @Override
@@ -475,7 +475,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Integer value) throws IOException {
-            context.packer.write(value.intValue());
+            context.packer.writeInt(value.intValue());
         }
 
         @Override
@@ -491,7 +491,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Long value) throws IOException {
-            context.packer.write(value.longValue());
+            context.packer.writeLong(value.longValue());
         }
 
         @Override
@@ -507,7 +507,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Float value) throws IOException {
-            context.packer.write(value.floatValue());
+            context.packer.writeFloat(value.floatValue());
         }
 
         @Override
@@ -523,7 +523,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Double value) throws IOException {
-            context.packer.write(value.doubleValue());
+            context.packer.writeDouble(value.doubleValue());
         }
 
         @Override
@@ -539,7 +539,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final BigInteger value) throws IOException {
-            context.packer.write(value);
+            context.packer.writeBigInteger(value);
         }
 
         @Override
@@ -555,7 +555,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final BigDecimal value) throws IOException {
-            context.packer.write(value);
+            context.packer.writeBigDecimal(value);
         }
 
         @Override
@@ -571,13 +571,13 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final String value) throws IOException {
-            context.packer.write(value);
+            context.packer.writeUTF(value);
         }
 
         @Override
         public String readData(final UnpackerContext context,
                 final String preCreated, final int size) throws IOException {
-            return context.unpacker.readString();
+            return context.unpacker.readUTF();
         }
     };
 
@@ -587,7 +587,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final ByteBuffer value) throws IOException {
-            context.packer.write(value);
+            context.packer.writeByteBuffer(value);
         }
 
         @Override
@@ -603,7 +603,7 @@ public class BasicTemplates {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Date value) throws IOException {
-            context.packer.write(value.getTime());
+            context.packer.writeDate(value);
         }
 
         @Override
@@ -621,7 +621,7 @@ public class BasicTemplates {
                 final boolean[] value) throws IOException {
             final Packer p = context.packer;
             for (final boolean a : value) {
-                p.write(a);
+                p.writeBoolean(a);
             }
         }
 
@@ -667,7 +667,7 @@ public class BasicTemplates {
                 final short[] value) throws IOException {
             final Packer p = context.packer;
             for (final short a : value) {
-                p.write(a);
+                p.writeShort(a);
             }
         }
 
@@ -696,7 +696,7 @@ public class BasicTemplates {
                 final char[] value) throws IOException {
             final Packer p = context.packer;
             for (final char a : value) {
-                p.write(a);
+                p.writeChar(a);
             }
         }
 
@@ -725,7 +725,7 @@ public class BasicTemplates {
                 final int[] value) throws IOException {
             final Packer p = context.packer;
             for (final int a : value) {
-                p.write(a);
+                p.writeInt(a);
             }
         }
 
@@ -754,7 +754,7 @@ public class BasicTemplates {
                 final long[] value) throws IOException {
             final Packer p = context.packer;
             for (final long a : value) {
-                p.write(a);
+                p.writeLong(a);
             }
         }
 
@@ -783,7 +783,7 @@ public class BasicTemplates {
                 final float[] value) throws IOException {
             final Packer p = context.packer;
             for (final float a : value) {
-                p.write(a);
+                p.writeFloat(a);
             }
         }
 
@@ -812,7 +812,7 @@ public class BasicTemplates {
                 final double[] value) throws IOException {
             final Packer p = context.packer;
             for (final double a : value) {
-                p.write(a);
+                p.writeDouble(a);
             }
         }
 

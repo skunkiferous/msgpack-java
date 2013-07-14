@@ -25,8 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import com.blockwithme.msgpack.Packer;
-
 /**
  * The MessagePack Packer reuses the code form the original Java implementation
  * of the MessagePack Packer.
@@ -53,7 +51,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeByte(final byte d) throws IOException {
+    public void writeByte(final byte d) throws IOException {
         if (d < -(1 << 5)) {
             out.writeByte((byte) 0xd0);
             out.writeByte(d);
@@ -64,7 +62,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeShort(final short d) throws IOException {
+    public void writeShort(final short d) throws IOException {
         if (d < -(1 << 5)) {
             if (d < -(1 << 7)) {
                 // signed 16
@@ -93,7 +91,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeChar(final char d) throws IOException {
+    public void writeChar(final char d) throws IOException {
         if (d < -(1 << 5)) {
             if (d < -(1 << 7)) {
                 // signed 16
@@ -122,7 +120,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeInt(final int d) throws IOException {
+    public void writeInt(final int d) throws IOException {
         if (d < -(1 << 5)) {
             if (d < -(1 << 15)) {
                 // signed 32
@@ -159,7 +157,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeLong(final long d) throws IOException {
+    public void writeLong(final long d) throws IOException {
         if (d < -(1L << 5)) {
             if (d < -(1L << 15)) {
                 if (d < -(1L << 31)) {
@@ -233,21 +231,21 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    protected void writeFloat(final float d) throws IOException {
+    public void writeFloat(final float d) throws IOException {
         out.writeByte((byte) 0xca);
         out.writeFloat(d);
         stack.reduceCount();
     }
 
     @Override
-    protected void writeDouble(final double d) throws IOException {
+    public void writeDouble(final double d) throws IOException {
         out.writeByte((byte) 0xcb);
         out.writeDouble(d);
         stack.reduceCount();
     }
 
     @Override
-    protected void writeBoolean(final boolean d) throws IOException {
+    public void writeBoolean(final boolean d) throws IOException {
         if (d) {
             // true
             out.writeByte((byte) 0xc3);
@@ -269,24 +267,24 @@ public class MessagePackPacker extends AbstractPacker {
 
     /** Writes a byte array, between a writeRawBegin() and writeRawEnd(). */
     @Override
-    public Packer writePartial(final byte[] b) throws IOException {
-        return writePartial(b, 0, b.length);
+    public void writePartial(final byte[] b) throws IOException {
+        writePartial(b, 0, b.length);
     }
 
     /** Writes a byte[], between a writeRawBegin() and writeRawEnd(). */
     @Override
-    public Packer writePartial(final byte[] b, final int off, final int len)
+    public void writePartial(final byte[] b, final int off, final int len)
             throws IOException {
         out.write(b, off, len);
         rawToWrite -= len;
-        return this;
+
     }
 
     /* (non-Javadoc)
      * @see com.blockwithme.msgpack.Packer#writePartial(java.nio.ByteBuffer)
      */
     @Override
-    public Packer writePartial(final ByteBuffer bb) throws IOException {
+    public void writePartial(final ByteBuffer bb) throws IOException {
         final int len = bb.remaining();
         final int pos = bb.position();
         try {
@@ -304,11 +302,11 @@ public class MessagePackPacker extends AbstractPacker {
         } finally {
             bb.position(pos);
         }
-        return this;
+
     }
 
     @Override
-    protected void writeByteBuffer(final ByteBuffer bb) throws IOException {
+    protected void writeByteBuffer2(final ByteBuffer bb) throws IOException {
         final int len = bb.remaining();
         writeRawBegin(len);
         writePartial(bb);
@@ -328,14 +326,14 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public Packer writeNil() throws IOException {
+    public void writeNil() throws IOException {
         out.writeByte((byte) 0xc0);
         stack.reduceCount();
-        return this;
+
     }
 
     @Override
-    public Packer writeArrayBegin(final int size) throws IOException {
+    public void writeArrayBegin(final int size) throws IOException {
         // TODO check size < 0?
         if (size < 16) {
             // FixArray
@@ -349,11 +347,11 @@ public class MessagePackPacker extends AbstractPacker {
         }
         stack.reduceCount();
         stack.pushArray(size);
-        return this;
+
     }
 
     @Override
-    public Packer writeArrayEnd(final boolean check) throws IOException {
+    public void writeArrayEnd(final boolean check) throws IOException {
         if (!stack.topIsArray()) {
             throw new IOException(
                     "writeArrayEnd() is called but writeArrayBegin() is not called");
@@ -371,11 +369,11 @@ public class MessagePackPacker extends AbstractPacker {
             }
         }
         stack.pop();
-        return this;
+
     }
 
     @Override
-    public Packer writeMapBegin(final int size) throws IOException {
+    public void writeMapBegin(final int size) throws IOException {
         // TODO check size < 0?
         if (size < 16) {
             // FixMap
@@ -389,11 +387,11 @@ public class MessagePackPacker extends AbstractPacker {
         }
         stack.reduceCount();
         stack.pushMap(size);
-        return this;
+
     }
 
     @Override
-    public Packer writeMapEnd(final boolean check) throws IOException {
+    public void writeMapEnd(final boolean check) throws IOException {
         if (!stack.topIsMap()) {
             throw new IOException(
                     "writeMapEnd() is called but writeMapBegin() is not called");
@@ -411,12 +409,12 @@ public class MessagePackPacker extends AbstractPacker {
             }
         }
         stack.pop();
-        return this;
+
     }
 
     /** Writes an raw begin. */
     @Override
-    public Packer writeRawBegin(final int len) throws IOException {
+    public void writeRawBegin(final int len) throws IOException {
         if (rawToWrite > 0) {
             throw new IOException("Last raw write not terminated!");
         }
@@ -432,12 +430,12 @@ public class MessagePackPacker extends AbstractPacker {
         rawToWrite = len;
         stack.reduceCount();
         stack.pushRaw();
-        return this;
+
     }
 
     /** Writes an raw end. */
     @Override
-    public Packer writeRawEnd() throws IOException {
+    public void writeRawEnd() throws IOException {
         // We moved the single raw reduceCOunt() here.
         stack.reduceCount();
         if (!stack.topIsRaw()) {
@@ -452,7 +450,7 @@ public class MessagePackPacker extends AbstractPacker {
             throw new IOException("Last raw write too big!");
         }
         stack.pop();
-        return this;
+
     }
 
     public void reset() {

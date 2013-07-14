@@ -18,6 +18,7 @@
 package com.blockwithme.msgpack;
 
 import java.io.Closeable;
+import java.io.DataOutput;
 import java.io.Flushable;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,140 +30,180 @@ import java.util.Date;
  * Standard serializer in MessagePack for Java. It allows users to serialize
  * objects like <tt>String</tt>, <tt>byte[]</tt>, primitive types and so on.
  * Things <tt>List</tt>, <tt>Map</tt> ... must be built on top of it.
+ *
+ * It also implements DataOutput, for easier migration of code, but it is
+ * unlikely that code using DataOutput can be ported without modifications.
  */
-public interface Packer extends Closeable, Flushable {
+public interface Packer extends Closeable, Flushable, DataOutput {
     /** Writes a boolean. */
-    Packer write(final boolean o) throws IOException;
+    @Override
+    void writeBoolean(final boolean o) throws IOException;
 
     /** Writes a byte. */
-    Packer write(final byte o) throws IOException;
+    void writeByte(final byte o) throws IOException;
 
     /** Writes a short. */
-    Packer write(final short o) throws IOException;
+    void writeShort(final short o) throws IOException;
 
     /** Writes a char. */
-    Packer write(final char o) throws IOException;
+    void writeChar(final char o) throws IOException;
 
     /** Writes a int. */
-    Packer write(final int o) throws IOException;
+    @Override
+    void writeInt(final int o) throws IOException;
 
     /** Writes a long. */
-    Packer write(final long o) throws IOException;
+    @Override
+    void writeLong(final long o) throws IOException;
 
     /** Writes a float. */
-    Packer write(final float o) throws IOException;
+    @Override
+    void writeFloat(final float o) throws IOException;
 
     /** Writes a double. */
-    Packer write(final double o) throws IOException;
+    @Override
+    void writeDouble(final double o) throws IOException;
 
     /** Writes a boolean array. */
-    Packer write(final boolean[] o) throws IOException;
+    void writeBooleanArray(final boolean[] o) throws IOException;
 
     /** Writes a byte array. */
-    Packer write(final byte[] o) throws IOException;
+    @Override
+    void write(final byte[] o) throws IOException;
 
     /** Writes a short array. */
-    Packer write(final short[] o) throws IOException;
+    void writeShortArray(final short[] o) throws IOException;
 
     /** Writes a char array. */
-    Packer write(final char[] o) throws IOException;
+    void writeCharArray(final char[] o) throws IOException;
 
     /** Writes a int array. */
-    Packer write(final int[] o) throws IOException;
+    void writeIntArray(final int[] o) throws IOException;
 
     /** Writes a long array. */
-    Packer write(final long[] o) throws IOException;
+    void writeLongArray(final long[] o) throws IOException;
 
     /** Writes a float array. */
-    Packer write(final float[] o) throws IOException;
+    void writeFloatArray(final float[] o) throws IOException;
 
     /** Writes a double array. */
-    Packer write(final double[] o) throws IOException;
+    void writeDoubleArray(final double[] o) throws IOException;
 
     /** Writes a Boolean. */
-    Packer write(final Boolean o) throws IOException;
+    void writeBoolean(final Boolean o) throws IOException;
 
     /** Writes a Byte. */
-    Packer write(final Byte o) throws IOException;
+    void writeByte(final Byte o) throws IOException;
 
     /** Writes a Short. */
-    Packer write(final Short o) throws IOException;
+    void writeShort(final Short o) throws IOException;
 
     /** Writes a Character. */
-    Packer write(final Character o) throws IOException;
+    void writeCharacter(final Character o) throws IOException;
 
     /** Writes a Integer. */
-    Packer write(final Integer o) throws IOException;
+    void writeInteger(final Integer o) throws IOException;
 
     /** Writes a Long. */
-    Packer write(final Long o) throws IOException;
+    void writeLong(final Long o) throws IOException;
 
     /** Writes a Float. */
-    Packer write(final Float o) throws IOException;
+    void writeFloat(final Float o) throws IOException;
 
     /** Writes a Double. */
-    Packer write(final Double o) throws IOException;
+    void writeDouble(final Double o) throws IOException;
 
     /** Writes a BigInteger. */
-    Packer write(final BigInteger o) throws IOException;
+    void writeBigInteger(final BigInteger o) throws IOException;
 
     /** Writes a BigDecimal. */
-    Packer write(final BigDecimal o) throws IOException;
+    void writeBigDecimal(final BigDecimal o) throws IOException;
 
     /** Writes a String. */
-    Packer write(final String o) throws IOException;
+    @Override
+    void writeUTF(final String o) throws IOException;
 
     /** Writes a Date out. */
-    Packer write(final Date o) throws IOException;
+    void writeDate(final Date o) throws IOException;
+
+    /** Writes a ByteBuffer. */
+    void writeByteBuffer(final ByteBuffer o) throws IOException;
 
     /**
      * Deduce 31 from the index, so it is more likely to be saved as one byte.
      * This methods should be used for normally non-negative integers.
      * -1 also stores as one byte.
      */
-    Packer writeIndex(final int index) throws IOException;
+    void writeIndex(final int index) throws IOException;
 
     /** Writes a slice of a byte[]. */
-    Packer write(final byte[] o, final int off, final int len)
-            throws IOException;
-
-    /** Writes a ByteBuffer. */
-    Packer write(final ByteBuffer o) throws IOException;
+    @Override
+    void write(final byte[] o, final int off, final int len) throws IOException;
 
     /** Writes nil/null. */
-    Packer writeNil() throws IOException;
+    void writeNil() throws IOException;
 
     /** Writes an array begin. */
-    Packer writeArrayBegin(final int size) throws IOException;
+    void writeArrayBegin(final int size) throws IOException;
 
     /** Writes an array end. */
-    Packer writeArrayEnd(final boolean check) throws IOException;
+    void writeArrayEnd(final boolean check) throws IOException;
 
     /** Writes an array end. */
-    Packer writeArrayEnd() throws IOException;
+    void writeArrayEnd() throws IOException;
 
     /** Writes a map begin. */
-    Packer writeMapBegin(final int size) throws IOException;
+    void writeMapBegin(final int size) throws IOException;
 
     /** Writes a map end. */
-    Packer writeMapEnd(final boolean check) throws IOException;
+    void writeMapEnd(final boolean check) throws IOException;
 
     /** Writes a map end. */
-    Packer writeMapEnd() throws IOException;
+    void writeMapEnd() throws IOException;
 
     /** Writes an raw begin. */
-    Packer writeRawBegin(final int size) throws IOException;
+    void writeRawBegin(final int size) throws IOException;
 
     /** Writes an raw end. */
-    Packer writeRawEnd() throws IOException;
+    void writeRawEnd() throws IOException;
 
     /** Writes a byte array *content*. */
-    Packer writePartial(final byte[] o) throws IOException;
+    void writePartial(final byte[] o) throws IOException;
 
     /** Writes a slice of a byte[] *content*. */
-    Packer writePartial(final byte[] o, final int off, final int len)
+    void writePartial(final byte[] o, final int off, final int len)
             throws IOException;
 
     /** Writes a ByteBuffer *content*. */
-    Packer writePartial(final ByteBuffer o) throws IOException;
+    void writePartial(final ByteBuffer o) throws IOException;
+
+    /** Writes a byte. */
+    @Override
+    @Deprecated
+    void writeByte(final int o) throws IOException;
+
+    /** Writes a *byte*. */
+    @Override
+    @Deprecated
+    void write(final int o) throws IOException;
+
+    /** Writes a short. */
+    @Override
+    @Deprecated
+    void writeShort(final int o) throws IOException;
+
+    /** Writes a char. */
+    @Override
+    @Deprecated
+    void writeChar(final int o) throws IOException;
+
+    /** Just delegates to writeUTF(String) */
+    @Override
+    @Deprecated
+    void writeBytes(final String s) throws IOException;
+
+    /** Just delegates to writeUTF(String) */
+    @Override
+    @Deprecated
+    void writeChars(final String s) throws IOException;
 }
