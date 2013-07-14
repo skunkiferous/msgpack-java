@@ -52,6 +52,9 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     /** The 2D array type that is supported. */
     protected final Class<T[][]> type2D;
 
+    /** Is this the "main" template for this type, or an "alternate" template? */
+    protected final boolean mainTemplate;
+
     /** True if the type is final, or a primitive array. */
     protected final boolean isFinalOrPrimitiveArray;
 
@@ -61,8 +64,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
      */
     protected final ObjectType objectType;
 
-    /** Should we "remember" objects of this type using equality (true), or identity (false)? */
-    protected final boolean isMergeable;
+    /** Returns the TrackingType of instances of this type. */
+    protected final TrackingType trackingType;
 
     /** A non-negative value, if this type has a "fixed size" */
     protected final int fixedSize;
@@ -288,7 +291,9 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             template = context.getTemplate(c);
         }
         // Check if new object
-        final int pos = context.tracker.track(o, template.isMergeable());
+        final TrackingType tt = template.getTrackingType();
+        final int pos = (tt == TrackingType.DO_NOT_TRACK) ? -1
+                : context.tracker.track(o, (tt == TrackingType.EQUALITY));
         if (pos == -1) {
             // New Object!
             if (depth == -1) {
@@ -327,18 +332,27 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         return depth;
     }
 
+    /**
+     * Converts a boolean to the usual tracking types: EQUALITY (true)
+     * and IDENTITY (false)
+     */
+    public static TrackingType toTrackingType(final boolean isMergeable) {
+        return isMergeable ? TrackingType.EQUALITY : TrackingType.IDENTITY;
+    }
+
     /** Constructor. */
     protected AbstractTemplate(final int id, final Class<T> type,
             final ObjectType objectType, final boolean isMergeable) {
-        this(id, type, objectType, isMergeable, -1);
+        this(id, type, objectType, toTrackingType(isMergeable), -1, true);
     }
 
     /** Constructor. */
     @SuppressWarnings("unchecked")
     protected AbstractTemplate(final int id, final Class<T> type,
-            final ObjectType objectType, final boolean isMergeable,
-            final int fixedSize) {
+            final ObjectType objectType, final TrackingType trackingType,
+            final int fixedSize, final boolean mainTemplate) {
         this.id = id;
+        this.mainTemplate = mainTemplate;
         this.type = Objects.requireNonNull(type);
         // We need those to optimize array creation
         type1D = (Class<T[]>) Array.newInstance(type, 0).getClass();
@@ -349,7 +363,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         // but realize that inheritance exists among Object arrays.
         isFinalOrPrimitiveArray = CLASS_NAME_CONVERTER.isFinal(type);
         this.objectType = Objects.requireNonNull(objectType);
-        this.isMergeable = isMergeable;
+        this.trackingType = Objects.requireNonNull(trackingType);
         this.fixedSize = (fixedSize >= 0) ? fixedSize : -1;
     }
 
@@ -372,11 +386,32 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         return type;
     }
 
+    /** Is this the "main" template for this type, or an "alternate" template? */
+    @Override
+    public final boolean isMainTemplate() {
+        return mainTemplate;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.templates.Template#getTrackingType()
+     */
+    @Override
+    public final TrackingType getTrackingType() {
+        return trackingType;
+    }
+
     /** Returns true, if the template would support reading/writing objects of this type. */
     @Override
-    public boolean accept(final Object o) {
-        // TODO: What about arrays of type?
-        return (o == null) || (o.getClass() == type);
+    public final boolean accept(final Object o) {
+        if (o == null) {
+            return true;
+        }
+        Class<?> c = o.getClass();
+        Class<?> cc;
+        while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
+            c = cc;
+        }
+        return c == type;
     }
 
     /* (non-Javadoc)
@@ -393,14 +428,6 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     @Override
     public final ObjectType getObjectType() {
         return objectType;
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.templates.Template#isMergeable()
-     */
-    @Override
-    public final boolean isMergeable() {
-        return isMergeable;
     }
 
     /**

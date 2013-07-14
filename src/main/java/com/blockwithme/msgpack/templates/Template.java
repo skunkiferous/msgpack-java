@@ -38,6 +38,9 @@ public interface Template<T> {
     /** Returns the type that is supported. */
     Class<?> getType();
 
+    /** Is this the "main" template for this type, or an "alternate" template? */
+    boolean isMainTemplate();
+
     /** Returns true, if the template would support reading/writing objects of this type. */
     boolean accept(final Object o);
 
@@ -57,8 +60,8 @@ public interface Template<T> {
      */
     ObjectType getObjectType();
 
-    /** Should we "remember" objects of this type using equality (true), or identity (false)? */
-    boolean isMergeable();
+    /** Returns the TrackingType of instances of this type. */
+    TrackingType getTrackingType();
 
     /**
      * Returns a non-negative value, if this type has a "fixed size"

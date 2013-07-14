@@ -29,6 +29,15 @@ import java.util.Objects;
  */
 public class Context {
 
+    /** The current format version. */
+    public static final int FORMAT = 0;
+
+    /** The format version for the current (de)serialisation. */
+    public int format;
+
+    /** The schema version for the current (de)serialisation. */
+    public int schema;
+
     /** Maps IDs to Class templates */
     private final Template<?>[] idToTemplate;
 
@@ -40,7 +49,7 @@ public class Context {
      *
      * @param idToTemplate
      */
-    public Context(final Template<?>[] idToTemplate) {
+    protected Context(final Template<?>[] idToTemplate) {
         // Validate input
         this.idToTemplate = Objects.requireNonNull(idToTemplate);
         for (int i = 0; i < idToTemplate.length; i++) {
@@ -53,9 +62,10 @@ public class Context {
                             + " should have ID " + i + " but has ID "
                             + template.getID());
                 }
-                if (classToTemplate.put(template.getType(), template) != null) {
+                if (template.isMainTemplate()
+                        && classToTemplate.put(template.getType(), template) != null) {
                     throw new IllegalArgumentException(
-                            "Multiple templates for " + template.getType());
+                            "Multiple main templates for " + template.getType());
                 }
             }
         }

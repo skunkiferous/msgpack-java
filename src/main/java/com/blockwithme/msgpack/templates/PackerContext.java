@@ -33,8 +33,10 @@ public class PackerContext extends Context {
      *
      * @param idToTemplate
      */
-    public PackerContext(final Template<?>[] idToTemplate) {
+    public PackerContext(final Template<?>[] idToTemplate, final int schema) {
         super(idToTemplate);
+        format = FORMAT;
+        this.schema = schema;
     }
 
     /** The ObjectTracker */

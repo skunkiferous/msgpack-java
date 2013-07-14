@@ -15,6 +15,7 @@
  */
 package com.blockwithme.msgpack;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -38,7 +39,7 @@ import com.blockwithme.msgpack.templates.Template;
  *
  * @author monster
  */
-public interface ObjectUnpacker {
+public interface ObjectUnpacker extends Closeable {
 
     /** Returns the underlying unpacker. */
     Unpacker unpacker();

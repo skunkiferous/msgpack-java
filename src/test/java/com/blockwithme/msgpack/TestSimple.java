@@ -34,6 +34,7 @@ import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.ObjectType;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
+import com.blockwithme.msgpack.templates.TrackingType;
 import com.blockwithme.msgpack.templates.UnpackerContext;
 import com.blockwithme.util.DataInputBuffer;
 import com.blockwithme.util.DataOutputBuffer;
@@ -62,7 +63,7 @@ public class TestSimple {
 
     static {
         extended[basic.length] = new AbstractTemplate<TestRaw>(basic.length,
-                TestRaw.class, ObjectType.RAW, false, 1) {
+                TestRaw.class, ObjectType.RAW, TrackingType.IDENTITY, 1, true) {
 
             @Override
             public void writeData(final PackerContext context, final int size,
@@ -91,7 +92,8 @@ public class TestSimple {
             }
         };
         extended[basic.length + 1] = new AbstractTemplate<TestFixed>(
-                basic.length + 1, TestFixed.class, ObjectType.ARRAY, false, 2) {
+                basic.length + 1, TestFixed.class, ObjectType.ARRAY,
+                TrackingType.IDENTITY, 2, true) {
 
             @Override
             public void writeData(final PackerContext context, final int size,
@@ -122,8 +124,10 @@ public class TestSimple {
         return new MessagePackPacker(dob);
     }
 
-    private ObjectPackerImpl newObjectPacker(final DataOutputBuffer dob) {
-        return new ObjectPackerImpl(newPacker(dob), new PackerContext(extended));
+    private ObjectPackerImpl newObjectPacker(final DataOutputBuffer dob)
+            throws IOException {
+        return new ObjectPackerImpl(newPacker(dob), new PackerContext(extended,
+                42));
     }
 
     private void dumpOP(final DataOutputBuffer dob) {
@@ -579,6 +583,6 @@ public class TestSimple {
         Assert.assertTrue(array[1].v2);
         // That is what tells us if the optimization worked:
         // the number of bytes written
-        Assert.assertEquals(6, dob.size());
+        Assert.assertEquals(8, dob.size());
     }
 }

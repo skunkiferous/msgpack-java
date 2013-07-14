@@ -48,12 +48,16 @@ public class ObjectPackerImpl implements ObjectPacker {
      * Creates an ObjectPackerImpl
      *
      * @param packer
+     * @throws IOException
      */
-    public ObjectPackerImpl(final Packer packer, final PackerContext context) {
+    public ObjectPackerImpl(final Packer packer, final PackerContext context)
+            throws IOException {
         this.packer = Objects.requireNonNull(packer);
         this.context = Objects.requireNonNull(context);
         context.packer = packer;
         context.objectPacker = this;
+        packer.writeIndex(context.format);
+        packer.writeIndex(context.schema);
     }
 
     /* (non-Javadoc)

@@ -62,7 +62,7 @@ public class BasicTemplates {
          */
         protected MyAbstractTemplate(final int id, final Class<T> type,
                 final ObjectType objectType, final boolean isMergeable) {
-            this(id, type, objectType, isMergeable, -1);
+            this(id, type, objectType, isMergeable, -1, true);
         }
 
         /**
@@ -75,7 +75,22 @@ public class BasicTemplates {
         protected MyAbstractTemplate(final int id, final Class<T> type,
                 final ObjectType objectType, final boolean isMergeable,
                 final int fixedSize) {
-            super(id, type, objectType, isMergeable, fixedSize);
+            this(id, type, objectType, isMergeable, fixedSize, true);
+        }
+
+        /**
+         * @param id
+         * @param type
+         * @param isListType
+         * @param isMergeable
+         * @param fixedSize
+         * @param mainTemplate
+         */
+        protected MyAbstractTemplate(final int id, final Class<T> type,
+                final ObjectType objectType, final boolean isMergeable,
+                final int fixedSize, final boolean mainTemplate) {
+            super(id, type, objectType, toTrackingType(isMergeable), fixedSize,
+                    mainTemplate);
             while (ALL_LIST.size() <= id) {
                 ALL_LIST.add(null);
             }

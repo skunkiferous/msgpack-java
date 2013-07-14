@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import com.blockwithme.msgpack.ObjectUnpacker;
+import com.blockwithme.msgpack.PostDeserListener;
 import com.blockwithme.msgpack.Unpacker;
 import com.blockwithme.msgpack.templates.AbstractTemplate;
 import com.blockwithme.msgpack.templates.BasicTemplates;
@@ -47,13 +48,16 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
     /**
      * Creates a new ObjectUnpackerImpl.
      * @param unpacker
+     * @throws IOException
      */
     public ObjectUnpackerImpl(final Unpacker unpacker,
-            final UnpackerContext context) {
+            final UnpackerContext context) throws IOException {
         this.unpacker = Objects.requireNonNull(unpacker);
         this.context = Objects.requireNonNull(context);
         context.unpacker = unpacker;
         context.objectUnpacker = this;
+        context.format = unpacker.readIndex();
+        context.schema = unpacker.readIndex();
     }
 
     /** Returns the underlying unpacker, if any, otherwise self. */
@@ -261,5 +265,18 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
             final boolean ifObjectArrayCanContainNullValue) throws IOException {
         return AbstractTemplate.readObject(context, template,
                 ifObjectArrayCanContainNullValue);
+    }
+
+    /* (non-Javadoc)
+     * @see java.io.Closeable#close()
+     */
+    @Override
+    public void close() throws IOException {
+        for (final Object o : context.previous) {
+            if (o instanceof PostDeserListener) {
+                final PostDeserListener pd = (PostDeserListener) o;
+                pd.postDeser(context);
+            }
+        }
     }
 }
