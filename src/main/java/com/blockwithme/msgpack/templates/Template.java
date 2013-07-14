@@ -52,10 +52,10 @@ public interface Template<T> {
     boolean isFinalOrPrimitiveArray();
 
     /**
-     * All objects must be stored in "containers" (list or map). What is the
-     * container that should be used for this type? List is the default.
+     * Most objects must be stored in "containers" (list or map). What is the
+     * format that should be used for this type? List is the default/usual.
      */
-    boolean isListType();
+    ObjectType getObjectType();
 
     /** Should we "remember" objects of this type using equality (true), or identity (false)? */
     boolean isMergeable();
@@ -132,7 +132,8 @@ public interface Template<T> {
 
     /** Reads an 1D array of T */
     void read1DArray(final UnpackerContext context, final T[] preCreated,
-            final int size) throws IOException;
+            final int size, final boolean ifObjectArrayCanContainNullValue)
+            throws IOException;
 
     /** Reads an 2D array of T */
     void read2DArray(final UnpackerContext context, final T[][] preCreated,

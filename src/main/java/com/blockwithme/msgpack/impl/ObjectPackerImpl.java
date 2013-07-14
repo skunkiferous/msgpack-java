@@ -67,9 +67,10 @@ public class ObjectPackerImpl implements ObjectPacker {
     /** Writes an Object out. Object must be compatible with template. */
     @Override
     public ObjectPacker writeObject(final Object o,
-            @SuppressWarnings("rawtypes") final Template template)
-            throws IOException {
-        AbstractTemplate.writeObject(context, o, template);
+            @SuppressWarnings("rawtypes") final Template template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
+        AbstractTemplate.writeObject(context, o, template,
+                ifObjectArrayCanContainNullValue);
         return this;
     }
 
@@ -78,8 +79,9 @@ public class ObjectPackerImpl implements ObjectPacker {
      * Pass along a template for faster results.
      */
     @Override
-    public ObjectPacker writeObject(final Object o) throws IOException {
-        return writeObject(o, null);
+    public ObjectPacker writeObject(final Object o,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
+        return writeObject(o, null, ifObjectArrayCanContainNullValue);
     }
 
     /* (non-Javadoc)
@@ -266,5 +268,22 @@ public class ObjectPackerImpl implements ObjectPacker {
             throws IOException {
         return writeObject(new ByteArraySlice(o, off, len),
                 BasicTemplates.BYTE_ARRAY_SLICE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Object)
+     */
+    @Override
+    public ObjectPacker writeObject(final Object o) throws IOException {
+        return writeObject(o, true);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.ObjectPacker#writeObject(java.lang.Object, com.blockwithme.msgpack.templates.Template)
+     */
+    @Override
+    public ObjectPacker writeObject(final Object o, final Template<?> template)
+            throws IOException {
+        return writeObject(o, template, true);
     }
 }

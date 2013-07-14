@@ -61,8 +61,8 @@ public class BasicTemplates {
          * @param isMergeable
          */
         protected MyAbstractTemplate(final int id, final Class<T> type,
-                final boolean isListType, final boolean isMergeable) {
-            this(id, type, isListType, isMergeable, -1);
+                final ObjectType objectType, final boolean isMergeable) {
+            this(id, type, objectType, isMergeable, -1);
         }
 
         /**
@@ -73,9 +73,9 @@ public class BasicTemplates {
          * @param fixedSize
          */
         protected MyAbstractTemplate(final int id, final Class<T> type,
-                final boolean isListType, final boolean isMergeable,
+                final ObjectType objectType, final boolean isMergeable,
                 final int fixedSize) {
-            super(id, type, isListType, isMergeable, fixedSize);
+            super(id, type, objectType, isMergeable, fixedSize);
             while (ALL_LIST.size() <= id) {
                 ALL_LIST.add(null);
             }
@@ -98,7 +98,7 @@ public class BasicTemplates {
          */
         protected MyPrimitiveArrayAbstractTemplate(final int id,
                 final Class<T> type) {
-            super(id, type, true, false);
+            super(id, type, ObjectType.ARRAY, false);
         }
     }
 
@@ -119,7 +119,7 @@ public class BasicTemplates {
          * @param type
          */
         protected AbstractCollectionTemplate(final int id, final Class<C> type) {
-            super(id, type, true, false);
+            super(id, type, ObjectType.ARRAY, false);
         }
 
         /** Writes the collection. */
@@ -173,7 +173,7 @@ public class BasicTemplates {
          * @param type
          */
         protected AbstractMapTemplate(final int id, final Class<M> type) {
-            super(id, type, false, false);
+            super(id, type, ObjectType.MAP, false);
         }
 
         /** Writes the Map */
@@ -225,9 +225,50 @@ public class BasicTemplates {
         public abstract M preCreate(final int size);
     };
 
+    /**
+     * AbstractTemplate for primitive arrays.
+     *
+     * Primitive array templates do NOT pre-create, because by definition,
+     * primitive arrays cannot cause cycles.
+     */
+    private static final class MyNonSerialisableTemplate<T> extends
+            MyAbstractTemplate<T> {
+
+        /**
+         * @param id
+         * @param type
+         */
+        protected MyNonSerialisableTemplate(final int id, final Class<T> type) {
+            super(id, type, ObjectType.ARRAY, true);
+        }
+
+        /* (non-Javadoc)
+         * @see com.blockwithme.msgpack.templates.Template#writeData(com.blockwithme.msgpack.templates.PackerContext, int, java.lang.Object)
+         */
+        @Override
+        public void writeData(final PackerContext context, final int size,
+                final T v) throws IOException {
+            throw new IOException(this + " does not support serialisation!");
+        }
+
+        /* (non-Javadoc)
+         * @see com.blockwithme.msgpack.templates.Template#readData(com.blockwithme.msgpack.templates.UnpackerContext, java.lang.Object, int)
+         */
+        @Override
+        public T readData(final UnpackerContext context, final T preCreated,
+                final int size) throws IOException {
+            throw new IOException(this + " does not support serialisation!");
+        }
+    }
+
     /** Never instantiated. */
     private BasicTemplates() {
         // NOP
+    }
+
+    /** Registers a non-serialisable type. */
+    private static <T> void registerTypeID(final Class<T> type, final int id) {
+        new MyNonSerialisableTemplate<T>(id, type);
     }
 
     /** List of all basic templates. */
@@ -316,6 +357,15 @@ public class BasicTemplates {
     /** The java.util.HashMap template ID. */
     public static final int JAVA_UTIL_HASH_MAP_ID = 25;
 
+    // Non-serialisable classes
+
+    /** The CharSequence template ID. */
+    public static final int CHAR_SEQUENCE_ID = 26;
+
+    static {
+        registerTypeID(CharSequence.class, CHAR_SEQUENCE_ID);
+    }
+
     /**
      * The Object template.
      *
@@ -323,7 +373,7 @@ public class BasicTemplates {
      * not the "anything and everything" template!!!
      */
     public static final Template<Object> OBJECT = new MyAbstractTemplate<Object>(
-            OBJECT_ID, Object.class, true, false) {
+            OBJECT_ID, Object.class, ObjectType.ARRAY, false) {
         @Override
         public int getSpaceRequired(final PackerContext context, final Object v) {
             return 0;
@@ -346,7 +396,7 @@ public class BasicTemplates {
     /** The Class template. */
     @SuppressWarnings("rawtypes")
     public static final Template<Class> CLASS = new MyAbstractTemplate<Class>(
-            CLASS_ID, Class.class, true, true) {
+            CLASS_ID, Class.class, ObjectType.ARRAY, true) {
 
         @SuppressWarnings("unchecked")
         @Override
@@ -407,7 +457,7 @@ public class BasicTemplates {
 
     /** The Boolean Wrapper template. */
     public static final Template<Boolean> BOOLEAN = new MyAbstractTemplate<Boolean>(
-            BOOLEAN_ID, Boolean.class, true, true, 1) {
+            BOOLEAN_ID, Boolean.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Boolean value) throws IOException {
@@ -423,7 +473,7 @@ public class BasicTemplates {
 
     /** The Byte Wrapper template. */
     public static final Template<Byte> BYTE = new MyAbstractTemplate<Byte>(
-            BYTE_ID, Byte.class, true, true, 1) {
+            BYTE_ID, Byte.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Byte value) throws IOException {
@@ -439,7 +489,7 @@ public class BasicTemplates {
 
     /** The Short Wrapper template. */
     public static final Template<Short> SHORT = new MyAbstractTemplate<Short>(
-            SHORT_ID, Short.class, true, true, 1) {
+            SHORT_ID, Short.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Short value) throws IOException {
@@ -455,7 +505,7 @@ public class BasicTemplates {
 
     /** The Character Wrapper template. */
     public static final Template<Character> CHARACTER = new MyAbstractTemplate<Character>(
-            CHARACTER_ID, Character.class, true, true, 1) {
+            CHARACTER_ID, Character.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Character value) throws IOException {
@@ -471,7 +521,7 @@ public class BasicTemplates {
 
     /** The Integer Wrapper template. */
     public static final Template<Integer> INTEGER = new MyAbstractTemplate<Integer>(
-            INTEGER_ID, Integer.class, true, true, 1) {
+            INTEGER_ID, Integer.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Integer value) throws IOException {
@@ -487,7 +537,7 @@ public class BasicTemplates {
 
     /** The Long Wrapper template. */
     public static final Template<Long> LONG = new MyAbstractTemplate<Long>(
-            LONG_ID, Long.class, true, true, 1) {
+            LONG_ID, Long.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Long value) throws IOException {
@@ -503,7 +553,7 @@ public class BasicTemplates {
 
     /** The Float Wrapper template. */
     public static final Template<Float> FLOAT = new MyAbstractTemplate<Float>(
-            FLOAT_ID, Float.class, true, true, 1) {
+            FLOAT_ID, Float.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Float value) throws IOException {
@@ -519,7 +569,7 @@ public class BasicTemplates {
 
     /** The Double Wrapper template. */
     public static final Template<Double> DOUBLE = new MyAbstractTemplate<Double>(
-            DOUBLE_ID, Double.class, true, true, 1) {
+            DOUBLE_ID, Double.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Double value) throws IOException {
@@ -535,7 +585,7 @@ public class BasicTemplates {
 
     /** The BigInteger template. */
     public static final Template<BigInteger> BIG_INTEGER = new MyAbstractTemplate<BigInteger>(
-            BIG_INTEGER_ID, BigInteger.class, true, true, 1) {
+            BIG_INTEGER_ID, BigInteger.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final BigInteger value) throws IOException {
@@ -551,7 +601,7 @@ public class BasicTemplates {
 
     /** The BigDecimal template. */
     public static final Template<BigDecimal> BIG_DECIMAL = new MyAbstractTemplate<BigDecimal>(
-            BIG_DECIMAL_ID, BigDecimal.class, true, true, 1) {
+            BIG_DECIMAL_ID, BigDecimal.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final BigDecimal value) throws IOException {
@@ -567,7 +617,7 @@ public class BasicTemplates {
 
     /** The String template. */
     public static final Template<String> STRING = new MyAbstractTemplate<String>(
-            STRING_ID, String.class, true, true, 1) {
+            STRING_ID, String.class, ObjectType.RAW, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final String value) throws IOException {
@@ -583,7 +633,7 @@ public class BasicTemplates {
 
     /** The ByteBuffer template. */
     public static final Template<ByteBuffer> BYTE_BUFFER = new MyAbstractTemplate<ByteBuffer>(
-            BYTE_BUFFER_ID, ByteBuffer.class, true, true, 1) {
+            BYTE_BUFFER_ID, ByteBuffer.class, ObjectType.RAW, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final ByteBuffer value) throws IOException {
@@ -599,7 +649,7 @@ public class BasicTemplates {
 
     /** The Date template. */
     public static final Template<Date> DATE = new MyAbstractTemplate<Date>(
-            DATE_ID, Date.class, true, true, 1) {
+            DATE_ID, Date.class, ObjectType.ARRAY, true, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final Date value) throws IOException {
@@ -645,7 +695,7 @@ public class BasicTemplates {
 
     /** The Byte array template. */
     public static final Template<byte[]> BYTE_ARRAY = new MyAbstractTemplate<byte[]>(
-            BYTE_ARRAY_ID, byte[].class, true, false, 1) {
+            BYTE_ARRAY_ID, byte[].class, ObjectType.RAW, false, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
                 final byte[] value) throws IOException {
@@ -834,22 +884,31 @@ public class BasicTemplates {
         }
     };
 
-    /** The Byte array slice template. */
-    public static final Template<ByteArraySlice> BYTE_ARRAY_SLICE = new MyAbstractTemplate<ByteArraySlice>(
-            BYTE_ARRAY_ID, ByteArraySlice.class, true, false, 1) {
+    /**
+     * The Byte array slice template.
+     *
+     * The generics cannot be used here, because we receive/write ByteArraySlice,
+     * but return/read byte[]
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static final Template BYTE_ARRAY_SLICE = new MyAbstractTemplate(
+            BYTE_ARRAY_ID, ByteArraySlice.class, ObjectType.RAW, false, 1) {
         @Override
         public void writeData(final PackerContext context, final int size,
-                final ByteArraySlice value) throws IOException {
-            context.packer.write(value.o, value.off, value.len);
+                final Object value) throws IOException {
+            if (value instanceof ByteArraySlice) {
+                final ByteArraySlice slice = (ByteArraySlice) value;
+                context.packer.write(slice.o, slice.off, slice.len);
+            } else {
+                throw new IllegalArgumentException(
+                        "Expected ByteArraySlice but got " + value);
+            }
         }
 
         @Override
-        public ByteArraySlice readData(final UnpackerContext context,
-                final ByteArraySlice preCreated, final int size)
-                throws IOException {
-            final byte[] bytes = context.unpacker.readByteArray();
-            return (bytes == null) ? null : new ByteArraySlice(bytes, 0,
-                    bytes.length);
+        public Object readData(final UnpackerContext context,
+                final Object preCreated, final int size) throws IOException {
+            return context.unpacker.readByteArray();
         }
     };
 

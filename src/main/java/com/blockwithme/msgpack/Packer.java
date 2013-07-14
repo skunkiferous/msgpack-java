@@ -21,6 +21,7 @@ import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -167,15 +168,49 @@ public interface Packer extends Closeable, Flushable, DataOutput {
     /** Writes an raw end. */
     void writeRawEnd() throws IOException;
 
-    /** Writes a byte array *content*. */
-    void writePartial(final byte[] o) throws IOException;
+    /**
+     * Returns the underlying DataOutput: use with extreme care!
+     *
+     * Before using the underlying DataOutput, you must first call
+     * writeRawBegin(size) (which implies you must already know how many bytes
+     * you will write. While writing, or after you are done, you must call
+     * rawWritten(written), so the Packer knows how much you wrote. When you are
+     * done, you must call writeRawEnd(). If the wrong amount of data was
+     * written, according to rawWritten(), writeRawEnd() will fail.
+     * @throws IOException
+     */
+    DataOutput dataOutput() throws IOException;
 
-    /** Writes a slice of a byte[] *content*. */
-    void writePartial(final byte[] o, final int off, final int len)
-            throws IOException;
+    /**
+     * Returns the underlying OutputStream: use with extreme care!
+     *
+     * If the underlying DataOutput is an OutputStream, then it will be
+     * returned. If not, the a wrapper OutputStream on top of the DataOutput
+     * will be written instead.
+     *
+     * @see dataOutput() for usage restrictions.
+     *
+     * @throws IOException
+     */
+    OutputStream outputStream() throws IOException;
 
-    /** Writes a ByteBuffer *content*. */
+    /**
+     * Writes a ByteBuffer *content*, between writeRawBegin(size) and
+     * writeRawEnd(). It can be used together with dataOutput(). Note that
+     * writePartial(ByteBuffer) calls rawWritten() directly, while you need to
+     * do this yourself if using dataOutput().
+     *
+     * This method is just an helper, since DataOutput does not directly
+     * support ByteBuffers.
+     */
     void writePartial(final ByteBuffer o) throws IOException;
+
+    /**
+     * Indicate that 'written' bytes were written to the underlying DataOutput.
+     * You must call this method, when accessing the underlying DataOutput directly.
+     * @throws IOException
+     */
+    void rawWritten(final int written) throws IOException;
 
     /** Writes a byte. */
     @Override

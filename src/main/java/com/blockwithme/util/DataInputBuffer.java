@@ -61,7 +61,7 @@ public class DataInputBuffer implements DataInput {
      * @see RandomAccessFile
      */
     public DataInputBuffer(final byte[] buff) {
-        this(buff, buff.length);
+        this(buff, 0, buff.length);
     }
 
     /**
@@ -75,7 +75,7 @@ public class DataInputBuffer implements DataInput {
      * @see DataOutputStream
      * @see RandomAccessFile
      */
-    public DataInputBuffer(final byte[] buff, final int length) {
+    public DataInputBuffer(final byte[] buff, final int offset, final int length) {
         if (buff == null) {
             throw new NullPointerException();
         }
@@ -87,6 +87,7 @@ public class DataInputBuffer implements DataInput {
                     + " > buff.length: " + buff.length);
         }
         this.buff = buff;
+        this.read = offset;
         this.length = length;
     }
 

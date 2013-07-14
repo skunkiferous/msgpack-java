@@ -20,7 +20,10 @@ package com.blockwithme.msgpack.impl;
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import com.blockwithme.msgpack.ValueType;
 import com.blockwithme.msgpack.impl.accept.Accept;
@@ -33,6 +36,7 @@ import com.blockwithme.msgpack.impl.accept.LongAccept;
 import com.blockwithme.msgpack.impl.accept.MapAccept;
 import com.blockwithme.msgpack.impl.accept.SkipAccept;
 import com.blockwithme.msgpack.impl.accept.StringAccept;
+import com.blockwithme.util.DataInputBuffer;
 
 /**
  * The MessagePack Unpacker reuses the code form the original Java implementation
@@ -47,6 +51,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
 
     private final DataInput in;
+    private final InputStream inputStream;
     private final UnpackerStack stack = new UnpackerStack();
 
     private byte headByte = REQUIRE_TO_READ_HEAD;
@@ -64,8 +69,25 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final MapAccept mapAccept = new MapAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
+    /** Are we in read raw? */
+    private boolean inReadRaw;
+
+    /** Bytes to read in read raw. */
+    private int readRawToRead;
+
+    /** Temporary DataInput, used only during raw read. */
+    private DataInput tempRawReadDataInput;
+
+    /** Temporary InputStream, used only during raw read. */
+    private InputStream tempInputStream;
+
     public MessagePackUnpacker(final DataInput in) {
-        this.in = in;
+        this.in = Objects.requireNonNull(in);
+        if (in instanceof InputStream) {
+            inputStream = (InputStream) in;
+        } else {
+            inputStream = new DataInputStreamWrapper(in);
+        }
     }
 
     private byte getHeadByte() throws IOException {
@@ -604,6 +626,107 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     public void close() throws IOException {
         if (in instanceof Closeable) {
             ((Closeable) in).close();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#dataInput()
+     */
+    @Override
+    public DataInput dataInput() throws IOException {
+        checkInRawRead();
+        if (inReadRaw) {
+            if (tempRawReadDataInput == null) {
+                tempRawReadDataInput = new DataInputBuffer(
+                        byteArrayAccept.value);
+            }
+            return tempRawReadDataInput;
+        }
+        return in;
+    }
+
+    /**
+     * Returns the underlying InputStream: use with extreme care!
+     *
+     * If the underlying DataInput is an InputStream, then it will be
+     * returned. If not, the a wrapper InputStream on top of the DataInput
+     * will be written instead.
+     *
+     * @see dataInput() for usage restrictions.
+     *
+     * @throws IOException
+     */
+    @Override
+    public InputStream inputStream() throws IOException {
+        if (inReadRaw) {
+            if (tempInputStream == null) {
+                tempInputStream = new DataInputStreamWrapper(dataInput());
+            }
+            return tempInputStream;
+        }
+        checkInRawRead();
+        return inputStream;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readRawBegin()
+     */
+    @Override
+    public int readRawBegin() throws IOException {
+        if (inReadRaw) {
+            throw new IOException("Already in read raw!");
+        }
+        readOne(byteArrayAccept);
+        inReadRaw = true;
+        return (readRawToRead = byteArrayAccept.value.length);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readRawEnd()
+     */
+    @Override
+    public void readRawEnd() throws IOException {
+        checkInRawRead();
+        if (readRawToRead != 0) {
+            throw new IOException("Wrong number of bytes read");
+        }
+        inReadRaw = false;
+        tempRawReadDataInput = null;
+        tempInputStream = null;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#rawRead(int)
+     */
+    @Override
+    public void rawRead(final int read) throws IOException {
+        checkInRawRead();
+        readRawToRead -= read;
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.Unpacker#readPartialByteBuffer(int)
+     */
+    @Override
+    public ByteBuffer readPartialByteBuffer(final int bytes) throws IOException {
+        checkInRawRead();
+        if ((readRawToRead == bytes)
+                && (readRawToRead == byteArrayAccept.value.length)) {
+            readRawToRead = 0;
+            return ByteBuffer.wrap(byteArrayAccept.value);
+        }
+        rawRead(bytes);
+        final int offset = byteArrayAccept.value.length - readRawToRead;
+        return ByteBuffer.wrap(byteArrayAccept.value, offset, bytes);
+    }
+
+    /* (non-Javadoc)
+     * @see com.blockwithme.msgpack.impl.AbstractUnpacker#checkInRawRead()
+     */
+    @Override
+    protected void checkInRawRead() throws IOException {
+        if (!inReadRaw) {
+            throw new IOException("Not in read raw");
         }
     }
 }

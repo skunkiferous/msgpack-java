@@ -266,6 +266,9 @@ public abstract class AbstractUnpacker implements Unpacker {
         return readInt() + AbstractPacker.INDEX_OFFSET;
     }
 
+    /** Checks if we are within a raw read, and fails if not. */
+    protected abstract void checkInRawRead() throws IOException;
+
     protected abstract BigInteger readBigInteger(final boolean countAaValue)
             throws IOException;
 

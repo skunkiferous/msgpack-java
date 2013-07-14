@@ -104,12 +104,15 @@ public interface ObjectPacker {
     /** Writes a String. */
     ObjectPacker writeObject(final String o) throws IOException;
 
+    /** Writes a ByteBuffer. */
+    ObjectPacker writeObject(final ByteBuffer o) throws IOException;
+
+    /** Writes a Class out. */
+    ObjectPacker writeObject(final Class<?> o) throws IOException;
+
     /** Writes a slice of a byte[]. */
     ObjectPacker writeObject(final byte[] o, final int off, final int len)
             throws IOException;
-
-    /** Writes a ByteBuffer. */
-    ObjectPacker writeObject(final ByteBuffer o) throws IOException;
 
     /**
      * Writes an Object out. Template is determined based on object type.
@@ -125,6 +128,18 @@ public interface ObjectPacker {
     ObjectPacker writeObject(final Object o, final Template<?> template)
             throws IOException;
 
-    /** Writes a Class out. */
-    ObjectPacker writeObject(final Class<?> o) throws IOException;
+    /**
+     * Writes an Object out. Template is determined based on object type.
+     * Pass along a template for faster results.
+     */
+    ObjectPacker writeObject(final Object o,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException;
+
+    /**
+     * Writes an Object out. Object must be compatible with non-null template.
+     * Note that we cannot link the Object type with the template type, since
+     * we could use the template to also write an *array* of the object type.
+     */
+    ObjectPacker writeObject(final Object o, final Template<?> template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException;
 }

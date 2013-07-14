@@ -21,9 +21,11 @@ import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /**
  * The MessagePack Packer reuses the code form the original Java implementation
@@ -36,18 +38,23 @@ import java.nio.ByteBuffer;
  */
 public class MessagePackPacker extends AbstractPacker {
     protected final DataOutput out;
+    protected final OutputStream outputStream;
 
+    /** Amounts of raw bytes still to be written. */
     private int rawToWrite;
+
+    /** True if we are in a raw write. */
+    private boolean inRawWrite;
 
     private final PackerStack stack = new PackerStack();
 
     public MessagePackPacker(final DataOutput out) {
-        this.out = out;
-    }
-
-    /** Returns the DataOutput. */
-    public DataOutput getDataOutput() {
-        return out;
+        this.out = Objects.requireNonNull(out);
+        if (out instanceof OutputStream) {
+            outputStream = (OutputStream) out;
+        } else {
+            outputStream = new DataOutputWrapperStream(out);
+        }
     }
 
     @Override
@@ -261,30 +268,19 @@ public class MessagePackPacker extends AbstractPacker {
             throws IOException {
         writeRawBegin(len);
         out.write(b, off, len);
-        rawToWrite -= len;
+        rawWritten(len);
         writeRawEnd();
     }
 
-    /** Writes a byte array, between a writeRawBegin() and writeRawEnd(). */
-    @Override
-    public void writePartial(final byte[] b) throws IOException {
-        writePartial(b, 0, b.length);
-    }
-
-    /** Writes a byte[], between a writeRawBegin() and writeRawEnd(). */
-    @Override
-    public void writePartial(final byte[] b, final int off, final int len)
-            throws IOException {
-        out.write(b, off, len);
-        rawToWrite -= len;
-
-    }
-
-    /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.Packer#writePartial(java.nio.ByteBuffer)
+    /**
+     * Writes a ByteBuffer *content*, between writeRawBegin(size) and
+     * writeRawEnd(). It can be used together with dataOutput(). Note that
+     * writePartial(ByteBuffer) calls rawWritten() directly, while you need to
+     * do this yourself if using dataOutput().
      */
     @Override
     public void writePartial(final ByteBuffer bb) throws IOException {
+        checkInRawWrite();
         final int len = bb.remaining();
         final int pos = bb.position();
         try {
@@ -292,13 +288,12 @@ public class MessagePackPacker extends AbstractPacker {
                 final byte[] array = bb.array();
                 final int offset = bb.arrayOffset();
                 out.write(array, offset, len);
-                rawToWrite -= len;
             } else {
                 final byte[] buf = new byte[len];
                 bb.get(buf);
                 out.write(buf);
-                rawToWrite -= len;
             }
+            rawWritten(len);
         } finally {
             bb.position(pos);
         }
@@ -412,10 +407,53 @@ public class MessagePackPacker extends AbstractPacker {
 
     }
 
+    /**
+     * Returns the underlying DataOutput: use with extreme care!
+     *
+     * Before using the underlying DataOutput, you must first call
+     * writeRawBegin(size) (which implies you must already know how many bytes
+     * you will write. While writing, or after you are done, you must call
+     * rawWritten(written), so the Packer knows how much you wrote. When you are
+     * done, you must call writeRawEnd(). If the wrong amount of data was
+     * written, according to rawWritten(), writeRawEnd() will fail.
+     * @throws IOException
+     */
+    @Override
+    public DataOutput dataOutput() throws IOException {
+        checkInRawWrite();
+        return out;
+    }
+
+    /**
+     * Returns the underlying OutputStream: use with extreme care!
+     *
+     * If the underlying DataOutput is an OutputStream, then it will be
+     * returned. If not, the a wrapper OutputStream on top of the DataOutput
+     * will be written instead.
+     *
+     * @throws IOException
+     */
+    @Override
+    public OutputStream outputStream() throws IOException {
+        checkInRawWrite();
+        return outputStream;
+    }
+
+    /**
+     * Indicate that 'written' bytes were written to the underlying DataOutput.
+     * You must call this method, when accessing the underlying DataOutput directly.
+     * @throws IOException
+     */
+    @Override
+    public void rawWritten(final int written) throws IOException {
+        checkInRawWrite();
+        rawToWrite -= written;
+    }
+
     /** Writes an raw begin. */
     @Override
     public void writeRawBegin(final int len) throws IOException {
-        if (rawToWrite > 0) {
+        if (inRawWrite) {
             throw new IOException("Last raw write not terminated!");
         }
         if (len < 32) {
@@ -430,12 +468,13 @@ public class MessagePackPacker extends AbstractPacker {
         rawToWrite = len;
         stack.reduceCount();
         stack.pushRaw();
-
+        inRawWrite = true;
     }
 
     /** Writes an raw end. */
     @Override
     public void writeRawEnd() throws IOException {
+        checkInRawWrite();
         // We moved the single raw reduceCOunt() here.
         stack.reduceCount();
         if (!stack.topIsRaw()) {
@@ -450,7 +489,7 @@ public class MessagePackPacker extends AbstractPacker {
             throw new IOException("Last raw write too big!");
         }
         stack.pop();
-
+        inRawWrite = false;
     }
 
     public void reset() {
@@ -468,6 +507,13 @@ public class MessagePackPacker extends AbstractPacker {
     public void close() throws IOException {
         if (out instanceof Closeable) {
             ((Closeable) out).close();
+        }
+    }
+
+    /** Checks if we are within a raw write, and fails if not. */
+    protected void checkInRawWrite() throws IOException {
+        if (!inRawWrite) {
+            throw new IOException("Not in raw write");
         }
     }
 }

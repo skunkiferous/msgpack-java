@@ -20,6 +20,7 @@ package com.blockwithme.msgpack;
 import java.io.Closeable;
 import java.io.DataInput;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -146,6 +147,55 @@ public interface Unpacker extends Closeable, DataInput {
 
     /** Returns true, if a nil/null could be read. */
     boolean trySkipNil() throws IOException;
+
+    /** Reads a raw begin and return the size. */
+    int readRawBegin() throws IOException;
+
+    /** Reads a raw end. */
+    void readRawEnd() throws IOException;
+
+    /**
+     * Returns the underlying DataInput: use with extreme care!
+     *
+     * Before using the underlying DataInput, you must first call readRawBegin()
+     * which will tell you how many bytes you must read. While reading, or after
+     * you are done, you must call rawRead(read), so the Unpacker knows how much
+     * you read. When you are done, you must call readRawEnd(). If the wrong
+     * amount of data was read, according to rawRead(), readRawEnd() will fail.
+     * @throws IOException
+     */
+    DataInput dataInput() throws IOException;
+
+    /**
+     * Returns the underlying InputStream: use with extreme care!
+     *
+     * If the underlying DataInput is an InputStream, then it will be
+     * returned. If not, the a wrapper InputStream on top of the DataInput
+     * will be written instead.
+     *
+     * @see dataInput() for usage restrictions.
+     *
+     * @throws IOException
+     */
+    InputStream inputStream() throws IOException;
+
+    /**
+     * Reads a ByteBuffer *content*, between readRawBegin() and
+     * readRawEnd(). It can be used together with dataInput(). Note that
+     * readPartialByteBuffer() calls rawRead() directly, while you need to
+     * do this yourself if using dataInput().
+     *
+     * This method is just an helper, since DataInput does not directly support
+     * ByteBuffers.
+     */
+    ByteBuffer readPartialByteBuffer(final int bytes) throws IOException;
+
+    /**
+     * Indicate that 'read' bytes were read to the underlying DataInput.
+     * You must call this method, when accessing the underlying DataInput directly.
+     * @throws IOException
+     */
+    void rawRead(final int read) throws IOException;
 
     // For DataInput compatibility; not recommended for new code.
 

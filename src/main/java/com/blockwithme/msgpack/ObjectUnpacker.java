@@ -54,6 +54,19 @@ public interface ObjectUnpacker {
      */
     Object readObject(final Template<?> template) throws IOException;
 
+    /** Reads any Object. */
+    Object readObject(final boolean ifObjectArrayCanContainNullValue)
+            throws IOException;
+
+    /**
+     * Reads any Object. Fails if the template is not null, and the Object type
+     * does not match template type. Since templates are used to read not only
+     * objects, but also array, we cannot assume that for a Template<T>, the
+     * return type will be T; it could also be T[] ...
+     */
+    Object readObject(final Template<?> template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException;
+
     /** Reads a boolean. */
     Boolean readBoolean() throws IOException;
 

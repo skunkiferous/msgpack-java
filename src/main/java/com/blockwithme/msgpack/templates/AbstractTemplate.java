@@ -56,10 +56,10 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     protected final boolean isFinalOrPrimitiveArray;
 
     /**
-     * All objects must be stored in "containers" (list or map). What is the
-     * container that should be used for this type? List is the default.
+     * Most objects must be stored in "containers" (list or map). What is the
+     * format that should be used for this type? List is the default/usual.
      */
-    protected final boolean isListType;
+    protected final ObjectType objectType;
 
     /** Should we "remember" objects of this type using equality (true), or identity (false)? */
     protected final boolean isMergeable;
@@ -117,12 +117,19 @@ public abstract class AbstractTemplate<T> implements Template<T> {
 
     /** Reads any 1D Object array. We assume the template is valid. */
     private static <T> T[] readNewNonNull1DArray(final UnpackerContext context,
-            final Template<T> template, final int size) throws IOException {
+            final Template<T> template, int size,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
+        final int fixedSize = template.getFixedSize();
+        if (template.isFinalOrPrimitiveArray() && (fixedSize > 0)
+                && !ifObjectArrayCanContainNullValue) {
+            size /= fixedSize;
+        }
         @SuppressWarnings("unchecked")
         // pre-creation before read allows support for cycles.
         final T[] result = (T[]) template.preCreateArray(1, size);
         context.previous.add(result);
-        template.read1DArray(context, result, size);
+        template.read1DArray(context, result, size,
+                ifObjectArrayCanContainNullValue);
         return result;
     }
 
@@ -153,7 +160,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     /** Reads an "array" object. (Not to be confused with an array OF objects)
      * @return */
     private static Object readArrayObject(final UnpackerContext context,
-            Template<?> template) throws IOException {
+            Template<?> template, final boolean ifObjectArrayCanContainNullValue)
+            throws IOException {
         final Unpacker unpacker = context.unpacker;
         final int size = unpacker.readArrayBegin();
         final int tidPlusDimension = unpacker.readIndex();
@@ -169,7 +177,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         } else {
             template = context.getTemplate(tid);
         }
-        if (!template.isListType()) {
+        if (template.getObjectType() == ObjectType.MAP) {
             throw new IllegalStateException("Template " + template
                     + " does not support ARRAYs");
         }
@@ -177,7 +185,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         if (dimension == 0) {
             result = readNewNonNullObject(context, template, size - 1);
         } else if (dimension == 1) {
-            result = readNewNonNull1DArray(context, template, size - 1);
+            result = readNewNonNull1DArray(context, template, size - 1,
+                    ifObjectArrayCanContainNullValue);
         } else if (dimension == 2) {
             result = readNewNonNull2DArray(context, template, size - 1);
         } else {
@@ -204,7 +213,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         } else {
             template = (Template<T>) context.getTemplate(tid);
         }
-        if (template.isListType()) {
+        if (template.getObjectType() != ObjectType.MAP) {
             throw new IllegalStateException("Template " + template
                     + " does not support MAPs");
         }
@@ -218,7 +227,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
      * does not match template type.
      */
     public static Object readObject(final UnpackerContext context,
-            final Template<?> template) throws IOException {
+            final Template<?> template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
         final Unpacker unpacker = context.unpacker;
         final ArrayList<Object> previous = context.previous;
         final ValueType type = unpacker.getNextType();
@@ -232,7 +242,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         }
         // New object
         if (type == ValueType.ARRAY) {
-            return readArrayObject(context, template);
+            return readArrayObject(context, template,
+                    ifObjectArrayCanContainNullValue);
         }
         if (type == ValueType.MAP) {
             return readMapObject(context, template);
@@ -254,7 +265,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
      */
     @SuppressWarnings("unchecked")
     public static void writeObject(final PackerContext context, final Object o,
-            @SuppressWarnings("rawtypes") Template template) throws IOException {
+            @SuppressWarnings("rawtypes") Template template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
         final Packer packer = context.packer;
         if (o == null) {
             if (context.required) {
@@ -285,11 +297,14 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             if (depth == 0) {
                 template.writeNonArrayObject(context, o);
             } else if (depth == 1) {
-                template.write1DArray(context, (Object[]) o, true);
+                template.write1DArray(context, (Object[]) o,
+                        ifObjectArrayCanContainNullValue);
             } else if (depth == 2) {
-                template.write2DArray(context, (Object[][]) o, true);
+                template.write2DArray(context, (Object[][]) o,
+                        ifObjectArrayCanContainNullValue);
             } else if (depth == 3) {
-                template.write3DArray(context, (Object[][][]) o, true);
+                template.write3DArray(context, (Object[][][]) o,
+                        ifObjectArrayCanContainNullValue);
             } else {
                 throw new IOException(
                         "Maximum non-primitive (+1 for primitives) array dimention is 3, but got "
@@ -314,14 +329,14 @@ public abstract class AbstractTemplate<T> implements Template<T> {
 
     /** Constructor. */
     protected AbstractTemplate(final int id, final Class<T> type,
-            final boolean isListType, final boolean isMergeable) {
-        this(id, type, isListType, isMergeable, -1);
+            final ObjectType objectType, final boolean isMergeable) {
+        this(id, type, objectType, isMergeable, -1);
     }
 
     /** Constructor. */
     @SuppressWarnings("unchecked")
     protected AbstractTemplate(final int id, final Class<T> type,
-            final boolean isListType, final boolean isMergeable,
+            final ObjectType objectType, final boolean isMergeable,
             final int fixedSize) {
         this.id = id;
         this.type = Objects.requireNonNull(type);
@@ -333,7 +348,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         // no other class extends it. This applies to primitive arrays too.
         // but realize that inheritance exists among Object arrays.
         isFinalOrPrimitiveArray = CLASS_NAME_CONVERTER.isFinal(type);
-        this.isListType = isListType;
+        this.objectType = Objects.requireNonNull(objectType);
         this.isMergeable = isMergeable;
         this.fixedSize = (fixedSize >= 0) ? fixedSize : -1;
     }
@@ -373,11 +388,11 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     }
 
     /* (non-Javadoc)
-     * @see com.blockwithme.msgpack.templates.Template#isListType()
+     * @see com.blockwithme.msgpack.templates.Template#getObjectType()
      */
     @Override
-    public final boolean isListType() {
-        return isListType;
+    public final ObjectType getObjectType() {
+        return objectType;
     }
 
     /* (non-Javadoc)
@@ -439,10 +454,11 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             context.packer.writeNil();
         } else {
             final int size = getSpaceRequired(context, v);
-            if (isListType) {
-                writeList(context, v, size);
-            } else {
+            if (objectType == ObjectType.MAP) {
                 writeMap(context, v, size);
+            } else {
+                // Both ARRAY and RAW
+                writeList(context, v, size);
             }
         }
     }
@@ -470,7 +486,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             final Object[] v) throws IOException {
         final ObjectPacker op = context.objectPacker;
         for (int i = 0; i < v.length; i++) {
-            op.writeObject(v[i]);
+            op.writeObject(v[i], true);
         }
     }
 
@@ -583,10 +599,19 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     @SuppressWarnings("unchecked")
     @Override
     public final void read1DArray(final UnpackerContext context,
-            final T[] preCreated, final int size) throws IOException {
-        final Template<T> template = isFinalOrPrimitiveArray ? this : null;
-        for (int i = 0; i < size; i++) {
-            preCreated[i] = (T) readObject(context, template);
+            final T[] preCreated, final int size,
+            final boolean canContainNullValue) throws IOException {
+        if (isFinalOrPrimitiveArray && (fixedSize > 0) && !canContainNullValue) {
+            // A primitive array will not have a fixed size.
+            for (int i = 0; i < size; i++) {
+                preCreated[i] = readData(context, preCreate(fixedSize),
+                        fixedSize);
+            }
+        } else {
+            final Template<T> template = isFinalOrPrimitiveArray ? this : null;
+            for (int i = 0; i < size; i++) {
+                preCreated[i] = (T) readObject(context, template, true);
+            }
         }
     }
 
@@ -597,7 +622,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             final T[][] preCreated, final int size) throws IOException {
         final Template<T> template = isFinalOrPrimitiveArray ? this : null;
         for (int i = 0; i < size; i++) {
-            preCreated[i] = (T[]) readObject(context, template);
+            preCreated[i] = (T[]) readObject(context, template, true);
         }
     }
 
@@ -608,7 +633,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
             final T[][][] preCreated, final int size) throws IOException {
         final Template<T> template = isFinalOrPrimitiveArray ? this : null;
         for (int i = 0; i < size; i++) {
-            preCreated[i] = (T[][]) readObject(context, template);
+            preCreated[i] = (T[][]) readObject(context, template, true);
         }
     }
 

@@ -238,12 +238,28 @@ public class ObjectUnpackerImpl implements ObjectUnpacker {
     /** Reads any Object. */
     @Override
     public Object readObject() throws IOException {
-        return readObject(null);
+        return AbstractTemplate.readObject(context, null, true);
     }
 
     /** Reads any Object. Fails if Object type does not match template type. */
     @Override
     public Object readObject(final Template<?> template) throws IOException {
-        return AbstractTemplate.readObject(context, template);
+        return AbstractTemplate.readObject(context, template, true);
+    }
+
+    /** Reads any Object. */
+    @Override
+    public Object readObject(final boolean ifObjectArrayCanContainNullValue)
+            throws IOException {
+        return AbstractTemplate.readObject(context, null,
+                ifObjectArrayCanContainNullValue);
+    }
+
+    /** Reads any Object. Fails if Object type does not match template type. */
+    @Override
+    public Object readObject(final Template<?> template,
+            final boolean ifObjectArrayCanContainNullValue) throws IOException {
+        return AbstractTemplate.readObject(context, template,
+                ifObjectArrayCanContainNullValue);
     }
 }
