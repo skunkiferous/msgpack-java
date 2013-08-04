@@ -24,7 +24,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.blockwithme.msgpack.impl.MessagePackPacker;
 import com.blockwithme.msgpack.impl.MessagePackUnpacker;
 import com.blockwithme.msgpack.impl.ObjectPackerImpl;
 import com.blockwithme.msgpack.impl.ObjectUnpackerImpl;
@@ -38,10 +37,11 @@ import com.blockwithme.util.DataInputBuffer;
 import com.blockwithme.util.DataOutputBuffer;
 
 /**
- * @author monster
+ * Tests simple functionality of the API.
  *
+ * @author monster
  */
-public class TestSimple {
+public class TestSimple extends BaseTest {
     /** A "raw" object */
     private static class TestRaw {
         public int value;
@@ -59,8 +59,14 @@ public class TestSimple {
         public int f2;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
-    private static Template[] extended() {
+    protected Template[] extended(final int schema) {
+        return extended();
+    }
+
+    @SuppressWarnings("rawtypes")
+    protected Template[] extended() {
         return new Template[] {
                 new AbstractTemplate<TestRaw>(null, TestRaw.class,
                         ObjectType.RAW, TrackingType.IDENTITY, 1) {
@@ -166,58 +172,6 @@ public class TestSimple {
                         return (v.f1 ? 1 : 0) + (v.f2 == 0 ? 0 : 1);
                     }
                 } };
-    }
-
-    private DataOutputBuffer newDataOutputBuffer() {
-        return new DataOutputBuffer(2048);
-    }
-
-    private MessagePackPacker newPacker(final DataOutputBuffer dob) {
-        return new MessagePackPacker(dob);
-    }
-
-    private ObjectPackerImpl newObjectPacker(final DataOutputBuffer dob)
-            throws IOException {
-        return new ObjectPackerImpl(newPacker(dob), new PackerContext(
-                extended(), 42));
-    }
-
-    private void dumpOP(final DataOutputBuffer dob) {
-        final byte[] bytes = dob.buffer();
-        final int size = dob.size();
-        final StringBuilder buf0 = new StringBuilder(size * 2);
-        final StringBuilder buf1 = new StringBuilder(size * 2);
-        final StringBuilder buf2 = new StringBuilder(size * 2);
-        for (int i = 0; i < size; i++) {
-            if (i < 10) {
-                buf0.append('0');
-            }
-            buf0.append(i);
-            String s = Integer.toHexString(bytes[i] & 0xFF).toUpperCase();
-            if (s.length() == 1) {
-                s = "0" + s;
-            }
-            buf1.append(s);
-            final char c = (char) bytes[i];
-            buf2.append(' ');
-            if (Character.isLetterOrDigit(c) || Character.isWhitespace(c)) {
-                buf2.append(c);
-            } else {
-                buf2.append('?');
-            }
-            buf0.append(' ');
-            buf1.append(' ');
-            buf2.append(' ');
-        }
-        System.out.println(buf0);
-        System.out.println(buf1);
-        System.out.println(buf2);
-    }
-
-    private DataInputBuffer toDataInputBuffer(final DataOutputBuffer dob) {
-        final byte[] bytes = dob.buffer();
-        final int size = dob.size();
-        return new DataInputBuffer(bytes, 0, size);
     }
 
     @Test
