@@ -15,7 +15,9 @@
  */
 package com.blockwithme.msgpack.templates;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,30 +40,37 @@ public class Context {
     /** The schema version for the current (de)serialisation. */
     public int schema;
 
+    /** The basic templates. */
+    public final BasicTemplates basicTemplates = new BasicTemplates();
+
     /** Maps IDs to Class templates */
     private final Template<?>[] idToTemplate;
 
     /** Maps Class to Template. */
     private final Map<Class<?>, Template<?>> classToTemplate = new HashMap<Class<?>, Template<?>>();
 
+    /** The "fallback" (catch-all) templates */
+    private final Template<?>[] fallbackTemplates;
+
     /**
      * All the templates, each at the right position.
      *
      * @param idToTemplate
      */
-    protected Context(final Template<?>[] idToTemplate) {
+    protected Context(final Template<?>[] userTemplates) {
         // Validate input
-        this.idToTemplate = Objects.requireNonNull(idToTemplate);
+        Objects.requireNonNull(userTemplates);
+        final Template<?>[] bt = basicTemplates.getAllBasicTemplates();
+        idToTemplate = new Template<?>[bt.length + userTemplates.length];
+        System.arraycopy(bt, 0, idToTemplate, 0, bt.length);
+        System.arraycopy(userTemplates, 0, idToTemplate, bt.length,
+                userTemplates.length);
         for (int i = 0; i < idToTemplate.length; i++) {
             final Template<?> template = idToTemplate[i];
             if (template != null) {
                 Objects.requireNonNull(template.getType(), "idToTemplate[" + i
                         + "].getType()");
-                if (template.getID() != i) {
-                    throw new IllegalStateException(template + " at index " + i
-                            + " should have ID " + i + " but has ID "
-                            + template.getID());
-                }
+                ((_Template) template).setID(i);
                 if (template.isMainTemplate()
                         && classToTemplate.put(template.getType(), template) != null) {
                     throw new IllegalArgumentException(
@@ -69,6 +78,14 @@ public class Context {
                 }
             }
         }
+        final List<Template<?>> fallBack = new ArrayList<Template<?>>();
+        for (int i = 0; i < idToTemplate.length; i++) {
+            ((_Template) idToTemplate[i]).resolve(this);
+            if (idToTemplate[i].isFallBackTemplate()) {
+                fallBack.add(idToTemplate[i]);
+            }
+        }
+        fallbackTemplates = fallBack.toArray(new Template<?>[fallBack.size()]);
     }
 
     /** Returns the Template<?> for an ID, or fails. */
@@ -84,9 +101,8 @@ public class Context {
         throw new IllegalArgumentException("Template not found for id: " + id);
     }
 
-    /** Returns the ID for a Class, or null if not found. */
-    @SuppressWarnings("unchecked")
-    public <E> Template<E> findTemplate(final Class<E> cls) {
+    /** Un-array a class. */
+    private Class<?> unArray(final Class<?> cls) {
         if (cls == null) {
             throw new IllegalArgumentException("Class cannot be null");
         }
@@ -96,7 +112,22 @@ public class Context {
         while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
             c = cc;
         }
-        return (Template<E>) classToTemplate.get(c);
+        return c;
+    }
+
+    /** Returns the ID for a Class, or null if not found. */
+    @SuppressWarnings("unchecked")
+    public <E> Template<E> findTemplate(final Class<E> cls) {
+        final Template<E> result = (Template<E>) classToTemplate
+                .get(unArray(cls));
+        if (result == null) {
+            for (final Template<?> f : fallbackTemplates) {
+                if (f.getType().isAssignableFrom(cls)) {
+                    return (Template<E>) f;
+                }
+            }
+        }
+        return result;
     }
 
     /** Returns the ID for a Class. */
@@ -106,6 +137,22 @@ public class Context {
             throw new IllegalArgumentException("Template not found: " + cls);
         }
         return t;
+    }
+
+    /** Returns the ID for a Class, or null if not found. */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <E> Template<E>[] findTemplates(final Class<E> cls) {
+        final Class<?> c = unArray(cls);
+        final List<Template> list = new ArrayList<Template>();
+        for (int i = 0; i < idToTemplate.length; i++) {
+            final Template<?> template = idToTemplate[i];
+            if (template != null) {
+                if (template.getType() == c) {
+                    list.add(template);
+                }
+            }
+        }
+        return list.toArray(new Template[list.size()]);
     }
 
     /** Is this a required field? (Currently unused) */

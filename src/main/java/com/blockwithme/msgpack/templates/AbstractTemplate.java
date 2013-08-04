@@ -35,16 +35,19 @@ import com.blockwithme.msgpack.ValueType;
  *
  * @author monster
  */
-public abstract class AbstractTemplate<T> implements Template<T> {
+public abstract class AbstractTemplate<T> implements Template<T>, _Template {
 
     /** The ClassNameConverter */
     private static volatile ClassNameConverter CLASS_NAME_CONVERTER = new DefaultClassNameConverter();
 
     /** The template ID (should not be negative). */
-    protected final int id;
+    protected int id = -1;
 
     /** The type that is supported. */
     protected final Class<T> type;
+
+    /** The template name. The Main template has the name of the type. */
+    protected final String name;
 
     /** The 1D array type that is supported. */
     protected final Class<T[]> type1D;
@@ -54,6 +57,9 @@ public abstract class AbstractTemplate<T> implements Template<T> {
 
     /** Is this the "main" template for this type, or an "alternate" template? */
     protected final boolean mainTemplate;
+
+    /** Is this the "fallback" (catch-all) template for this type? */
+    protected final boolean isFallBackTemplate;
 
     /** True if the type is final, or a primitive array. */
     protected final boolean isFinalOrPrimitiveArray;
@@ -180,12 +186,12 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         } else {
             template = context.getTemplate(tid);
         }
-        if (template.getObjectType() == ObjectType.MAP) {
-            throw new IllegalStateException("Template " + template
-                    + " does not support ARRAYs");
-        }
         final Object result;
         if (dimension == 0) {
+            if (template.getObjectType() == ObjectType.MAP) {
+                throw new IllegalStateException("Template " + template
+                        + " does not support ARRAYs");
+            }
             result = readNewNonNullObject(context, template, size - 1);
         } else if (dimension == 1) {
             result = readNewNonNull1DArray(context, template, size - 1,
@@ -254,7 +260,8 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         if (type == ValueType.RAW) {
             if (template == null) {
                 // Must be string
-                return readNewNonNullObject(context, BasicTemplates.STRING, -1);
+                return readNewNonNullObject(context,
+                        context.basicTemplates.STRING, -1);
             }
             return readNewNonNullObject(context, template, -1);
         }
@@ -280,16 +287,26 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         }
         int depth = -1;
         if (template == null) {
-            // Discover template ...
-            Class<?> c = o.getClass();
-            depth = 0;
-            Class<?> cc;
-            while (c.isArray() && !(cc = c.getComponentType()).isPrimitive()) {
-                depth++;
-                c = cc;
+            if (o instanceof Packable) {
+                template = ((Packable<?>) o).getTemplate();
             }
-            template = context.getTemplate(c);
+            if (template == null) {
+                // Discover template ...
+                Class<?> c = o.getClass();
+                depth = 0;
+                Class<?> cc;
+                while (c.isArray()
+                        && !(cc = c.getComponentType()).isPrimitive()) {
+                    depth++;
+                    c = cc;
+                }
+                template = context.getTemplate(c);
+                if (o instanceof Packable) {
+                    ((Packable<?>) o).setTemplate(template);
+                }
+            }
         }
+        template = template.replaceSelf(o);
         // Check if new object
         final TrackingType tt = template.getTrackingType();
         final int pos = (tt == TrackingType.DO_NOT_TRACK) ? -1
@@ -341,18 +358,34 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     }
 
     /** Constructor. */
-    protected AbstractTemplate(final int id, final Class<T> type,
+    protected AbstractTemplate(final String name, final Class<T> type,
             final ObjectType objectType, final boolean isMergeable) {
-        this(id, type, objectType, toTrackingType(isMergeable), -1, true);
+        this(name, type, objectType, toTrackingType(isMergeable), -1);
+    }
+
+    /** Constructor. */
+    protected AbstractTemplate(final String name, final Class<T> type,
+            final ObjectType objectType, final boolean isMergeable,
+            final int fixedSize) {
+        this(name, type, objectType, toTrackingType(isMergeable), fixedSize);
+    }
+
+    /** Constructor. */
+    protected AbstractTemplate(final String name, final Class<T> type,
+            final ObjectType objectType, final TrackingType trackingType,
+            final int fixedSize) {
+        this(name, type, objectType, trackingType, fixedSize, false);
     }
 
     /** Constructor. */
     @SuppressWarnings("unchecked")
-    protected AbstractTemplate(final int id, final Class<T> type,
+    protected AbstractTemplate(final String name, final Class<T> type,
             final ObjectType objectType, final TrackingType trackingType,
-            final int fixedSize, final boolean mainTemplate) {
-        this.id = id;
-        this.mainTemplate = mainTemplate;
+            final int fixedSize, final boolean isFallBackTemplate) {
+        final String typeName = type.getName();
+        this.name = (name == null) ? typeName : name;
+        this.mainTemplate = typeName.equals(this.name);
+        this.isFallBackTemplate = isFallBackTemplate;
         this.type = Objects.requireNonNull(type);
         // We need those to optimize array creation
         type1D = (Class<T[]>) Array.newInstance(type, 0).getClass();
@@ -370,14 +403,29 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     /** toString */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(id=" + id + ",type="
-                + type.getName() + ")";
+        return getClass().getSimpleName() + "(id=" + id + ", name=" + name
+                + ",type=" + type.getName() + ")";
     }
 
     /** Returns the template ID. */
     @Override
     public final int getID() {
+        if (id == -1) {
+            throw new IllegalStateException("id not set");
+        }
         return id;
+    }
+
+    /** Sets the ID. This can only be called once. */
+    @Override
+    public void setID(final int newID) {
+        if (newID < 0) {
+            throw new IllegalArgumentException("newID=" + newID);
+        }
+        if (id >= 0) {
+            throw new IllegalStateException("id already set to " + id);
+        }
+        id = newID;
     }
 
     /** Returns the type that is supported. */
@@ -386,10 +434,22 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         return type;
     }
 
+    /** Returns the template name. The Main template has the name of the type. */
+    @Override
+    public final String getName() {
+        return name;
+    }
+
     /** Is this the "main" template for this type, or an "alternate" template? */
     @Override
     public final boolean isMainTemplate() {
         return mainTemplate;
+    }
+
+    /** Is this the "fallback" (catch-all) template for this type? */
+    @Override
+    public final boolean isFallBackTemplate() {
+        return isFallBackTemplate;
     }
 
     /* (non-Javadoc)
@@ -448,7 +508,7 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         packer.writeIndex(4 * id + dimensions);
     }
 
-    /** Writea an Object as a list/array. */
+    /** Write an Object as a list/array. */
     private void writeList(final PackerContext context, final T v,
             final int size) throws IOException {
         final Packer packer = context.packer;
@@ -671,6 +731,17 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     }
 
     /**
+     * Skips the "unused header value" by default.
+     * But you could use it for something ...
+     *
+     * @see AbstractTemplate.writeMapHeaderValue(PackerContext, T, int)
+     */
+    protected void readHeaderValue(final UnpackerContext context,
+            final T preCreated, final int size) throws IOException {
+        context.unpacker.skip();
+    }
+
+    /**
      * Returns the number of values to write for this (non-null) value.
      * If the preferred container type is a map, this number must be even, so
      * that it can be divided by 2 to give the required map size.
@@ -690,5 +761,17 @@ public abstract class AbstractTemplate<T> implements Template<T> {
     @Override
     public T preCreate(final int size) {
         return null;
+    }
+
+    /** Called after the context was created, but before the serialisation starts. */
+    @Override
+    public void resolve(final Context context) {
+        // NOP
+    }
+
+    /** Allows the template to replace itself with another one before writing. */
+    @Override
+    public Template<T> replaceSelf(final T o) {
+        return this;
     }
 }

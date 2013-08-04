@@ -17,7 +17,6 @@ package com.blockwithme.msgpack;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -30,7 +29,6 @@ import com.blockwithme.msgpack.impl.MessagePackUnpacker;
 import com.blockwithme.msgpack.impl.ObjectPackerImpl;
 import com.blockwithme.msgpack.impl.ObjectUnpackerImpl;
 import com.blockwithme.msgpack.templates.AbstractTemplate;
-import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.ObjectType;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
@@ -44,76 +42,130 @@ import com.blockwithme.util.DataOutputBuffer;
  *
  */
 public class TestSimple {
+    /** A "raw" object */
     private static class TestRaw {
         public int value;
     }
 
+    /** A "fixed", record-style, object. */
     private static final class TestFixed {
         public boolean v1;
         public boolean v2;
     }
 
-    @SuppressWarnings("rawtypes")
-    private static final Template[] basic = BasicTemplates
-            .getAllBasicTemplates();
+    /** A map-style object. */
+    private static final class TestMap {
+        public boolean f1;
+        public int f2;
+    }
 
     @SuppressWarnings("rawtypes")
-    private static final Template[] extended = Arrays.copyOf(basic,
-            basic.length + 2);
+    private static Template[] extended() {
+        return new Template[] {
+                new AbstractTemplate<TestRaw>(null, TestRaw.class,
+                        ObjectType.RAW, TrackingType.IDENTITY, 1) {
 
-    static {
-        extended[basic.length] = new AbstractTemplate<TestRaw>(basic.length,
-                TestRaw.class, ObjectType.RAW, TrackingType.IDENTITY, 1, true) {
+                    @Override
+                    public void writeData(final PackerContext context,
+                            final int size, final TestRaw v) throws IOException {
+                        final Packer p = context.packer;
+                        p.writeRawBegin(4);
+                        p.dataOutput().writeInt(v.value);
+                        p.rawWritten(4);
+                        p.writeRawEnd();
+                    }
 
-            @Override
-            public void writeData(final PackerContext context, final int size,
-                    final TestRaw v) throws IOException {
-                final Packer p = context.packer;
-                p.writeRawBegin(4);
-                p.dataOutput().writeInt(v.value);
-                p.rawWritten(4);
-                p.writeRawEnd();
-            }
+                    @Override
+                    public TestRaw readData(final UnpackerContext context,
+                            final TestRaw preCreated, final int size)
+                            throws IOException {
+                        final Unpacker u = context.unpacker;
+                        final int raw = u.readRawBegin();
+                        if (raw != 4) {
+                            throw new IOException("raw: " + raw);
+                        }
+                        final TestRaw result = new TestRaw();
+                        result.value = u.dataInput().readInt();
+                        u.rawRead(4);
+                        u.readRawEnd();
+                        return result;
+                    }
+                },
+                new AbstractTemplate<TestFixed>(null, TestFixed.class,
+                        ObjectType.ARRAY, TrackingType.IDENTITY, 2) {
 
-            @Override
-            public TestRaw readData(final UnpackerContext context,
-                    final TestRaw preCreated, final int size)
-                    throws IOException {
-                final Unpacker u = context.unpacker;
-                final int raw = u.readRawBegin();
-                if (raw != 4) {
-                    throw new IOException("raw: " + raw);
-                }
-                final TestRaw result = new TestRaw();
-                result.value = u.dataInput().readInt();
-                u.rawRead(4);
-                u.readRawEnd();
-                return result;
-            }
-        };
-        extended[basic.length + 1] = new AbstractTemplate<TestFixed>(
-                basic.length + 1, TestFixed.class, ObjectType.ARRAY,
-                TrackingType.IDENTITY, 2, true) {
+                    @Override
+                    public void writeData(final PackerContext context,
+                            final int size, final TestFixed v)
+                            throws IOException {
+                        final Packer p = context.packer;
+                        p.writeBoolean(v.v1);
+                        p.writeBoolean(v.v2);
+                    }
 
-            @Override
-            public void writeData(final PackerContext context, final int size,
-                    final TestFixed v) throws IOException {
-                final Packer p = context.packer;
-                p.writeBoolean(v.v1);
-                p.writeBoolean(v.v2);
-            }
+                    @Override
+                    public TestFixed readData(final UnpackerContext context,
+                            final TestFixed preCreated, final int size)
+                            throws IOException {
+                        final Unpacker u = context.unpacker;
+                        final TestFixed result = new TestFixed();
+                        result.v1 = u.readBoolean();
+                        result.v2 = u.readBoolean();
+                        return result;
+                    }
+                },
+                new AbstractTemplate<TestMap>(null, TestMap.class,
+                        ObjectType.MAP, TrackingType.IDENTITY, -1) {
+                    private final int FIELD_1 = 0;
+                    private final int FIELD_2 = 1;
 
-            @Override
-            public TestFixed readData(final UnpackerContext context,
-                    final TestFixed preCreated, final int size)
-                    throws IOException {
-                final Unpacker u = context.unpacker;
-                final TestFixed result = new TestFixed();
-                result.v1 = u.readBoolean();
-                result.v2 = u.readBoolean();
-                return result;
-            }
-        };
+                    @Override
+                    public void writeData(final PackerContext context,
+                            final int size, final TestMap v) throws IOException {
+                        final Packer p = context.packer;
+                        if (v.f1) {
+                            p.writeInt(FIELD_1);
+                            p.writeBoolean(true);
+                        }
+                        if (v.f2 != 0) {
+                            p.writeInt(FIELD_2);
+                            p.writeInt(v.f2);
+                        }
+                    }
+
+                    @Override
+                    public TestMap readData(final UnpackerContext context,
+                            final TestMap preCreated, final int size)
+                            throws IOException {
+                        final Unpacker u = context.unpacker;
+                        readHeaderValue(context, preCreated, size);
+                        final TestMap result = new TestMap();
+                        int fields = size;
+                        while (fields-- > 0) {
+                            final int field = u.readInt();
+                            switch (field) {
+                            case FIELD_1:
+                                result.f1 = u.readBoolean();
+                                break;
+
+                            case FIELD_2:
+                                result.f2 = u.readInt();
+                                break;
+
+                            default:
+                                throw new IOException("Field " + field
+                                        + " unknown");
+                            }
+                        }
+                        return result;
+                    }
+
+                    @Override
+                    public int getSpaceRequired(final PackerContext context,
+                            final TestMap v) {
+                        return (v.f1 ? 1 : 0) + (v.f2 == 0 ? 0 : 1);
+                    }
+                } };
     }
 
     private DataOutputBuffer newDataOutputBuffer() {
@@ -126,8 +178,8 @@ public class TestSimple {
 
     private ObjectPackerImpl newObjectPacker(final DataOutputBuffer dob)
             throws IOException {
-        return new ObjectPackerImpl(newPacker(dob), new PackerContext(extended,
-                42));
+        return new ObjectPackerImpl(newPacker(dob), new PackerContext(
+                extended(), 42));
     }
 
     private void dumpOP(final DataOutputBuffer dob) {
@@ -179,7 +231,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -203,7 +255,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -224,7 +276,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -244,7 +296,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -262,7 +314,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -281,7 +333,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -314,7 +366,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -347,7 +399,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -373,7 +425,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -393,7 +445,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
         final Object copy = oui.readObject();
         Assert.assertNotNull(copy);
         Assert.assertEquals(o.getClass(), copy.getClass());
@@ -443,7 +495,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -475,7 +527,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -502,7 +554,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -521,7 +573,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -534,7 +586,7 @@ public class TestSimple {
     }
 
     @Test
-    public void testPartial() throws Exception {
+    public void testRaw() throws Exception {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         final TestRaw tr = new TestRaw();
@@ -545,7 +597,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -568,7 +620,7 @@ public class TestSimple {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended));
+                new UnpackerContext(extended()));
 
         final Object o = oui.readObject(false);
         Assert.assertNotNull(o);
@@ -584,5 +636,34 @@ public class TestSimple {
         // That is what tells us if the optimization worked:
         // the number of bytes written
         Assert.assertEquals(8, dob.size());
+    }
+
+    @Test
+    public void testMapObject() throws Exception {
+        final DataOutputBuffer dob = newDataOutputBuffer();
+        final ObjectPackerImpl packer = newObjectPacker(dob);
+        final TestMap tf1 = new TestMap();
+        tf1.f1 = true;
+        final TestMap tf2 = new TestMap();
+        tf2.f2 = 42;
+        packer.writeObject(new TestMap[] { tf1, tf2 }, false);
+        packer.packer().close();
+        dumpOP(dob);
+        final DataInputBuffer dib = toDataInputBuffer(dob);
+        final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
+        final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
+                new UnpackerContext(extended()));
+
+        final Object o = oui.readObject(false);
+        Assert.assertNotNull(o);
+        Assert.assertEquals(TestMap[].class, o.getClass());
+        final TestMap[] array = (TestMap[]) o;
+        Assert.assertEquals(2, array.length);
+        Assert.assertNotNull(array[0]);
+        Assert.assertNotNull(array[1]);
+        Assert.assertTrue(array[0].f1);
+        Assert.assertEquals(array[0].f2, 0);
+        Assert.assertFalse(array[1].f1);
+        Assert.assertEquals(array[1].f2, 42);
     }
 }

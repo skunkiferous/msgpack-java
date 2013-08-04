@@ -38,8 +38,14 @@ public interface Template<T> {
     /** Returns the type that is supported. */
     Class<?> getType();
 
+    /** Returns the template name. The Main template has the name of the type. */
+    String getName();
+
     /** Is this the "main" template for this type, or an "alternate" template? */
     boolean isMainTemplate();
+
+    /** Is this the "fallback" (catch-all) template for this type? */
+    boolean isFallBackTemplate();
 
     /** Returns true, if the template would support reading/writing objects of this type. */
     boolean accept(final Object o);
@@ -69,6 +75,9 @@ public interface Template<T> {
      * @see getSpaceRequired()
      */
     int getFixedSize();
+
+    /** Allows the template to replace itself with another one before writing. */
+    Template<T> replaceSelf(final T o);
 
     /**
      * Writes a value. The value can be null. Value type must be checked.

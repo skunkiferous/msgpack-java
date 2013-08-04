@@ -65,30 +65,9 @@ public interface Packer extends Closeable, Flushable, DataOutput {
     @Override
     void writeDouble(final double o) throws IOException;
 
-    /** Writes a boolean array. */
-    void writeBooleanArray(final boolean[] o) throws IOException;
-
     /** Writes a byte array. */
     @Override
     void write(final byte[] o) throws IOException;
-
-    /** Writes a short array. */
-    void writeShortArray(final short[] o) throws IOException;
-
-    /** Writes a char array. */
-    void writeCharArray(final char[] o) throws IOException;
-
-    /** Writes a int array. */
-    void writeIntArray(final int[] o) throws IOException;
-
-    /** Writes a long array. */
-    void writeLongArray(final long[] o) throws IOException;
-
-    /** Writes a float array. */
-    void writeFloatArray(final float[] o) throws IOException;
-
-    /** Writes a double array. */
-    void writeDoubleArray(final double[] o) throws IOException;
 
     /** Writes a Boolean. */
     void writeBoolean(final Boolean o) throws IOException;

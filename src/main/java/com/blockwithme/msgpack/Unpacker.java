@@ -79,29 +79,8 @@ public interface Unpacker extends Closeable, DataInput {
     /** Reads a Date. */
     Date readDate() throws IOException;
 
-    /** Reads a boolean array. */
-    boolean[] readBooleanArray() throws IOException;
-
     /** Reads a byte array. */
     byte[] readByteArray() throws IOException;
-
-    /** Reads a short array. */
-    short[] readShortArray() throws IOException;
-
-    /** Reads a char array. */
-    char[] readCharArray() throws IOException;
-
-    /** Reads a int array. */
-    int[] readIntArray() throws IOException;
-
-    /** Reads a long array. */
-    long[] readLongArray() throws IOException;
-
-    /** Reads a float array. */
-    float[] readFloatArray() throws IOException;
-
-    /** Reads a double array. */
-    double[] readDoubleArray() throws IOException;
 
     /** Reads a ByteBuffer. */
     ByteBuffer readByteBuffer() throws IOException;
