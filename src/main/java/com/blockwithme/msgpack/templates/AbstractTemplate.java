@@ -24,6 +24,7 @@ import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.Packer;
 import com.blockwithme.msgpack.Unpacker;
 import com.blockwithme.msgpack.ValueType;
+import com.blockwithme.msgpack.schema.Schema;
 
 /**
  * Object template, for anything beyond primitive types.
@@ -35,7 +36,8 @@ import com.blockwithme.msgpack.ValueType;
  *
  * @author monster
  */
-public abstract class AbstractTemplate<T> implements Template<T>, _Template {
+public abstract class AbstractTemplate<T> implements Template<T>, _Template,
+        Cloneable {
 
     /** The ClassNameConverter */
     private static volatile ClassNameConverter CLASS_NAME_CONVERTER = new DefaultClassNameConverter();
@@ -48,6 +50,9 @@ public abstract class AbstractTemplate<T> implements Template<T>, _Template {
 
     /** The template name. The Main template has the name of the type. */
     protected final String name;
+
+    /** First schema introduction. */
+    protected final int firstSchemaIntroduction;
 
     /** The 1D array type that is supported. */
     protected final Class<T[]> type1D;
@@ -261,7 +266,7 @@ public abstract class AbstractTemplate<T> implements Template<T>, _Template {
             if (template == null) {
                 // Must be string
                 return readNewNonNullObject(context,
-                        context.basicTemplates.STRING, -1);
+                        context.getSchema().basicTemplates.STRING, -1);
             }
             return readNewNonNullObject(context, template, -1);
         }
@@ -359,33 +364,39 @@ public abstract class AbstractTemplate<T> implements Template<T>, _Template {
 
     /** Constructor. */
     protected AbstractTemplate(final String name, final Class<T> type,
-            final ObjectType objectType, final boolean isMergeable) {
-        this(name, type, objectType, toTrackingType(isMergeable), -1);
+            final int firstSchemaIntroduction, final ObjectType objectType,
+            final boolean isMergeable) {
+        this(name, type, firstSchemaIntroduction, objectType,
+                toTrackingType(isMergeable), -1);
     }
 
     /** Constructor. */
     protected AbstractTemplate(final String name, final Class<T> type,
-            final ObjectType objectType, final boolean isMergeable,
-            final int fixedSize) {
-        this(name, type, objectType, toTrackingType(isMergeable), fixedSize);
+            final int firstSchemaIntroduction, final ObjectType objectType,
+            final boolean isMergeable, final int fixedSize) {
+        this(name, type, firstSchemaIntroduction, objectType,
+                toTrackingType(isMergeable), fixedSize);
     }
 
     /** Constructor. */
     protected AbstractTemplate(final String name, final Class<T> type,
-            final ObjectType objectType, final TrackingType trackingType,
-            final int fixedSize) {
-        this(name, type, objectType, trackingType, fixedSize, false);
+            final int firstSchemaIntroduction, final ObjectType objectType,
+            final TrackingType trackingType, final int fixedSize) {
+        this(name, type, firstSchemaIntroduction, objectType, trackingType,
+                fixedSize, false);
     }
 
     /** Constructor. */
     @SuppressWarnings("unchecked")
     protected AbstractTemplate(final String name, final Class<T> type,
-            final ObjectType objectType, final TrackingType trackingType,
-            final int fixedSize, final boolean isFallBackTemplate) {
+            final int firstSchemaIntroduction, final ObjectType objectType,
+            final TrackingType trackingType, final int fixedSize,
+            final boolean isFallBackTemplate) {
         final String typeName = type.getName();
         this.name = (name == null) ? typeName : name;
         this.mainTemplate = typeName.equals(this.name);
         this.isFallBackTemplate = isFallBackTemplate;
+        this.firstSchemaIntroduction = firstSchemaIntroduction;
         this.type = Objects.requireNonNull(type);
         // We need those to optimize array creation
         type1D = (Class<T[]>) Array.newInstance(type, 0).getClass();
@@ -405,6 +416,24 @@ public abstract class AbstractTemplate<T> implements Template<T>, _Template {
     public String toString() {
         return getClass().getSimpleName() + "(id=" + id + ", name=" + name
                 + ",type=" + type.getName() + ")";
+    }
+
+    /** Returns true if the template supports the given schema. */
+    @Override
+    public boolean isSchemaSupported(final int schemaID) {
+        return (schemaID >= firstSchemaIntroduction);
+    }
+
+    /** Returns a copy of the template */
+    @Override
+    public final Template<?> copy() {
+        try {
+            final AbstractTemplate<?> result = (AbstractTemplate<?>) clone();
+            result.id = -1;
+            return result;
+        } catch (final CloneNotSupportedException e) {
+            throw new InternalError("Impossible!");
+        }
     }
 
     /** Returns the template ID. */
@@ -763,9 +792,9 @@ public abstract class AbstractTemplate<T> implements Template<T>, _Template {
         return null;
     }
 
-    /** Called after the context was created, but before the serialisation starts. */
+    /** Called after the Schema was created, but before the serialisation starts. */
     @Override
-    public void resolve(final Context context) {
+    public void resolve(final Schema schema) {
         // NOP
     }
 

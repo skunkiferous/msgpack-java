@@ -24,7 +24,9 @@ import java.util.Objects;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.Packer;
+import com.blockwithme.msgpack.schema.Schema;
 import com.blockwithme.msgpack.templates.AbstractTemplate;
+import com.blockwithme.msgpack.templates.BasicTemplates;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
 
@@ -43,6 +45,9 @@ public class ObjectPackerImpl implements ObjectPacker {
     /** The context */
     protected final PackerContext context;
 
+    /** The BasicTemplates */
+    protected final BasicTemplates basicTemplates;
+
     /**
      * Creates an ObjectPackerImpl
      *
@@ -55,8 +60,10 @@ public class ObjectPackerImpl implements ObjectPacker {
         this.context = Objects.requireNonNull(context);
         context.packer = packer;
         context.objectPacker = this;
-        packer.writeIndex(context.format);
-        packer.writeIndex(context.schema);
+        final Schema schema = context.getSchema();
+        basicTemplates = schema.basicTemplates;
+        packer.writeIndex(schema.format);
+        packer.writeIndex(schema.schema);
     }
 
     /* (non-Javadoc)
@@ -92,7 +99,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Class<?> o) throws IOException {
-        return writeObject(o, context.basicTemplates.CLASS);
+        return writeObject(o, basicTemplates.CLASS);
     }
 
     /* (non-Javadoc)
@@ -100,7 +107,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Boolean o) throws IOException {
-        return writeObject(o, context.basicTemplates.BOOLEAN);
+        return writeObject(o, basicTemplates.BOOLEAN);
     }
 
     /* (non-Javadoc)
@@ -108,7 +115,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Byte o) throws IOException {
-        return writeObject(o, context.basicTemplates.BYTE);
+        return writeObject(o, basicTemplates.BYTE);
     }
 
     /* (non-Javadoc)
@@ -116,7 +123,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Short o) throws IOException {
-        return writeObject(o, context.basicTemplates.SHORT);
+        return writeObject(o, basicTemplates.SHORT);
     }
 
     /* (non-Javadoc)
@@ -124,7 +131,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Character o) throws IOException {
-        return writeObject(o, context.basicTemplates.CHARACTER);
+        return writeObject(o, basicTemplates.CHARACTER);
     }
 
     /* (non-Javadoc)
@@ -132,7 +139,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Integer o) throws IOException {
-        return writeObject(o, context.basicTemplates.INTEGER);
+        return writeObject(o, basicTemplates.INTEGER);
     }
 
     /* (non-Javadoc)
@@ -140,7 +147,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Long o) throws IOException {
-        return writeObject(o, context.basicTemplates.LONG);
+        return writeObject(o, basicTemplates.LONG);
     }
 
     /* (non-Javadoc)
@@ -148,7 +155,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Float o) throws IOException {
-        return writeObject(o, context.basicTemplates.FLOAT);
+        return writeObject(o, basicTemplates.FLOAT);
     }
 
     /* (non-Javadoc)
@@ -156,7 +163,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Double o) throws IOException {
-        return writeObject(o, context.basicTemplates.DOUBLE);
+        return writeObject(o, basicTemplates.DOUBLE);
     }
 
     /* (non-Javadoc)
@@ -164,7 +171,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final BigInteger o) throws IOException {
-        return writeObject(o, context.basicTemplates.BIG_INTEGER);
+        return writeObject(o, basicTemplates.BIG_INTEGER);
     }
 
     /* (non-Javadoc)
@@ -172,7 +179,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final BigDecimal o) throws IOException {
-        return writeObject(o, context.basicTemplates.BIG_DECIMAL);
+        return writeObject(o, basicTemplates.BIG_DECIMAL);
     }
 
     /* (non-Javadoc)
@@ -180,7 +187,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final String o) throws IOException {
-        return writeObject(o, context.basicTemplates.STRING);
+        return writeObject(o, basicTemplates.STRING);
     }
 
     /* (non-Javadoc)
@@ -188,7 +195,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final boolean[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.BOOLEAN_ARRAY);
+        return writeObject(o, basicTemplates.BOOLEAN_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -196,7 +203,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final byte[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.BYTE_ARRAY);
+        return writeObject(o, basicTemplates.BYTE_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -204,7 +211,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final short[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.SHORT_ARRAY);
+        return writeObject(o, basicTemplates.SHORT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -212,7 +219,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final char[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.CHAR_ARRAY);
+        return writeObject(o, basicTemplates.CHAR_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -220,7 +227,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final int[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.INT_ARRAY);
+        return writeObject(o, basicTemplates.INT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -228,7 +235,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final long[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.LONG_ARRAY);
+        return writeObject(o, basicTemplates.LONG_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -236,7 +243,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final float[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.FLOAT_ARRAY);
+        return writeObject(o, basicTemplates.FLOAT_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -244,7 +251,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final double[] o) throws IOException {
-        return writeObject(o, context.basicTemplates.DOUBLE_ARRAY);
+        return writeObject(o, basicTemplates.DOUBLE_ARRAY);
     }
 
     /* (non-Javadoc)
@@ -252,7 +259,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final Date o) throws IOException {
-        return writeObject(o, context.basicTemplates.DATE);
+        return writeObject(o, basicTemplates.DATE);
     }
 
     /* (non-Javadoc)
@@ -260,7 +267,7 @@ public class ObjectPackerImpl implements ObjectPacker {
      */
     @Override
     public ObjectPacker writeObject(final ByteBuffer o) throws IOException {
-        return writeObject(o, context.basicTemplates.BYTE_BUFFER);
+        return writeObject(o, basicTemplates.BYTE_BUFFER);
     }
 
     /* (non-Javadoc)
@@ -270,7 +277,7 @@ public class ObjectPackerImpl implements ObjectPacker {
     public ObjectPacker writeObject(final byte[] o, final int off, final int len)
             throws IOException {
         return writeObject(new ByteArraySlice(o, off, len),
-                context.basicTemplates.BYTE_ARRAY_SLICE);
+                basicTemplates.BYTE_ARRAY_SLICE);
     }
 
     /* (non-Javadoc)

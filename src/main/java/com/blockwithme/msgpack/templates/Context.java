@@ -16,10 +16,11 @@
 package com.blockwithme.msgpack.templates;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+
+import com.blockwithme.msgpack.schema.Schema;
+import com.blockwithme.msgpack.schema.SchemaManager;
 
 /**
  * Represents the context information for this serialization.
@@ -31,67 +32,44 @@ import java.util.Objects;
  */
 public class Context {
 
-    /** The current format version. */
-    public static final int FORMAT = 0;
+    /** Is this a required field? (Currently unused) */
+    public boolean required;
 
     /** The format version for the current (de)serialisation. */
-    public int format;
+    public int format = Schema.FORMAT;
 
     /** The schema version for the current (de)serialisation. */
-    public int schema;
+    public int schemaID = -1;
 
-    /** The basic templates. */
-    public final BasicTemplates basicTemplates = new BasicTemplates();
+    /** The schema manager */
+    private final SchemaManager schemaManager;
 
-    /** Maps IDs to Class templates */
-    private final Template<?>[] idToTemplate;
-
-    /** Maps Class to Template. */
-    private final Map<Class<?>, Template<?>> classToTemplate = new HashMap<Class<?>, Template<?>>();
-
-    /** The "fallback" (catch-all) templates */
-    private final Template<?>[] fallbackTemplates;
+    /** The schema */
+    private Schema schema;
 
     /**
      * All the templates, each at the right position.
      *
      * @param idToTemplate
      */
-    protected Context(final Template<?>[] userTemplates) {
+    protected Context(final SchemaManager theSchemaManager) {
         // Validate input
-        Objects.requireNonNull(userTemplates);
-        final Template<?>[] bt = basicTemplates.getAllBasicTemplates();
-        idToTemplate = new Template<?>[bt.length + userTemplates.length];
-        System.arraycopy(bt, 0, idToTemplate, 0, bt.length);
-        System.arraycopy(userTemplates, 0, idToTemplate, bt.length,
-                userTemplates.length);
-        for (int i = 0; i < idToTemplate.length; i++) {
-            final Template<?> template = idToTemplate[i];
-            if (template != null) {
-                Objects.requireNonNull(template.getType(), "idToTemplate[" + i
-                        + "].getType()");
-                ((_Template) template).setID(i);
-                if (template.isMainTemplate()
-                        && classToTemplate.put(template.getType(), template) != null) {
-                    throw new IllegalArgumentException(
-                            "Multiple main templates for " + template.getType());
-                }
-            }
+        Objects.requireNonNull(theSchemaManager);
+        schemaManager = theSchemaManager;
+    }
+
+    /** The schema */
+    public final Schema getSchema() {
+        if (schema == null) {
+            schema = schemaManager.getSchema(format, schemaID);
         }
-        final List<Template<?>> fallBack = new ArrayList<Template<?>>();
-        for (int i = 0; i < idToTemplate.length; i++) {
-            ((_Template) idToTemplate[i]).resolve(this);
-            if (idToTemplate[i].isFallBackTemplate()) {
-                fallBack.add(idToTemplate[i]);
-            }
-        }
-        fallbackTemplates = fallBack.toArray(new Template<?>[fallBack.size()]);
+        return schema;
     }
 
     /** Returns the Template<?> for an ID, or fails. */
     public Template<?> getTemplate(final int id) {
         try {
-            final Template<?> result = idToTemplate[id];
+            final Template<?> result = getSchema().idToTemplate[id];
             if (result != null) {
                 return result;
             }
@@ -118,10 +96,10 @@ public class Context {
     /** Returns the ID for a Class, or null if not found. */
     @SuppressWarnings("unchecked")
     public <E> Template<E> findTemplate(final Class<E> cls) {
-        final Template<E> result = (Template<E>) classToTemplate
+        final Template<E> result = (Template<E>) getSchema().classToTemplate
                 .get(unArray(cls));
         if (result == null) {
-            for (final Template<?> f : fallbackTemplates) {
+            for (final Template<?> f : getSchema().fallbackTemplates) {
                 if (f.getType().isAssignableFrom(cls)) {
                     return (Template<E>) f;
                 }
@@ -144,6 +122,7 @@ public class Context {
     public <E> Template<E>[] findTemplates(final Class<E> cls) {
         final Class<?> c = unArray(cls);
         final List<Template> list = new ArrayList<Template>();
+        final Template<?>[] idToTemplate = getSchema().idToTemplate;
         for (int i = 0; i < idToTemplate.length; i++) {
             final Template<?> template = idToTemplate[i];
             if (template != null) {
@@ -154,7 +133,4 @@ public class Context {
         }
         return list.toArray(new Template[list.size()]);
     }
-
-    /** Is this a required field? (Currently unused) */
-    public boolean required;
 }

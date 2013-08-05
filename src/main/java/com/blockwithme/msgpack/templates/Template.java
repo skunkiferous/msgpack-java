@@ -76,6 +76,9 @@ public interface Template<T> {
      */
     int getFixedSize();
 
+    /** Returns true if the template supports the given schema. */
+    boolean isSchemaSupported(final int schemaID);
+
     /** Allows the template to replace itself with another one before writing. */
     Template<T> replaceSelf(final T o);
 

@@ -17,6 +17,7 @@ package com.blockwithme.msgpack.templates;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.Packer;
+import com.blockwithme.msgpack.schema.SchemaManager;
 import com.blockwithme.util.ObjectTracker;
 
 /**
@@ -29,14 +30,12 @@ import com.blockwithme.util.ObjectTracker;
  */
 public class PackerContext extends Context {
     /**
-     * All the templates, each at the right position.
+     * Creates a packer context.
      *
-     * @param idToTemplate
+     * @param theSchemaManager
      */
-    public PackerContext(final Template<?>[] idToTemplate, final int schema) {
-        super(idToTemplate);
-        format = FORMAT;
-        this.schema = schema;
+    public PackerContext(final SchemaManager theSchemaManager) {
+        super(theSchemaManager);
     }
 
     /** The ObjectTracker */

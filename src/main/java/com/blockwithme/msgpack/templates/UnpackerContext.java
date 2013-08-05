@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import com.blockwithme.msgpack.ObjectUnpacker;
 import com.blockwithme.msgpack.Unpacker;
+import com.blockwithme.msgpack.schema.SchemaManager;
 
 /**
  * Represents the context information for this serialization, while unpacking.
@@ -30,12 +31,12 @@ import com.blockwithme.msgpack.Unpacker;
  */
 public class UnpackerContext extends Context {
     /**
-     * All the templates, each at the right position.
+     * Creates an unpacker context.
      *
-     * @param idToTemplate
+     * @param theSchemaManager
      */
-    public UnpackerContext(final Template<?>[] idToTemplate) {
-        super(idToTemplate);
+    public UnpackerContext(final SchemaManager theSchemaManager) {
+        super(theSchemaManager);
     }
 
     /** Tracks the previously returned objects. */

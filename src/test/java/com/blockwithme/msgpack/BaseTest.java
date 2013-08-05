@@ -19,6 +19,8 @@ import java.io.IOException;
 
 import com.blockwithme.msgpack.impl.MessagePackPacker;
 import com.blockwithme.msgpack.impl.ObjectPackerImpl;
+import com.blockwithme.msgpack.schema.BasicSchemaManager;
+import com.blockwithme.msgpack.schema.SchemaManager;
 import com.blockwithme.msgpack.templates.PackerContext;
 import com.blockwithme.msgpack.templates.Template;
 import com.blockwithme.util.DataInputBuffer;
@@ -29,6 +31,15 @@ import com.blockwithme.util.DataOutputBuffer;
  *
  */
 public abstract class BaseTest {
+
+    protected SchemaManager newSchemaManager(final int schema) {
+        return new BasicSchemaManager(extended(schema)) {
+            @Override
+            protected int getBasicTemplateCount(final int schemaID) {
+                return 28;
+            }
+        };
+    }
 
     @SuppressWarnings("rawtypes")
     protected abstract Template[] extended(final int schema);
@@ -48,8 +59,15 @@ public abstract class BaseTest {
 
     protected ObjectPackerImpl newObjectPacker(final DataOutputBuffer dob,
             final int schema) throws IOException {
-        return new ObjectPackerImpl(newPacker(dob), new PackerContext(
-                extended(schema), schema));
+        final PackerContext pc = new PackerContext(new BasicSchemaManager(
+                extended(schema)) {
+            @Override
+            protected int getBasicTemplateCount(final int schemaID) {
+                return 28;
+            }
+        });
+        pc.schemaID = schema;
+        return new ObjectPackerImpl(newPacker(dob), pc);
     }
 
     protected void dumpOP(final DataOutputBuffer dob) {

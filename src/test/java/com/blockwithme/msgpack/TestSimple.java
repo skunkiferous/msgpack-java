@@ -68,7 +68,7 @@ public class TestSimple extends BaseTest {
     @SuppressWarnings("rawtypes")
     protected Template[] extended() {
         return new Template[] {
-                new AbstractTemplate<TestRaw>(null, TestRaw.class,
+                new AbstractTemplate<TestRaw>(null, TestRaw.class, 1,
                         ObjectType.RAW, TrackingType.IDENTITY, 1) {
 
                     @Override
@@ -97,7 +97,7 @@ public class TestSimple extends BaseTest {
                         return result;
                     }
                 },
-                new AbstractTemplate<TestFixed>(null, TestFixed.class,
+                new AbstractTemplate<TestFixed>(null, TestFixed.class, 1,
                         ObjectType.ARRAY, TrackingType.IDENTITY, 2) {
 
                     @Override
@@ -120,7 +120,7 @@ public class TestSimple extends BaseTest {
                         return result;
                     }
                 },
-                new AbstractTemplate<TestMap>(null, TestMap.class,
+                new AbstractTemplate<TestMap>(null, TestMap.class, 1,
                         ObjectType.MAP, TrackingType.IDENTITY, -1) {
                     private final int FIELD_1 = 0;
                     private final int FIELD_2 = 1;
@@ -185,7 +185,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -209,7 +209,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -230,7 +230,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -250,7 +250,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -268,7 +268,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -287,7 +287,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -320,7 +320,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -353,7 +353,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -379,7 +379,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -399,7 +399,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
         final Object copy = oui.readObject();
         Assert.assertNotNull(copy);
         Assert.assertEquals(o.getClass(), copy.getClass());
@@ -449,7 +449,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -481,7 +481,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -508,7 +508,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -527,7 +527,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -551,7 +551,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
@@ -574,7 +574,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject(false);
         Assert.assertNotNull(o);
@@ -606,7 +606,7 @@ public class TestSimple extends BaseTest {
         final DataInputBuffer dib = toDataInputBuffer(dob);
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended()));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject(false);
         Assert.assertNotNull(o);

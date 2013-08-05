@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.blockwithme.msgpack.templates;
-
-import com.blockwithme.msgpack.schema.Schema;
+package com.blockwithme.msgpack.schema;
 
 /**
- * Internal Template methods.
+ * SchemaManager creates and cache schemas.
  *
  * @author monster
  */
-public interface _Template {
-
-    /** Sets the ID. This can only be called once. */
-    void setID(final int newID);
-
-    /** Called after the Schema was created, but before the serialisation starts. */
-    void resolve(final Schema schema);
-
-    /** Returns a copy of the template */
-    Template<?> copy();
+public interface SchemaManager {
+    /** Returns a schema for the given schema in. */
+    Schema getSchema(final int format, final int schema);
 }

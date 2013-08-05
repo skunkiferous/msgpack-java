@@ -22,8 +22,8 @@ import com.blockwithme.msgpack.impl.MessagePackPacker;
 import com.blockwithme.msgpack.impl.MessagePackUnpacker;
 import com.blockwithme.msgpack.impl.ObjectPackerImpl;
 import com.blockwithme.msgpack.impl.ObjectUnpackerImpl;
+import com.blockwithme.msgpack.schema.SchemaManager;
 import com.blockwithme.msgpack.templates.PackerContext;
-import com.blockwithme.msgpack.templates.Template;
 import com.blockwithme.msgpack.templates.UnpackerContext;
 import com.blockwithme.util.DataInputBuffer;
 
@@ -68,9 +68,11 @@ public class Helper {
     /** Creates a new object packer.
      * @throws IOException */
     public static ObjectPacker newObjectPacker(final DataOutput out,
-            final Template<?>[] idToTemplate, final int schema)
+            final SchemaManager schemaManager, final int schema)
             throws IOException {
-        return newObjectPacker(out, new PackerContext(idToTemplate, schema));
+        final PackerContext pc = new PackerContext(schemaManager);
+        pc.schemaID = schema;
+        return newObjectPacker(out, pc);
     }
 
     /** Creates a new Unpacker for the bytes. */
@@ -89,8 +91,8 @@ public class Helper {
     /** Creates a new ObjectUnpacker for the bytes.
      * @throws IOException */
     public static ObjectUnpacker newObjectUnpacker(final byte[] bytes,
-            final Template<?>[] idToTemplate) throws IOException {
-        return newObjectUnpacker(bytes, new UnpackerContext(idToTemplate));
+            final SchemaManager schemaManager) throws IOException {
+        return newObjectUnpacker(bytes, new UnpackerContext(schemaManager));
     }
 
     /** Returns the format version, and the schema version, for the given byte array.

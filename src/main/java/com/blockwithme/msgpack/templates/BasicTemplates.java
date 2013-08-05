@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +39,9 @@ import com.blockwithme.msgpack.impl.ByteArraySlice;
  * the Packer/Unpacker.
  *
  * They are defined as internal classes, to simplify the package structure.
+ *
+ * WARNING: Basic templates never get deleted or moved. Only new templates can
+ * get added.
  *
  * TODO Add (more) Collection implementation classes
  * TODO Check for other JDK Classes (EnumSet, StringBuffer, TimeZone, ...)
@@ -87,7 +91,7 @@ public class BasicTemplates {
         protected MyAbstractTemplate(final String name, final Class<T> type,
                 final ObjectType objectType, final boolean isMergeable,
                 final int fixedSize, final boolean isFallBackTemplate) {
-            super(name, type, objectType, toTrackingType(isMergeable),
+            super(name, type, 0, objectType, toTrackingType(isMergeable),
                     fixedSize, isFallBackTemplate);
             allList.add(this);
         }
@@ -856,12 +860,22 @@ public class BasicTemplates {
         }
     };
 
-    /** Returns all basic templates. */
-    public synchronized Template<?>[] getAllBasicTemplates() {
+    /** Returns count basic templates. */
+    public synchronized Template<?>[] getBasicTemplates(final int count) {
+        if (count < 0) {
+            throw new IllegalArgumentException("count: " + count);
+        }
         if (ALL == null) {
             registerTypeID(CharSequence.class);
             ALL = allList.toArray(new Template[allList.size()]);
         }
-        return ALL;
+        if (count == ALL.length) {
+            return ALL;
+        }
+        if (count > ALL.length) {
+            throw new IllegalArgumentException("count: " + count + " max: "
+                    + ALL.length);
+        }
+        return Arrays.copyOf(ALL, count);
     }
 }

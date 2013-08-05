@@ -51,12 +51,13 @@ public class TestManualMigration extends BaseTest {
     protected Template[] extended(final int schema) {
         if (schema == 10) {
             return new Template[] { new AbstractTemplate<TestMig>(null,
-                    TestMig.class, ObjectType.ARRAY, TrackingType.IDENTITY, 1) {
+                    TestMig.class, 1, ObjectType.ARRAY, TrackingType.IDENTITY,
+                    1) {
 
                 @Override
                 public void writeData(final PackerContext context,
                         final int size, final TestMig v) throws IOException {
-                    if (context.schema != 10) {
+                    if (context.getSchema().schema != 10) {
                         throw new IllegalStateException("Expected schema 10!");
                     }
                     final Packer p = context.packer;
@@ -69,7 +70,7 @@ public class TestManualMigration extends BaseTest {
                 public TestMig readData(final UnpackerContext context,
                         final TestMig preCreated, final int size)
                         throws IOException {
-                    if (context.schema != 10) {
+                    if (context.getSchema().schema != 10) {
                         throw new IllegalStateException("Expected schema 10!");
                     }
                     final Unpacker u = context.unpacker;
@@ -83,12 +84,12 @@ public class TestManualMigration extends BaseTest {
         }
         // Else ...
         return new Template[] { new AbstractTemplate<TestMig>(null,
-                TestMig.class, ObjectType.ARRAY, TrackingType.IDENTITY, 2) {
+                TestMig.class, 1, ObjectType.ARRAY, TrackingType.IDENTITY, 2) {
 
             @Override
             public void writeData(final PackerContext context, final int size,
                     final TestMig v) throws IOException {
-                if (context.schema != 42) {
+                if (context.getSchema().schema != 42) {
                     throw new IllegalStateException("Expected schema 42!");
                 }
                 final Packer p = context.packer;
@@ -103,9 +104,9 @@ public class TestManualMigration extends BaseTest {
                 final Unpacker u = context.unpacker;
                 final TestMig result = new TestMig();
                 result.v1 = u.readInt();
-                if (context.schema == 10) {
+                if (context.getSchema().schema == 10) {
                     result.v2 = -1;
-                } else if (context.schema == 42) {
+                } else if (context.getSchema().schema == 42) {
                     result.v2 = u.readInt();
                 } else {
                     throw new IllegalStateException("Expected schema 42!");
@@ -129,7 +130,7 @@ public class TestManualMigration extends BaseTest {
         final MessagePackUnpacker mpu = new MessagePackUnpacker(dib);
         // read with new schema 42
         final ObjectUnpackerImpl oui = new ObjectUnpackerImpl(mpu,
-                new UnpackerContext(extended(42)));
+                new UnpackerContext(newSchemaManager(42)));
 
         final Object o = oui.readObject();
         Assert.assertNotNull(o);

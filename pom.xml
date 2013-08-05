@@ -66,6 +66,16 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+		<groupId>com.blockwithme</groupId>
+		<artifactId>Common</artifactId>
+		<version>[0.0,1)</version>
+    </dependency>
+	<dependency>
+		<groupId>com.blockwithme</groupId>
+		<artifactId>hppc</artifactId>
+		<version>0.4.1</version>
+	</dependency>
   </dependencies>
 
   <parent>
@@ -189,5 +199,12 @@
       </plugin>
     </plugins>
   </reporting>
+
+	<repositories>
+		<repository>
+			<id>blockwithme-mvn-repo</id>
+			<url>https://raw.github.com/skunkiferous/Maven/master</url>
+		</repository>
+	</repositories>
 
 </project>
