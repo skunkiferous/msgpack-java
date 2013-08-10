@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.blockwithme.msgpack.ObjectPacker;
 import com.blockwithme.msgpack.ObjectUnpacker;
@@ -125,7 +126,7 @@ public class BasicTemplates {
      * The collection is stored as an "array" object.
      */
     @SuppressWarnings("rawtypes")
-    private abstract class AbstractCollectionTemplate<C extends Collection<?>>
+    private abstract class AbstractCollectionTemplate<C extends Collection>
             extends MyAbstractTemplate<C> {
 
         /**
@@ -180,7 +181,7 @@ public class BasicTemplates {
      * The Map is stored as a "map" object.
      */
     @SuppressWarnings("rawtypes")
-    private abstract class AbstractMapTemplate<M extends Map<?, ?>> extends
+    private abstract class AbstractMapTemplate<M extends Map> extends
             MyAbstractTemplate<M> {
 
         /**
@@ -192,11 +193,12 @@ public class BasicTemplates {
         }
 
         /** Writes the Map */
+        @SuppressWarnings("unchecked")
         @Override
         public final void writeData(final PackerContext context,
                 final int size, final M value) throws IOException {
             final ObjectPacker p = context.objectPacker;
-            for (final Map.Entry o : value.entrySet()) {
+            for (final Map.Entry o : (Set<Map.Entry>) value.entrySet()) {
                 p.writeObject(o.getKey());
                 p.writeObject(o.getValue());
             }
