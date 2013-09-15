@@ -156,7 +156,7 @@ public class MessagePackPacker extends AbstractPacker {
                 out.writeShort((short) d);
             } else {
                 // unsigned 32
-                out.writeByte(d);
+                out.writeByte((byte) 0xce);
                 out.writeInt(d);
             }
         }

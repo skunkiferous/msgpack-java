@@ -42,6 +42,9 @@ import com.blockwithme.util.DataOutputBuffer;
  * @author monster
  */
 public class TestSimple extends BaseTest {
+
+    private static final int INT_VALUE = 70000;
+
     /** A "raw" object */
     private static class TestRaw {
         public int value;
@@ -179,7 +182,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         packer.writeObject(new int[] { 6, 7, 8 });
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -195,7 +198,7 @@ public class TestSimple extends BaseTest {
         Assert.assertEquals(6, array[0]);
         Assert.assertEquals(7, array[1]);
         Assert.assertEquals(8, array[2]);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @Test
@@ -203,7 +206,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         packer.writeObject(new Object[0]);
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -216,7 +219,7 @@ public class TestSimple extends BaseTest {
         Assert.assertEquals(Object[].class, o.getClass());
         final Object[] array = (Object[]) o;
         Assert.assertEquals(array.length, 0);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @Test
@@ -224,7 +227,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         packer.writeObject("hello world");
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -236,7 +239,7 @@ public class TestSimple extends BaseTest {
         Assert.assertNotNull(o);
         Assert.assertEquals(String.class, o.getClass());
         Assert.assertEquals("hello world", o);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @Test
@@ -244,7 +247,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         packer.writeObject(Byte.class);
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -255,7 +258,7 @@ public class TestSimple extends BaseTest {
         final Object o = oui.readObject();
         Assert.assertNotNull(o);
         Assert.assertEquals(Byte.class, o);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @Test
@@ -281,7 +284,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         packer.writeObject(new Object[] { Byte.class, "hello world" });
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -302,7 +305,7 @@ public class TestSimple extends BaseTest {
         Assert.assertNotNull(o1);
         Assert.assertEquals(String.class, o1.getClass());
         Assert.assertEquals("hello world", o1);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -314,7 +317,7 @@ public class TestSimple extends BaseTest {
         al.add(Class.class);
         al.add("hello world");
         packer.writeObject(al);
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -335,7 +338,7 @@ public class TestSimple extends BaseTest {
         Assert.assertNotNull(o1);
         Assert.assertEquals(String.class, o1.getClass());
         Assert.assertEquals("hello world", o1);
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -347,7 +350,7 @@ public class TestSimple extends BaseTest {
         al.add(Class.class);
         al.add("hello world");
         packer.writeObject(al);
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -362,7 +365,7 @@ public class TestSimple extends BaseTest {
         Assert.assertEquals(hashSet.size(), 2);
         Assert.assertTrue(hashSet.contains(Class.class));
         Assert.assertTrue(hashSet.contains("hello world"));
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -373,7 +376,7 @@ public class TestSimple extends BaseTest {
         final HashMap al = new HashMap();
         al.put(Class.class, "hello world");
         packer.writeObject(al);
-        packer.packer().writeInt(42);
+        packer.packer().writeInt(INT_VALUE);
         packer.packer().close();
         dumpOP(dob);
         final DataInputBuffer dib = toDataInputBuffer(dob);
@@ -388,7 +391,7 @@ public class TestSimple extends BaseTest {
         Assert.assertEquals(hashMap.size(), 1);
         Assert.assertTrue(hashMap.containsKey(Class.class));
         Assert.assertTrue(hashMap.containsValue("hello world"));
-        Assert.assertEquals(42, oui.unpacker().readInt());
+        Assert.assertEquals(INT_VALUE, oui.unpacker().readInt());
     }
 
     private Object doTestCycle(final Object o) throws IOException {
@@ -544,7 +547,7 @@ public class TestSimple extends BaseTest {
         final DataOutputBuffer dob = newDataOutputBuffer();
         final ObjectPackerImpl packer = newObjectPacker(dob);
         final TestRaw tr = new TestRaw();
-        tr.value = 42;
+        tr.value = INT_VALUE;
         packer.writeObject(tr);
         packer.packer().close();
         dumpOP(dob);
@@ -557,7 +560,7 @@ public class TestSimple extends BaseTest {
         Assert.assertNotNull(o);
         Assert.assertEquals(TestRaw.class, o.getClass());
         final TestRaw trCopy = (TestRaw) o;
-        Assert.assertEquals(42, trCopy.value);
+        Assert.assertEquals(INT_VALUE, trCopy.value);
     }
 
     @Test
@@ -599,7 +602,7 @@ public class TestSimple extends BaseTest {
         final TestMap tf1 = new TestMap();
         tf1.f1 = true;
         final TestMap tf2 = new TestMap();
-        tf2.f2 = 42;
+        tf2.f2 = INT_VALUE;
         packer.writeObject(new TestMap[] { tf1, tf2 }, false);
         packer.packer().close();
         dumpOP(dob);
@@ -618,6 +621,6 @@ public class TestSimple extends BaseTest {
         Assert.assertTrue(array[0].f1);
         Assert.assertEquals(array[0].f2, 0);
         Assert.assertFalse(array[1].f1);
-        Assert.assertEquals(array[1].f2, 42);
+        Assert.assertEquals(array[1].f2, INT_VALUE);
     }
 }
