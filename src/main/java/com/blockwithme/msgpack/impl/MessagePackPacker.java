@@ -195,7 +195,7 @@ public class MessagePackPacker extends AbstractPacker {
                 if (d < (1 << 8)) {
                     // unsigned 8
                     out.writeByte((byte) 0xcc);
-                    out.writeByte((byte) 0xcc);
+                    out.writeByte((byte) d);
                 } else {
                     // unsigned 16
                     out.writeByte((byte) 0xcd);
